@@ -23,24 +23,30 @@ export async function getOccsByDatasetAndWKT(dataset='vba1', geoWKT='') {
 export async function getOccsByTaxonKeysAndWKT(taxonKeys=false, geoWKT=false) {
     return await getOccsByFilters(0, 300, false, geoWKT, false, taxonKeys);
 }
+export async function getOccsByNameAndLocation(offset=0, limit=300, sciName=false, gadmGid=false, province=false, hasCoord=undefined) {
+    return await getOccsByFilters(offset, limit, false, false, gadmGid, false, false, province, hasCoord, sciName);
+}
 /*
 https://api.gbif.org/v1/occurrence/search
     ?datasetKey=0901cecf-55f1-447e-8537-1f7b63a865a0
     &geometry=POLYGON((-73.0%2044.0,%20-72.75%2044.0,%20-72.75%2044.2,%20-73.0%2044.2,%20-73.0%2044.0))
 */
-export async function getOccsByFilters(offset=0, limit=300, dataset=false, geomWKT=false, gadmGid=false, taxonKeys=false, yearRange=false) {
+export async function getOccsByFilters(offset=0, limit=300, dataset=false, geomWKT=false, gadmGid=false, taxonKeys=false, yearRange=false, province=false, hasCoord=undefined, sciName=false) {
 let reqHost = gbifApi;
 let reqRoute = "/occurrence/search?advanced=1";
 let reqDset = dataset && datasetKeys[dataset] ? `&datasetKey=${datasetKeys[dataset]}` : '';
 let reqGeom = geomWKT ? `&geometry=${geomWKT}` : '';
 let reqGadm = gadmGid ? `&gadmGid=${gadmGid}` : '';
+let reqProv = province ? `&state_province=${province}` : '';
+let reqCord = (typeof hasCoord != 'undefined') ? `&has_coordinate=${hasCoord}` : '';
 let reqTaxa = taxonKeys ? `&${taxonKeys}` : '';
+let reqName = sciName ? `&scientific_name=${sciName}` : '';
 let reqYears = yearRange ? `&year=${yearRange}` : '';
 let reqLimits = `&offset=${offset}&limit=${limit}`;
-let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqTaxa+reqYears+reqLimits;
+let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqProv+reqCord+reqTaxa+reqName+reqYears+reqLimits;
 let enc = encodeURI(url);
 
-console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) QUERY:`, enc);
+console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
 
     try {
         let res = await fetch(enc);
