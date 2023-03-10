@@ -46,7 +46,7 @@ let reqLimits = `&offset=${offset}&limit=${limit}`;
 let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqProv+reqCord+reqTaxa+reqName+reqYears+reqLimits;
 let enc = encodeURI(url);
 
-console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
+//console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
 
     try {
         let res = await fetch(enc);

@@ -9,7 +9,15 @@ export function parseCanonicalFromScientific(occJson) {
       case 'SUBSPECIES':
       case 'VARIETY':
       case 'FORM':
-        name = `${toks[0]} ${toks[1]} ${toks[2]}`;
+        switch(toks[2].toUpperCase().slice(0,3)) {
+            case 'SUB':
+            case 'VAR':
+                name = `${toks[0]} ${toks[1]} ${toks[3]}`;
+                break;
+            default:
+                name = `${toks[0]} ${toks[1]} ${toks[2]}`;
+                break;
+            }
         break;
       case 'SPECIES':
         name = `${toks[0]} ${toks[1]}`;
