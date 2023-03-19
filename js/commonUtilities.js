@@ -9,9 +9,10 @@ export function parseCanonicalFromScientific(occJson) {
       case 'SUBSPECIES':
       case 'VARIETY':
       case 'FORM':
-        switch(toks[2].toUpperCase().slice(0,3)) {
+        switch(toks[2].toUpperCase().slice(0,3)) { //the name itself usually (always?) includes a literal "subsp." token between specific and infraspecific epithets.
             case 'SUB':
             case 'VAR':
+            case 'FOR':
                 name = `${toks[0]} ${toks[1]} ${toks[3]}`;
                 break;
             default:

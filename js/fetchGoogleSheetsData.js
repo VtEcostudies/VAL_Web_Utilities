@@ -1,8 +1,9 @@
 import { googleApiKey } from "./secrets.js";
 
-let defaultSheetIds = {
+export var defaultSheetIds = {
     "vbaSignUps": '1O5fk2pDQCg_U4UNzlYSbewRJs4JVgonKEjg3jzDO6mA',
-    "vernacular": '17_e15RB8GgpMVZgvwkFHV8Y9ZgLRXg5Swow49wZsAyQ'
+    "vernacular": '17_e15RB8GgpMVZgvwkFHV8Y9ZgLRXg5Swow49wZsAyQ',
+    "taxonSrank": '1bEu_14eXGaBvPiwEirJs88F2ZdwR_ywBMpamtgIv0lc'
 }
 
 /*
