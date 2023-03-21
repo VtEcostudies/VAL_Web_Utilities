@@ -1,12 +1,13 @@
 //https://en.wikipedia.org/api/rest_v1/page/summary/ambystoma_jeffersonianum
 
-const wikiApi = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+const wikiApiSummary = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+const wikiApiPageHtml = 'https://en.wikipedia.org/api/rest_v1/page/html/';
 
 export async function getWikiPage(searchTerm=false) {
 
     if (!searchTerm) {console.log(`getWikiPage(${searchTerm}). Search Term is empty.`); return {};}
 
-    let reqHost = wikiApi;
+    let reqHost = wikiApiSummary;
     let reqRoute = searchTerm;
     let url = reqHost+reqRoute;
     let enc = encodeURI(url);
@@ -28,6 +29,37 @@ export async function getWikiPage(searchTerm=false) {
     } catch (err) {
         err.query = enc;
         console.log(`getWikiPage(${searchTerm}) ERROR:`, err);
+        throw new Error(err)
+    }
+}
+
+export async function getWikiHtmlPage(searchTerm=false) {
+
+    if (!searchTerm) {console.log(`getWikiHtmlPage(${searchTerm}). Search Term is empty.`); return {};}
+
+    let reqHost = wikiApiPageHtml;
+    let reqRoute = searchTerm;
+    let url = reqHost+reqRoute;
+    let enc = encodeURI(url);
+
+    //console.log(`getWikiHtmlPage(${searchTerm})`, enc);
+
+    try {
+        let res = await fetch(enc);
+        console.log(`getWikiHtmlPage(${searchTerm}) RAW RESULT:`, res);
+        if (res.status < 300) {
+            let text = await res.text();
+            //console.log(`getWikiHtmlPage(${searchTerm}) Text RESULT:`, text);
+            let html = DOMPurify.sanitize(text);
+            //console.log(`getWikiHtmlPage(${searchTerm}) HTML RESULT:`, html);
+            return html;
+        } else {
+            console.log(`getWikiHtmlPage(${searchTerm}) BAD RESULT:`, res.status);
+            return new Error(res);
+        }
+    } catch (err) {
+        err.query = enc;
+        console.log(`getWikiHtmlPage(${searchTerm}) ERROR:`, err);
         throw new Error(err)
     }
 }

@@ -20,7 +20,7 @@ export async function getInatSpecies(searchTerm=false) {
             let json = await res.json();
             json.query = enc;
             console.log(`getInatSpecies(${searchTerm}) JSON RESULT:`, json);
-            return json;
+            return json.results[0];//To-Do: iterate over inat results to find the best match for taxonName... For now, assume 0th entry is always good.
         } else {
             console.log(`getInatSpecies(${searchTerm}) BAD RESULT:`, res.status);
             return new Error(res);
@@ -35,4 +35,15 @@ export async function getInatSpecies(searchTerm=false) {
 /*
 json.results[0].default_photo.medium_url
 json.results[0].default_photo.attribution
+json.results[0].preferred_common_name
+json.results[0].conservation_status {
+    "user_id":null,
+    "status_name":"vulnerable",
+    "iucn":30,
+    "authority":"NatureServe",
+    "geoprivacy":null,
+    "source_id":8,
+    "place_id":null,
+    "status":"g3g4"
+}
 */
