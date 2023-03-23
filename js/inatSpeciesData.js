@@ -8,7 +8,8 @@ export async function getInatSpecies(searchTerm=false) {
 
     let reqHost = inatApi;
     let reqQuery = `?q=${searchTerm}`;
-    let url = reqHost+reqQuery;
+    let reqLimit = '&per_page=100';
+    let url = reqHost+reqQuery+reqLimit;
     let enc = encodeURI(url);
 
     //console.log(`getInatSpecies(${searchTerm})`, enc);
@@ -20,7 +21,17 @@ export async function getInatSpecies(searchTerm=false) {
             let json = await res.json();
             json.query = enc;
             console.log(`getInatSpecies(${searchTerm}) JSON RESULT:`, json);
-            return json.results[0];//To-Do: iterate over inat results to find the best match for taxonName... For now, assume 0th entry is always good.
+            let match = false;
+            for (var i=0; i<json.results.length; i++) {
+                let find = json.results[i];
+                //console.log(`getInatSpecies(${searchTerm})`, find.matched_term, searchTerm);
+                if (find.matched_term == searchTerm) {// || find.name ==  searchTerm) {
+                    console.log(`getInatSpecies(${searchTerm}) FOUND ${find.matched_term}`, find)
+                    match = find;
+                    break;
+                }
+            }
+            return match;
         } else {
             console.log(`getInatSpecies(${searchTerm}) BAD RESULT:`, res.status);
             return new Error(res);

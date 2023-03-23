@@ -46,7 +46,7 @@ export async function getWikiHtmlPage(searchTerm=false) {
 
     try {
         let res = await fetch(enc);
-        console.log(`getWikiHtmlPage(${searchTerm}) RAW RESULT:`, res);
+        //console.log(`getWikiHtmlPage(${searchTerm}) RAW RESULT:`, res);
         if (res.status < 300) {
             let text = await res.text();
             //console.log(`getWikiHtmlPage(${searchTerm}) Text RESULT:`, text);
