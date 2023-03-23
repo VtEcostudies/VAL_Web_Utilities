@@ -3,6 +3,12 @@
 const wikiApiSummary = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
 const wikiApiPageHtml = 'https://en.wikipedia.org/api/rest_v1/page/html/';
 
+//wrap original name in a more appropriate name
+export async function getWikiSummary(searchTerm=false) {
+    return await getWikiPage(searchTerm);
+}
+
+//get wikipedia page summary for search term
 export async function getWikiPage(searchTerm=false) {
 
     if (!searchTerm) {console.log(`getWikiPage(${searchTerm}). Search Term is empty.`); return {};}
@@ -33,6 +39,7 @@ export async function getWikiPage(searchTerm=false) {
     }
 }
 
+//get wikipedia full page result for search term
 export async function getWikiHtmlPage(searchTerm=false) {
 
     if (!searchTerm) {console.log(`getWikiHtmlPage(${searchTerm}). Search Term is empty.`); return {};}
@@ -54,8 +61,9 @@ export async function getWikiHtmlPage(searchTerm=false) {
             //console.log(`getWikiHtmlPage(${searchTerm}) HTML RESULT:`, html);
             return html;
         } else {
-            console.log(`getWikiHtmlPage(${searchTerm}) BAD RESULT:`, res.status);
+            console.log(`getWikiHtmlPage(${searchTerm}) BAD RESULT:`, res.status, res.ok, res);
             return new Error(res);
+            //return res;
         }
     } catch (err) {
         err.query = enc;
