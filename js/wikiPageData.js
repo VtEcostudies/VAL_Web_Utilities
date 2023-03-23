@@ -62,12 +62,11 @@ export async function getWikiHtmlPage(searchTerm=false) {
             return html;
         } else {
             console.log(`getWikiHtmlPage(${searchTerm}) BAD RESULT:`, res.status, res.ok, res);
-            return new Error(res);
-            //return res;
+            return new Error(res); //this triggers promise.catch(err)
         }
     } catch (err) {
         err.query = enc;
         console.log(`getWikiHtmlPage(${searchTerm}) ERROR:`, err);
-        throw new Error(err)
+        throw new Error(err) //this triggers promise.catch(err)
     }
 }
