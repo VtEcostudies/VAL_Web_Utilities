@@ -120,7 +120,7 @@ export async function getGbifTaxonKeyFromName(taxonName) {
         let json = await res.json();
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
         return json.usageKey ? json.usageKey : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
-    } catch(err) {
+    } catch (err) {
         console.log(`getGbifTaxonKeyFromName(${enc}) ERROR:`, err);
         return new Error(err);
     }
