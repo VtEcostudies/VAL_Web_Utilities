@@ -3,9 +3,9 @@ export function tableSortSimple(tableId='table-sortable') {
     //default
     var config = {
         tableId: tableId,
-        cssAsc: "order-asc",
-        cssDesc: "order-desc",
-        cssBoth: "order-both",
+        cssAsc: "sort-asc",
+        cssDesc: "sort-des",
+        cssBoth: "sort-both",
         cssBg: "sortable",
         selectorHeaders: "thead th"
     };
@@ -52,7 +52,8 @@ export function tableSortSimple(tableId='table-sortable') {
                     data[i] = {};
                     data[i]["key"] = i;
                 }
-                data[i][j] = tableElem[i].cells[j].innerText;
+                //data[i][j] = tableElem[i].cells[j].innerText;
+                data[i][j] = tableElem[i].cells[j].innerHTML;
             }
         }
         return data;
@@ -93,7 +94,14 @@ export function tableSortSimple(tableId='table-sortable') {
     function rewriteTableHTML(table, tableData) {
         var html = "";
         tableData.forEach(function(x) {
-            html += table.querySelectorAll("tr")[x["key"]].outerHTML;
+            let outer = table.querySelectorAll("tr")[x["key"]].outerHTML;
+            let inner = table.querySelectorAll("tr")[x["key"]].innerHTML;
+            console.log(x);
+            console.log(`tableSortSimple::reWriteTableHTML | outerHTML:`, outer);
+            console.log('-------------------------------------------------------')
+            console.log(`tableSortSimple::reWriteTableHTML | innerHTML:`, inner);
+            console.log('******************************************************')
+            html += outer;
         });
         table.querySelector("tbody").innerHTML = html;
     }
@@ -156,9 +164,9 @@ export function tableSortSimple(tableId='table-sortable') {
     }
 
     var eleTbl = document.getElementById(config.tableId);
-    console.log('tableSortSimple.js | table element:', eleTbl)
+    console.log('tableSortSimple.js | table element:', eleTbl);
     var eleHed = eleTbl.querySelectorAll(config.selectorHeaders);
-    console.log('tableSortSimple.js | header elements:', eleHed)
+    console.log('tableSortSimple.js | header elements:', eleHed);
     eleTbl.classList.add(config.cssBg);
     setEventToAllObject(eleHed, "click", function(e) {sortEvent(e.target); });
 

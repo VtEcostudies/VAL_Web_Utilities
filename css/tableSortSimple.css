@@ -1,14 +1,11 @@
 
 
-table.sortable thead tr .order-asc {
+table.sortable thead tr .sort-asc {
     background-image: url(../img/asc.png);
 }
 
-table.sortable thead tr .order-desc {
+table.sortable thead tr .sort-des {
     background-image: url(../img/desc.png);
-}
-
-table.sortable thead tr th .order-both {
 }
 
 table.sortable thead tr th {
