@@ -1,7 +1,15 @@
 import { fetchJsonFile } from "./commonUtilities.js";
+import { datasetKeys as dsKeys, fetchGbifDatasetInfo } from "./fetchGbifDataset.js";
 
 let gbifApi = "https://api.gbif.org/v1";
-export const datasetKeys = {"vba1":"0901cecf-55f1-447e-8537-1f7b63a865a0"};
+/*
+export const datasetKeys = {
+    "vba1":"0901cecf-55f1-447e-8537-1f7b63a865a0",
+    "inat":"",
+    "ebut":""
+};
+*/
+export const datasetKeys = dsKeys;
 export const gadmGids = {vt:'USA.46_1'};
 export const butterflyKeys = "taxon_key=6953&taxon_key=5473&taxon_key=7017&taxon_key=9417&taxon_key=5481&taxon_key=1933999";
 export const occInfo = {
@@ -109,9 +117,14 @@ https://www.gbif.org/occurrence/search
 &year=1000,2002
 */
 
+//Wrap new external function in local old function
+export async function getGbifDatasetInfo(datasetKey) {
+    return await fetchGbifDatasetInfo(datasetKey);
+}
 /*
     https://api.gbif.org/v1/dataset/df2a8206-84e9-4530-8a0d-b60f687dba0b
 */
+/*
 export async function getGbifDatasetInfo(datasetKey) {
     let reqHost = gbifApi;
     let reqRoute = `/dataset/${datasetKey}`;
@@ -130,3 +143,4 @@ export async function getGbifDatasetInfo(datasetKey) {
         return new Error(err)
     }
 }
+*/
