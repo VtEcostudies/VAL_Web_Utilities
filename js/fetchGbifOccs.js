@@ -15,7 +15,7 @@ export const butterflyKeys = "taxon_key=6953&taxon_key=5473&taxon_key=7017&taxon
 export const occInfo = {
     'vtb1':{geoJson:'geojson/vtb1_occs_1000-2001.geojson','json':'occjson/vtb1_occs_1000-2001.json','name':'Obs <2002','icon':'diamond','color':'Blue'},
     'vtb2':{geoJson:'geojson/vtb2_occs_2008-2022.geojson','json':'occjson/vtb2_occs_2008-2022.json','name':'Obs 2008-2022','icon':'round','color':'GreenYellow'},
-    'vba1':{geoJson:'geojson/vba1_occs_2002-2007.geojson','json':'occjson/vba1_occs_2002-2007.json','name':'Butterfly Atlas 1','icon':'square','color':'Red'},
+    'vba1':{geoJson:'geojson/vba1_occs_2002-2007.geojson','json':'occjson/vba1_occs_2002-2007.json','name':'Butterfly Atlas 1','icon':'square','color':'Orange'},
     'vba2':{geoJson:'geojson/vba2_occs_2023-2028.geojson','json':'occjson/vba2_occs_2023-2028.json','name':'Butterfly Atlas 2','icon':'triangle','color':'Cyan'},
     'test':{geoJson:'geojson/test.geojson','json':'occjson/test.json','name':'test dataset','icon':'triangle','color':'Cyan'}
 };
