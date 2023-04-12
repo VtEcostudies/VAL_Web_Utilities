@@ -11,10 +11,10 @@ import { siteConfig } from './gbifSiteConfig.js'; //in html must declare this as
 const thisUrl = new URL(document.URL);
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
-var urlRouts = urlPath.split('/'); //path contains route and file
+var urlRouts = urlPath.split('/'); //path contains route and file without host
 console.log('gbif_data_config.js | urlRouts', urlRouts);
 //WordPress use routes to pages, defined by the user. See eg. page-species-explorer-2022.php. etc.
-var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages withing WordPress.
+var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages within WordPress.
 var exploreEnd = 'gbif-explorer'; //occurrences
 var resultsEnd = 'gbif-species-explorer';
 var profileEnd = 'species-profile';
@@ -24,23 +24,15 @@ if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //
   baseRoute = urlRouts.splice(0, urlRouts.length-1).join('/'); //remove the html file from the route and use what's left to build URLs for page links in code
   exploreEnd = 'occurrences.html';
   resultsEnd = 'results.html';
-  //profileEnd = 'profile.html';
-  profileEnd = '/VAL_Species_Page/species-profile.html';
+  profileEnd = 'VAL_Species_Page/profile.html';
   literatEnd = 'literature.html';
   publishEnd = 'publishers.html';
 }
-/*
-var urlRout = '';
-if (urlRouts[urlRouts.length-1].includes('.htm')) {urlRout = urlRouts.splice(0, urlRouts.length-1).join('/');}
-else if (urlRouts[urlRouts.length-1].includes('gbif-'))  {urlRout = urlRouts.splice(0, urlRouts.length-1).join('/');}
-else {urlRout = urlRouts.splice(0, urlRouts.length).join('/');}
-if (!urlRout.endsWith('/')) {urlRout += '/';}
-*/
+baseRoute = baseRoute.replace('VAL_Species_Page', '');
 if (!baseRoute.endsWith('/')) {baseRoute += '/';}
 const exploreUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${exploreEnd}`;
 const resultsUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${resultsEnd}`;
-//const profileUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${profileEnd}`;
-const profileUrl = `${thisUrl.protocol}//${hostUrl}${profileEnd}`;
+const profileUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${profileEnd}`;
 const literatUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${literatEnd}`;
 const publishUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${publishEnd}`;
 console.log('gbif_data_config.js | hostUrl', hostUrl);
