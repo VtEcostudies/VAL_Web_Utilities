@@ -28,7 +28,7 @@ if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //
   literatEnd = 'literature.html';
   publishEnd = 'publishers.html';
 }
-baseRoute = baseRoute.replace('VAL_Species_Page', '');
+baseRoute = baseRoute.replace('VAL_Species_Page', ''); //Sp Page includes this file to get paths. Remove it from baseRoute to allow link to find VAL_Data_Explorers
 if (!baseRoute.endsWith('/')) {baseRoute += '/';}
 const exploreUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${exploreEnd}`;
 const resultsUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${resultsEnd}`;
