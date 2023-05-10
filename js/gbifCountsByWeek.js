@@ -6,13 +6,13 @@ Date.prototype.getWeek = function () {
     let millisecondPerDay = 86400000;
     let dayOfYear = Math.ceil(millisecondOfYear / millisecondPerDay);
     let weekOfYear = Math.floor(dayOfYear / 7);
-    //console.log('dayOfYear', dayOfYear);
-    //console.log('weekOfYear', weekOfYear);
-    //console.log('monthOfYear', new Date(millisecondOfYear).getMonth()); //January is month zero (0)
-    //return Math.ceil((((this - dt) / 86400000) + dt.getDay() + 1) / 7);
     return weekOfYear;
 };
-
+Date.prototype.toUtc = function() {
+    let tz = this.getTimezoneOffset();
+    let ut = new Date(this.setMinutes(this.getMinutes()+parseInt(tz)));
+    return ut;
+}
 /*
 GBIF occurrence counts by year:
 https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
@@ -48,9 +48,10 @@ function fetchAll(searchTerm) {
                 total += json.count;
                 if (json.facets[0]) {
                     json.facets[0].counts.map(count => {
-                        let dt = new Date(count.name); //convert text date facet to type Date
-                        let tz = dt.getTimezoneOffset();    
-                        let date = new Date(dt.setMinutes(dt.getMinutes()+parseInt(tz)));
+                        //let dt = new Date(count.name); //convert text date facet to type Date
+                        //let tz = dt.getTimezoneOffset();
+                        //let date = new Date(dt.setMinutes(dt.getMinutes()+parseInt(tz)));
+                        let date = new Date(count.name).toUtc();
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
@@ -65,19 +66,10 @@ function fetchAll(searchTerm) {
                     console.log(`gbifCountsByWeek::fetchAll NO Facets Returned`, json.facets);
                 }
             });
-            /*
-            for (const [key, val] of Object.entries(wSum)) {
-                //console.log('gbifCountsByWeek::fetchAll | wSum entries', key, val);
-                let w = Number(key);
-                let o = {'week':w, 'count':val};
-                counts.push(o);
-            }
-            */
-            //console.log('GBIF counts by date sorted by count:', counts);
-            //counts.sort((a,b) => {return a.date > b.date;})
-            //console.log('GBIF counts by date sorted by date:', counts);
+            let tday = new Date().toUtc(); //today's date shifted to UTC
+            let tdWk = tday.getWeek()+1; // the week we're in today
             //return Promise.resolve({total:total, weekSum:wSum, monthSum:mSum, weekObj:wAgg}); //this works too, but not needed
-            return {search:searchTerm, total:total, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
+            return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
@@ -105,15 +97,4 @@ export async function gbifCountsByWeek(taxonName) {
     } else {
         return await fetchAllByName(taxonName);
     }
-
-/*
-    .then(data => {
-        console.log(`gbifCountsByWeek | data`, data);
-        return data;
-    })
-    .catch(err => {
-        console.log(`ERROR gbifCountsByWeek ERROR: `, err);
-        return data;
-    })
-*/
 }
