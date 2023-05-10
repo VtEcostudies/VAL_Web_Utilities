@@ -1,7 +1,9 @@
 import { fetchJsonFile } from "./commonUtilities.js";
 
 let gbifApi = "https://api.gbif.org/v1";
-let datasetKeys = {"chkVtb1":"73eb16f0-4b06-4347-8069-459bc2d96ddb"};
+export const datasetKeys = {
+    "chkVtb1":"73eb16f0-4b06-4347-8069-459bc2d96ddb"
+};
 export var checklistVtButterflies;
 export var checklistVernacularNames;
 
@@ -9,11 +11,12 @@ export var checklistVernacularNames;
     https://api.gbif.org/v1/species/search?dataset_key=73eb16f0-4b06-4347-8069-459bc2d96ddb&limit=300
 */
 
-export async function getGbifSpeciesDataset(datasetKey=datasetKeys['chkVtb1'], offset=0, limit=1000) {
+export async function getGbifSpeciesDataset(datasetKey=datasetKeys['chkVtb1'], offset=0, limit=1000, params=false) {
     let reqHost = gbifApi;
     let reqRoute = `/species/search?dataset_key=${datasetKey}`;
     let reqLimit = `&offset=${offset}&limit=${limit}`
-    let url = reqHost+reqRoute+reqLimit;
+    let reqParam = params ? `&${params}` : '';
+    let url = reqHost+reqRoute+reqParam+reqLimit;
     let enc = encodeURI(url);
     try {
         let res = await fetch(enc);

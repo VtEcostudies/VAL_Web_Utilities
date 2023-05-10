@@ -107,8 +107,17 @@ export async function fetchImgFile(filePath, fileType='tiff') {
     }
 }
 
-// Use the gbif taxon match API to resolve taxonName to taxonKey, or not.
 export async function getGbifTaxonKeyFromName(taxonName) {
+    try {
+        let json = await getGbifTaxonObjFromName(taxonName);
+        return json.usageKey;
+    } catch (err) {
+        return new Error(err);
+    }
+}
+
+// Use the gbif taxon match API to resolve taxonName to taxonKey, or not.
+export async function getGbifTaxonObjFromName(taxonName) {
 
     console.log(`getGbifTaxonKeyFromName ${taxonName}`);
 
@@ -119,7 +128,8 @@ export async function getGbifTaxonKeyFromName(taxonName) {
         console.log(`getGbifTaxonKeyFromName(${enc}) RAW RESULT:`, res);
         let json = await res.json();
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
-        return json.usageKey ? json.usageKey : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
+        //return json.usageKey ? json.usageKey : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
+        return json.usageKey ? json : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
     } catch (err) {
         console.log(`getGbifTaxonKeyFromName(${enc}) ERROR:`, err);
         return new Error(err);

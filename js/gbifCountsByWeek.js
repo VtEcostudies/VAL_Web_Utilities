@@ -22,9 +22,9 @@ async function fetchAllByKey(taxonKey) {
     return await fetchAll(`taxonKey=${taxonKey}`);
 }
 async function fetchAllByName(taxonName) {
-    return await fetchAll(`scientificName=${taxonName}`);
+    return await fetchAll(`scientificName=${taxonName}`, taxonName);
 }
-function fetchAll(searchTerm) {
+function fetchAll(searchTerm, taxonName) {
     let urls = [
         `https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`,
         `https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`
@@ -68,8 +68,8 @@ function fetchAll(searchTerm) {
             });
             let tday = new Date().toUtc(); //today's date shifted to UTC
             let tdWk = tday.getWeek()+1; // the week we're in today
-            //return Promise.resolve({total:total, weekSum:wSum, monthSum:mSum, weekObj:wAgg}); //this works too, but not needed
-            return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
+            //return Promise.resolve({search:searchTerm, taxonName: taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
+            return {search:searchTerm, taxonName: taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
@@ -90,11 +90,10 @@ export async function gbifCountsByWeekByTaxonName(taxonName) {
 
 export async function gbifCountsByWeek(taxonName) {
 
-    let taxonKey = await getGbifTaxonKeyFromName(taxonName);
-    
-    if (taxonKey) {
-        return await fetchAllByKey(taxonKey);
-    } else {
+    try {
+        let taxonObj = await getGbifTaxonObjFromName(taxonName);    
+        return await fetchAllByKey(taxonObj.usageKey, taxonName);
+    } catch(err) {
         return await fetchAllByName(taxonName);
     }
 }
