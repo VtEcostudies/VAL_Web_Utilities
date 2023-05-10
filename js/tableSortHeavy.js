@@ -2,17 +2,24 @@
  * Configure jQuery dataTable for column sorting. Note that this was called on completed Occ Counts. That's
  * because dataTables can't sort on columns without values. We remove from sorting other columns whose data
  * we don't wait for, like wikipedia images.
+ * 
+ * Inputs:
+ *  tablId - text id of html element
+ *  orderColumnId - numeric column ID to sort-by, initially
+ *  excludeColumnIds - array of numeric column IDs to exclude from sort
+ *  orderDir - 'asc' or 'desc' for inital sort-by direction
  */
-function setDataTable(tableId='species-table', orderColumnId='', excludeColumnIds=[]) {
+function setDataTable(tableId='species-table', orderColumnId=0, excludeColumnIds=[], orderDir='desc') {
     console.log(`setDataTable | exclude columnIds`, excludeColumnIds);
     let colDefs = [];
     for (const idx of excludeColumnIds) {
         colDefs.push({ orderable: false, targets: excludeColumnIds[idx] });
     }
     console.log('setDataTable | exclude columnDefs:', colDefs);
+    console.log('setDataTable | orderColumnId:', orderColumnId, 'orderDirection:', orderDir);
     $(`#${tableId}`).DataTable({
       responsive: false,
-      order: [orderColumnId, 'desc'],
+      order: orderColumnId ? [orderColumnId, orderDir] : [],
       paging: false, //hides the pagination logic
       searching: false, //hides the dt search box
       info: false, //hides the 1 to 20 of 20
@@ -34,7 +41,7 @@ function setDataTable(tableId='species-table', orderColumnId='', excludeColumnId
     });
   }
   
-  export function tableSortHeavy(tableId='species-table', orderColumnId='', excludeColumnIds=[]) {
-    setDataTable(tableId, orderColumnId, excludeColumnIds);
-  }
+export function tableSortHeavy(tableId='species-table', orderColumnId='', excludeColumnIds=[], orderDir='desc') {
+  setDataTable(tableId, orderColumnId, excludeColumnIds, orderDir);
+}
 
