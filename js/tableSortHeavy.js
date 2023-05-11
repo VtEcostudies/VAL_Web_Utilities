@@ -17,7 +17,8 @@ function setDataTable(tableId='species-table', orderColumnId=0, excludeColumnIds
     console.log('setDataTable | exclude columnDefs:', columnDefs);
     //console.log('setDataTable | orderColumnId:', orderColumnId, 'orderDirection:', orderDir);
     $(`#${tableId}`).DataTable({
-      responsive: false,
+      autoWidth: false, // <<-- IMPORTANT setting this flag to false is what allows the table to resize to the container
+      responsive: true,
       order: orderColumnId ? [orderColumnId] : [],
       paging: false, //hides the pagination logic
       searching: false, //hides the dt search box
