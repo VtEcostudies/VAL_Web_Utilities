@@ -54,8 +54,10 @@ async function addWeekHead() {
     columnA.forEach(column => {
         colObj = hedRow.insertCell(++colIdx); 
         colObj.innerText = column;
+        if ('occurrences' == column.toLowerCase()) {
+            colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'VT Obs';
+        }
     })
-    colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'VT Obs';
     let month = 0;
     for (var week=1; week<54; week++) {
         colObj = await hedRow.insertCell(colIdx + week);
@@ -97,12 +99,14 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
         objCol = objRow.insertCell(++colIdx);
         objCol.innerText = taxon[column.toLowerCase()];
         objCol.classList.add('taxonInfo');
+        if ('occurrences' == column.toLowerCase()) {
+            objCol = objRow.insertCell(++colIdx); 
+            aTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
+            objCol.innerHTML = aTag;
+            objCol.classList.add('taxonInfo'); //row total VT Observations
+        }
     })
 
-    objCol = objRow.insertCell(++colIdx); 
-    aTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
-    objCol.innerHTML = aTag;
-    objCol.classList.add('taxonInfo'); //row total VT Observations
 
     let month = 0;
     for (var week=1; week<54; week++) {
