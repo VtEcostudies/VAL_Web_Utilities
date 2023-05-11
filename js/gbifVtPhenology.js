@@ -95,7 +95,7 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
 
     columnA.forEach(column => {
         objCol = objRow.insertCell(++colIdx);
-        objCol.innerText = taxon[column];
+        objCol.innerText = taxon[column.toLowerCase()];
         objCol.classList.add('taxonInfo');
     })
 
