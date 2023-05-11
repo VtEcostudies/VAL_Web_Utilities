@@ -49,6 +49,9 @@ async function addWeekHead() {
     let hedRow = objHed.insertRow(0);
     let colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Accepted';
     colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Common';
+    if (butterflies) {
+        colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Family';
+    }
     colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'VT Obs';
     let month = 0;
     for (var week=1; week<54; week++) {
@@ -87,6 +90,13 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
     objCol.innerText = verna;
     objCol.classList.add('taxonInfo');
 
+    if (butterflies) {
+        objCol = objRow.insertCell(++colIdx);
+        aTag = `${taxon.family}`;
+        objCol.innerHTML = aTag;
+        objCol.classList.add('taxonInfo');
+    }
+
     objCol = objRow.insertCell(++colIdx); 
     aTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
     objCol.innerHTML = aTag;
@@ -95,8 +105,8 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
     let month = 0;
     for (var week=1; week<54; week++) {
         let wCount = pheno.weekSum[week] ? pheno.weekSum[week] : 0;
-        let wFreq = Math.ceil(wCount/pheno.total*100);
-        wFreq = Math.ceil(wCount / Math.sqrt(wCount))
+        let wFreq = Math.ceil(wCount/pheno.total*100); //looks bad for small total counts
+        wFreq = Math.ceil(wCount / Math.sqrt(wCount)); //looks OK for all data, includes single-values
         let todayWeekClass = pheno.weekToday == week ? 'phenoCellToday' : false; 
         objCol = objRow.insertCell(colIdx + week);
         if (todayWeekClass) {
@@ -120,7 +130,7 @@ function setTitleText(text='Vermont Butterfly Flight Times', taxonNameA=[], taxo
 if (butterflies) {
     let rowIdx = 0;
     addPageWait();
-    let butts = await getGbifSpeciesDataset(datasetKeys['chkVtb1'],0,1000,'rank=SPECIES&rank=SUBSPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
+    let butts = await getGbifSpeciesDataset(datasetKeys['chkVtb1'],0,1000,'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
     console.log(`vbaFlightTimes=>getGbifSpeciesDataset`, butts);
     offset = offset < butts.results.length ? offset : butts.results.length - 1;
     limit = (offset+limit) < butts.results.length ? limit : butts.results.length - offset;
