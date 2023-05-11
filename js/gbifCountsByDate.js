@@ -1,7 +1,7 @@
 import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
 
 /*
-GBIF occurrence counts by year:
+GBIF occurrence counts by eventDate:
 https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */

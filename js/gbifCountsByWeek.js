@@ -1,23 +1,48 @@
-import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
+import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
+import './extendDate.js'; //import getWeek() and toUtc()
 
-Date.prototype.getWeek = function () {
-    var dt = new Date(this.getFullYear(), 0, 1);
-    let millisecondOfYear = this - dt;
-    let millisecondPerDay = 86400000;
-    let dayOfYear = Math.ceil(millisecondOfYear / millisecondPerDay);
-    let weekOfYear = Math.floor(dayOfYear / 7);
-    return weekOfYear;
-};
-Date.prototype.toUtc = function() {
-    let tz = this.getTimezoneOffset();
-    let ut = new Date(this.setMinutes(this.getMinutes()+parseInt(tz)));
-    return ut;
-}
 /*
-GBIF occurrence counts by year:
+Return an object having occurrence sums by week (and month) for a taxon in the State of Vermont:
+
+{
+    search: searchTerm, //the search term used, either scientificName=Turdus or taxonKey=12345
+    taxonName: taxonName, //the taxonName requested, or empty if queried explicitly by taxonKey
+    total: total, //total count of occurrences for all time, minus those without week or month info
+    weekToday: tdWk, //1-based, numeric weekOfYear for today's date
+    weekSum: wSum, //object with sums of occurrence counts by week, 1-based (1=first week, 53=last week): {...,'23':8, '24':25, '25':109, ...}
+    monthSum: mSum, //object with sums of occurrence counts by month, 1-based (1=January, 12=December): {'1':2, ...,'5':239, '6':842, ..., '12':3}
+    weekAgg: wAgg //object with sums of occurrence counts by week, plus month: {week:{count: wSum[week], week: week, month: month}}
+}
+
+Since 'In the State of Vermont' is represented in occurrence data differently for different datasets, 
+in order to get all the data we must query by all the distinct ways they're stored. As of the writing
+of this module, that means querying thrice, by 
+
+    gadmGid=USA.46_1
+    stateProvince=vermont
+    stateProvince=vermont (State)
+
+But the last two can be combined into one query because http converts those into an effective OR condition, and GBIF
+handles it that way.
+
+GBIF occurrence API counts by eventDate for Vermont example queries:
 https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
-https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
+https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */
+export async function gbifCountsByWeekByTaxonKey(taxonKey) {
+    return await fetchAllByKey(taxonKey);
+}
+export async function gbifCountsByWeekByTaxonName(taxonName) {
+    return await fetchAllByName(taxonName);
+}
+export async function gbifCountsByWeek(taxonName) {
+    try {
+        let usageKey = await getGbifTaxonKeyFromName(taxonName);    
+        return await fetchAllByKey(usageKey, taxonName);
+    } catch(err) {
+        return await fetchAllByName(taxonName);
+    }
+}
 async function fetchAllByKey(taxonKey) {
     return await fetchAll(`taxonKey=${taxonKey}`);
 }
@@ -30,7 +55,7 @@ function fetchAll(searchTerm, taxonName) {
         `https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`
         ]
     let all = Promise.all([fetch(encodeURI(urls[0])),fetch(encodeURI(urls[1]))])
-    //let all = Promise.all([fetch(encodeURI(urls[1]))])
+    //let all = Promise.all([fetch(encodeURI(urls[1]))]) //smaller result-set for testing
         .then(responses => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) RAW RESULT:`, responses);
             //Convert each response to json object
@@ -52,7 +77,7 @@ function fetchAll(searchTerm, taxonName) {
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
-                            console.log('NOT Adding to Sums by Week for:', searchTerm, date, week, mnth, 'and removing', count.count, 'from total');
+                            console.log('NOT Adding to Sums by Week and removing', count.count, 'from total for:', searchTerm, date, week, mnth);
                             total -= count.count; //don't include these in totals either
                         } else {
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
@@ -65,9 +90,9 @@ function fetchAll(searchTerm, taxonName) {
                 }
             });
             let tday = new Date().toUtc(); //today's date shifted to UTC
-            let tdWk = tday.getWeek()+1; // the week we're in today
-            //return Promise.resolve({search:searchTerm, taxonName: taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
-            return {search:searchTerm, taxonName: taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
+            let tdWk = tday.getWeek()+1; // the week we're in today, 1-based
+            //return Promise.resolve({search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
+            return {search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
@@ -76,22 +101,4 @@ function fetchAll(searchTerm, taxonName) {
         })
     console.log(`fetchAll promise.all`, all);
     return all; //this is how it's done. strange errors when not.
-}
-
-export async function gbifCountsByWeekByTaxonKey(taxonKey) {
-    return await fetchAllByKey(taxonKey);
-}
-
-export async function gbifCountsByWeekByTaxonName(taxonName) {
-    return await fetchAllByName(taxonName);
-}
-
-export async function gbifCountsByWeek(taxonName) {
-
-    try {
-        let taxonObj = await getGbifTaxonObjFromName(taxonName);    
-        return await fetchAllByKey(taxonObj.usageKey, taxonName);
-    } catch(err) {
-        return await fetchAllByName(taxonName);
-    }
 }
