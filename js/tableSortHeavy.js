@@ -4,26 +4,25 @@
  * we don't wait for, like wikipedia images.
  * 
  * Inputs:
- *  tablId - text id of html element
+ *  tableId - text id of html element
  *  orderColumnId - numeric column ID to sort-by, initially
  *  excludeColumnIds - array of numeric column IDs to exclude from sort
- *  orderDir - 'asc' or 'desc' for inital sort-by direction
+ *  columnDefs - 'asc' or 'desc' for inital sort-by direction on first click of column by columnId
  */
-function setDataTable(tableId='species-table', orderColumnId=0, excludeColumnIds=[], orderDir='desc') {
+function setDataTable(tableId='species-table', orderColumnId=0, excludeColumnIds=[], columnDefs=[]) {
     console.log(`setDataTable | exclude columnIds`, excludeColumnIds);
-    let colDefs = [];
     for (const idx of excludeColumnIds) {
-        colDefs.push({ orderable: false, targets: excludeColumnIds[idx] });
+        columnDefs.push({ orderable: false, targets: excludeColumnIds[idx] });
     }
-    console.log('setDataTable | exclude columnDefs:', colDefs);
-    console.log('setDataTable | orderColumnId:', orderColumnId, 'orderDirection:', orderDir);
+    console.log('setDataTable | exclude columnDefs:', columnDefs);
+    //console.log('setDataTable | orderColumnId:', orderColumnId, 'orderDirection:', orderDir);
     $(`#${tableId}`).DataTable({
       responsive: false,
-      order: orderColumnId ? [orderColumnId, orderDir] : [],
+      order: orderColumnId ? [orderColumnId] : [],
       paging: false, //hides the pagination logic
       searching: false, //hides the dt search box
       info: false, //hides the 1 to 20 of 20
-      columnDefs: colDefs
+      columnDefs: columnDefs
 /*
       [
         { orderable: false, targets: columnIds['childTaxa'] }, //childTaxa
@@ -41,7 +40,6 @@ function setDataTable(tableId='species-table', orderColumnId=0, excludeColumnIds
     });
   }
   
-export function tableSortHeavy(tableId='species-table', orderColumnId='', excludeColumnIds=[], orderDir='desc') {
-  setDataTable(tableId, orderColumnId, excludeColumnIds, orderDir);
+export function tableSortHeavy(tableId='species-table', orderColumnId='', excludeColumnIds=[],  columnDefs=[]) {
+  setDataTable(tableId, orderColumnId, excludeColumnIds, columnDefs);
 }
-

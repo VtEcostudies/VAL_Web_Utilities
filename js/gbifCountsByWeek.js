@@ -48,14 +48,12 @@ function fetchAll(searchTerm, taxonName) {
                 total += json.count;
                 if (json.facets[0]) {
                     json.facets[0].counts.map(count => {
-                        //let dt = new Date(count.name); //convert text date facet to type Date
-                        //let tz = dt.getTimezoneOffset();
-                        //let date = new Date(dt.setMinutes(dt.getMinutes()+parseInt(tz)));
                         let date = new Date(count.name).toUtc();
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
-                            console.log('NOT Adding to Sums by Week for:', searchTerm, date, week, mnth);
+                            console.log('NOT Adding to Sums by Week for:', searchTerm, date, week, mnth, 'and removing', count.count, 'from total');
+                            total -= count.count; //don't include these in totals either
                         } else {
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
