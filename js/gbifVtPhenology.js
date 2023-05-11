@@ -8,8 +8,10 @@ const objUrlParams = new URLSearchParams(window.location.search);
 const taxonNameA = objUrlParams.getAll('taxonName'); //Array of taxon names?
 const taxonKeyA = objUrlParams.getAll('taxonKey'); //Array of taxon keys
 const butterflies = objUrlParams.get('butterflies'); //Single query param
+const columnA = objUrlParams.getAll('column'); //Array of additional columns to show
 console.log('Query Param(s) taxonNames:', taxonNameA);
 console.log('Query Param(s) taxonKeys:', taxonKeyA);
+console.log('Query Param(s) columns:', columnA);
 var offset = 0, limit = 10;
 let off = Number(objUrlParams.get('offset'));
 let lim = Number(objUrlParams.get('limit'));
@@ -49,9 +51,10 @@ async function addWeekHead() {
     let hedRow = objHed.insertRow(0);
     let colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Accepted';
     colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Common';
-    if (butterflies) {
-        colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Family';
-    }
+    columnA.forEach(column => {
+        colObj = hedRow.insertCell(++colIdx); 
+        colObj.innerText = column;
+    })
     colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'VT Obs';
     let month = 0;
     for (var week=1; week<54; week++) {
@@ -90,12 +93,11 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
     objCol.innerText = verna;
     objCol.classList.add('taxonInfo');
 
-    if (butterflies) {
+    columnA.forEach(column => {
         objCol = objRow.insertCell(++colIdx);
-        aTag = `${taxon.family}`;
-        objCol.innerHTML = aTag;
+        objCol.innerText = taxon[column];
         objCol.classList.add('taxonInfo');
-    }
+    })
 
     objCol = objRow.insertCell(++colIdx); 
     aTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
