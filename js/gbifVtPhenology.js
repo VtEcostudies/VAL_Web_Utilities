@@ -52,10 +52,11 @@ async function addWeekHead() {
     let colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Accepted';
     colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'Common';
     columnA.forEach(column => {
-        colObj = hedRow.insertCell(++colIdx); 
-        colObj.innerText = column;
         if ('occurrences' == column.toLowerCase()) {
             colObj = hedRow.insertCell(++colIdx); colObj.innerText = 'VT Obs';
+        } else {
+            colObj = hedRow.insertCell(++colIdx); 
+            colObj.innerText = column;
         }
     })
     let month = 0;
@@ -96,14 +97,15 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
     objCol.classList.add('taxonInfo');
 
     columnA.forEach(column => {
-        objCol = objRow.insertCell(++colIdx);
-        objCol.innerText = taxon[column.toLowerCase()];
-        objCol.classList.add('taxonInfo');
         if ('occurrences' == column.toLowerCase()) {
             objCol = objRow.insertCell(++colIdx); 
             aTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
             objCol.innerHTML = aTag;
             objCol.classList.add('taxonInfo'); //row total VT Observations
+        } else {
+            objCol = objRow.insertCell(++colIdx);
+            objCol.innerText = taxon[column.toLowerCase()];
+            objCol.classList.add('taxonInfo');
         }
     })
 
