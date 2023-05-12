@@ -1,6 +1,6 @@
 import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
 import './extendDate.js'; //import getWeek() and toUtc()
-
+var Storage = sessionStorage;
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the State of Vermont:
 
@@ -29,6 +29,21 @@ GBIF occurrence API counts by eventDate for Vermont example queries:
 https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */
+//wrap retrieval of phenology in this async function to return a promise, which elsewhere waits for data
+export async function getStoredPhenology(storeName, searchTerm) {
+    let phenology;
+        if (Storage.getItem(storeName)) {
+        phenology = JSON.parse(Storage.getItem(storeName));
+        console.log(`Storage.getItem(${storeName}) returned`, phenology);
+    } else {
+        phenology = fetchAll(searchTerm); //returns a promise. handle that downstream with occs.then(occs => {}).
+        console.log(`fetchAll(${searchTerm}) returned`, phenology); //this returns 'Promise { <state>: "pending" }'
+        phenology.then(pheno => { //convert promise to data object...
+            Storage.setItem(storeName, JSON.stringify(pheno));
+        });
+    }
+    return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
+}
 export async function gbifCountsByWeekByTaxonKey(taxonKey) {
     return await fetchAllByKey(taxonKey);
 }
@@ -44,10 +59,12 @@ export async function gbifCountsByWeek(taxonName) {
     }
 }
 async function fetchAllByKey(taxonKey) {
-    return await fetchAll(`taxonKey=${taxonKey}`);
+    //return await fetchAll(`taxonKey=${taxonKey}`);
+    return await getStoredPhenology(taxonKey, `taxonKey=${taxonKey}`)
 }
 async function fetchAllByName(taxonName) {
-    return await fetchAll(`scientificName=${taxonName}`, taxonName);
+    //return await fetchAll(`scientificName=${taxonName}`, taxonName);
+    return await getStoredPhenology(taxonName,`scientificName=${taxonName}`)
 }
 function fetchAll(searchTerm, taxonName) {
     let urls = [
