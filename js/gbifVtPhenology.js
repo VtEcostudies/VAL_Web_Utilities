@@ -101,6 +101,7 @@ async function addWeekHead() {
         if (todayWeek == week) {
             colObj.classList.add('phenoCellToday');
         }
+        colObj.classList.add('weekHeaderCell'); //this only applied to week header cells
         colObj.classList.add('phenoCell');
         colObj.classList.add('lightCell');
         colObj.classList.add(`week${week}`);
