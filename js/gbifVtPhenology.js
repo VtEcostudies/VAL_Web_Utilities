@@ -77,6 +77,7 @@ async function addWeekHead() {
         }
         if (colObj) {
             colObj.setAttribute('id', `head-${column}`); //store the className applied to column cells for highlighting
+            colObj.classList.add('infoHeaderCell'); //this only applied to info header cells
             colObj.classList.add(`head-${column}`); //so it highlights itself on click
             colObj.classList.add('lightCell');
             colObj.addEventListener("click", (e) => {
@@ -124,7 +125,7 @@ function highlightWeek(columnClass=false) {
     if (columnClass) {
         let wObjs = document.getElementsByClassName(columnClass);
         Object.keys(wObjs).forEach(key => {
-            wObjs[key].style.backgroundColor = 'greenyellow';
+            wObjs[key].style.backgroundColor = 'gold';
         })
     }
 }
