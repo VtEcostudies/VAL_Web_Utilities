@@ -8,10 +8,15 @@ import './extendDate.js'; //import getWeek() and toUtc()
 const objUrlParams = new URLSearchParams(window.location.search);
 const taxonNameA = objUrlParams.getAll('taxonName'); //Array of taxon names?
 const taxonKeyA = objUrlParams.getAll('taxonKey'); //Array of taxon keys
-const butterflies = objUrlParams.get('butterflies'); //Single query param
 const columnA = objUrlParams.getAll('column'); //Array of additional columns to show
-var showTitle = objUrlParams.get('showTitle'); //Single query param
-showTitle = (String(showTitle).toLowerCase() != 'false' && Number(showTitle) != 0)
+const list = objUrlParams.get('list'); //Single query param
+var datasetKey = objUrlParams.get('datasetKey');//5b3274a2-f577-412a-9e17-57a89e0a41fb
+var sort = objUrlParams.get('sort'); sort = sort ? Number(sort) : 1;
+var responsive = objUrlParams.get('responsive'); responsive = responsive ? Number(responsive) : 0;
+var paging = objUrlParams.get('paging'); paging = paging ? Number(paging) : 1;
+var searching = objUrlParams.get('searching'); searching = searching ? Number(searching) : 1;
+var sortInfo = objUrlParams.get('sortInfo'); sortInfo = sortInfo ? Number(sortInfo) : 1;
+var showTitle = objUrlParams.get('showTitle'); showTitle = Number(showTitle);
 var titleText = objUrlParams.get('titleText'); //Single query param
 console.log('Query Param(s) taxonNames:', taxonNameA);
 console.log('Query Param(s) taxonKeys:', taxonKeyA);
@@ -30,6 +35,7 @@ var todayDate = new Date().toUtc(); //today's date shifted to UTC
 var todayWeek = todayDate.getWeek()+1; // the week we're in today, 1-based
 var todayWeekColumnId = 0; //the columnId in the table of this week in the year, to (hopefully) auto-sort by that phenology
 var firstWeekColumnId = 0;
+var occurrenceColumnId = -1;
 
 const waitDiv = document.getElementById("pageWait");
 var waitObj;
@@ -50,7 +56,9 @@ async function delPageWait() {
     if (waitObj) {waitObj.remove();}
 }
 
-let monthName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+let monthName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let monthSize = [31,28,31,30,31,30,31,31,30,31,30,31];
+let MonthDays = [1,32,60,91,121,152,182,213,244,274,305,335];
 //head row of month names every 4ish weeks
 async function addWeekHead() {
     let colIdx = -1;
@@ -59,6 +67,7 @@ async function addWeekHead() {
     //eleTbl.append(hedRow); //doing this orders table rows properly, but causes dataTable to fail
     let colObj;
     columnA.forEach(column => {
+        console.log(`addWeekHead | columnA:`, columnA, 'column:', column);
         colObj = false;
         if ('scientific' == column.toLowerCase() || 'accepted' == column.toLowerCase()) {
             colObj = hedRow.insertCell(++colIdx);
@@ -76,23 +85,27 @@ async function addWeekHead() {
             colObj.innerText = column;
         }
         if (colObj) {
-            colObj.setAttribute('id', `head-${column}`); //store the className applied to column cells for highlighting
-            colObj.classList.add('infoHeaderCell'); //this only applied to info header cells
-            colObj.classList.add(`head-${column}`); //so it highlights itself on click
+            colObj.setAttribute('id', `${column}`); //store the className applied to column cells for highlighting
+            colObj.classList.add('infoHeaderCell'); //this only applied to sortInfo header cells
+            colObj.classList.add(`${column}Header`); //so it highlights itself on click
             colObj.classList.add('lightCell');
             colObj.addEventListener("click", (e) => {
-                clearAllWeeks();
                 console.log('id:', e.target.id);
-                highlightWeek(e.target.id);
+                if (!e.shiftKey) clearAllColumns();
+                highlightHeader(e.target.id);
+                //highlightColumn(e.target.id);
             });
         }
     })
     let month = 0; //necessary. iterated below as counter.
+    let days = 0;
     for (var week=1; week<54; week++) {
+        days += 7;
         colObj = await hedRow.insertCell(colIdx + week);
         colObj.innerHTML = `<div id="week${week}" class="weekHeaderNumber">${week}</div>`;
         let weeksPerMonth = 31/7;
-        if (week/weeksPerMonth > month) {
+        //if (week/weeksPerMonth > month) {
+        if (days > MonthDays[month]) {
             month++;
             colObj.innerHTML += `<div id="week${week}" class="monthHeaderName">${monthName[month-1]}</div>`;
             colObj.classList.add('no-stretch-cell');
@@ -102,26 +115,39 @@ async function addWeekHead() {
         if (todayWeek == week) {
             colObj.classList.add('phenoCellToday');
         }
-        colObj.classList.add('weekHeaderCell'); //this only applied to week header cells
+        colObj.classList.add('weekHeaderCell'); //this only applied to ALL week header cells
         colObj.classList.add('phenoCell');
         colObj.classList.add('lightCell');
         colObj.classList.add(`week${week}`);
+        colObj.classList.add(`week${week}Header`); //class unique to this cell
         colObj.setAttribute('id', `week${week}`);
+        
         colObj.addEventListener("click", (e) => {
-            clearAllWeeks();
             console.log('id:', e.target.id);
-            highlightWeek(e.target.id);
+            if (!e.shiftKey) clearAllColumns();
+            highlightHeader(e.target.id);
+            //highlightColumn(e.target.id);
         });
+        
     }
 }
-function clearAllWeeks() {
+function clearAllColumns() {
     let wObjs = document.getElementsByClassName('lightCell');
     Object.keys(wObjs).forEach(key => {
         wObjs[key].removeAttribute('style');
     })
 }
 
-function highlightWeek(columnClass=false) {
+function highlightHeader(columnClass=false) {
+    if (columnClass) {
+        let wObjs = document.getElementsByClassName(`${columnClass}Header`);
+        Object.keys(wObjs).forEach(key => {
+            wObjs[key].style.backgroundColor = 'gold';
+        })
+    }
+}
+
+function highlightColumn(columnClass=false) {
     if (columnClass) {
         let wObjs = document.getElementsByClassName(columnClass);
         Object.keys(wObjs).forEach(key => {
@@ -154,6 +180,7 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
             colObj = objRow.insertCell(++colIdx); 
             ancTag = `<a title="VAL Data Explorer: ${taxon.canonicalName}" href="https://val.vtecostudies.org/gbif-explorer?taxonKey=${taxon.nubKey}&view=MAP">${pheno.total}</a>`
             colObj.innerHTML = ancTag;
+            occurrenceColumnId = colIdx; //needed to set up dataTables initial sort-direction to desc for numeric column-data
         } else {
             colObj = objRow.insertCell(++colIdx);
             colObj.innerText = taxon[column.toLowerCase()];
@@ -165,7 +192,7 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
         }
     })
 
-    firstWeekColumnId = colIdx+1; //needed to set up dataTables sort direction
+    firstWeekColumnId = colIdx+1; //needed to set up dataTables initial sort-direction to desc for numeric column-data
     let month = 0;
     for (var week=1; week<54; week++) {
         let wCount = pheno.weekSum[week] ? pheno.weekSum[week] : 0;
@@ -178,11 +205,10 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
         }
         colObj.innerHTML += `<div class="phenoBarWeek" style="height:${wFreq}px;"></div>`;
         colObj.setAttribute('data-sort', `${wCount}`); //to sort by phenoWeek, must add the dataTables sort attribute to colObj, not inner div
-        //colObj.setAttribute('data-order', `${wCount}`); //to sort by phenoWeek, must add the dataTables sort attribute to colObj, not inner div
         colObj.setAttribute('title',  `${wCount}=>${wFreq}`);
         colObj.classList.add('phenoCell');
         colObj.classList.add('lightCell');
-        colObj.classList.add(`week${week}`)
+        colObj.classList.add(`week${week}`);
     }
 }
 
@@ -192,10 +218,10 @@ function setTitleText(text=false, taxonNameA=[], taxonKeyA=[], butteflies=false,
     }
 }
 
-if (butterflies) {
+async function loadDataset(datasetKey=false) {
     let rowIdx = 0;
     addPageWait();
-    let butts = await getGbifSpeciesDataset(datasetKeys['chkVtb1'],0,1000,'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
+    let butts = await getGbifSpeciesDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
     console.log(`vbaFlightTimes=>getGbifSpeciesDataset`, butts);
     offset = offset < butts.results.length ? offset : butts.results.length - 1;
     limit = (offset+limit) < butts.results.length ? limit : butts.results.length - offset;
@@ -213,7 +239,14 @@ if (butterflies) {
     }
     addWeekHead();
     delPageWait();
+}
+
+if ('butterflies' ==  list) {
+    await loadDataset(datasetKeys['chkVtb1']); //Note: MUST await, here, else dataTables fires early with disastrous results
 } 
+else if (datasetKey) {
+    await loadDataset(datasetKey); //Note: MUST await, here, else dataTables fires early with disastrous results
+}
 else if (taxonNameA.length || taxonKeyA.length) {
     addPageWait();
     for (var i=0; i<taxonNameA.length; i++) {
@@ -243,50 +276,69 @@ else if (taxonNameA.length || taxonKeyA.length) {
 } 
 else 
 {
+    showHelp();
+}
+
+function showHelp() {
+    let eleDiv = document.getElementById("phenologyDiv");
     let eleInf = document.getElementById("phenologyParamsInfo");
     let url = new URL(window.location);
+    eleDiv.style.display = 'none';
     if (eleInf) {
         eleInf.innerHTML = 
     `
     <p>Control the VAL phenology chart with query parameters:</p>
-        <li><a href="${url.href}?butterflies=true&column=Scientific&column=Vernacular&limit=5">?butterflies=true</a> to show VT Butterflies.</li>
+        <li><a href="${url.href.split('?')[0]}?list=butterflies&column=Scientific&column=Vernacular&limit=5">?list=butterflies</a> to show VT Butterflies.</li>
+        <li><a href="${url.href.split('?')[0]}?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb&column=Scientific&column=Vernacular&limit=5">?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb</a> to show Crickets and Katydids.</li>
     <br>
     <p>To show specific taxa:</p>
-        <li><a href="${url.href}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology">?taxonName=Danaus plexippus</a></li>
-        <li><a href="${url.href}?taxonKey=1918395&column=Scientific&column=Vernacular">?taxonKey=5133088</a></li>
+        <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology">?taxonName=Danaus plexippus</a></li>
+        <li><a href="${url.href.split('?')[0]}?taxonKey=1918395&column=Scientific&column=Vernacular">?taxonKey=5133088</a></li>
     <br>
     <p>To show mulitple taxa:</p>
         <li>
-            <a href="${url.href}?taxonName=Danaus plexippus&taxonName=Cercyonis pegala&column=Scientific&column=Vernacular&column=Observations">
+            <a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&taxonName=Cercyonis pegala&column=Scientific&column=Vernacular&column=Observations">
             ?taxonName=Danaus plexippus&taxonName=Cercyonis pegala
             </a>
         </li>
         <li>
-            <a href="${url.href}?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999&column=Scientific&column=Vernacular&column=Family&column=Occurrences">
+            <a href="${url.href.split('?')[0]}?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999&column=Scientific&column=Vernacular&column=Family&column=Occurrences">
             ?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999
             </a>
         </li>
     <br>
     <p>To show taxon information columns:</p>
-        <li>&column=Scientific</li>
-        <li>&column=Vernacular</li>
-        <li>&Column=Observations</li>
+        <li>&column=Scientific (or Accepted)</li>
+        <li>&column=Vernacular (or Common)</li>
+        <li>&Column=Observations (or Occurrences)</li>
         <li>&Column=Family</li>
     <br>
-    <p>
-    You may include columns returned from the GBIF Species API.
-    </p>
+    <p>You may include columns returned from the GBIF Species API.</p>
+    <br>
+    <p>Sorting is turned ON by default. To turn sorting off:</p>
+        <li>&sort=0</li>
+    <p>All sorting features are turned ON by default. To turn sorting features OFF:</p>
+        <li>&paging=0</li>
+        <li>&searching=0</li>
+        <li>&sortInfo=0</li>
     `
     }
 }
 
 $('#phenologyTable').ready(() => {
-    let infoColumnIds = []; let weekColumnIds = [];
-    for (var i=0; i<firstWeekColumnId; i++) {infoColumnIds.push(i);} console.log('dataTables setup infoColumnIds:', firstWeekColumnId, infoColumnIds);
-    for (var i=firstWeekColumnId; i<firstWeekColumnId+53; i++) {weekColumnIds.push(i);} console.log('dataTables setup weekColumnIds:', firstWeekColumnId, weekColumnIds);
-    let columnDefs =  [
-        { "orderSequence": [ "asc", "desc" ], "targets": infoColumnIds },
-        { "orderSequence": [ "desc", "asc" ], "targets": weekColumnIds }
-    ];
-    tableSortHeavy('phenologyTable', todayWeekColumnId, [], columnDefs); //columnId 2 is VT Obs count
+    if (sort) {
+        let infoColumnIds = []; let weekColumnIds = [];
+        for (var i=0; i<firstWeekColumnId; i++) {if (i != occurrenceColumnId) infoColumnIds.push(i);} 
+        console.log('dataTables setup firstWeekColumnId:', firstWeekColumnId, 'infoColumnIds:', infoColumnIds);
+        for (var i=firstWeekColumnId; i<firstWeekColumnId+53; i++) {weekColumnIds.push(i);}
+        console.log('dataTables setup  firstWeekColumnId:', firstWeekColumnId, 'weekColumnIds:', weekColumnIds);
+        let columnDefs =  [
+            { "orderSequence": [ "asc", "desc" ], "targets": infoColumnIds },
+            { "orderSequence": [ "desc", "asc" ], "targets": weekColumnIds }
+        ];
+        if (occurrenceColumnId >=0 ) {
+            columnDefs.push({ "orderSequence": [ "desc", "asc" ], "targets": occurrenceColumnId })
+        }
+        tableSortHeavy('phenologyTable', todayWeekColumnId, [], columnDefs, 10, responsive, paging, searching, sortInfo);
+    }
 });
