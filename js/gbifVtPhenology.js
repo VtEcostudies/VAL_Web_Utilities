@@ -297,18 +297,23 @@ function showHelp() {
         <li><a href="${url.href.split('?')[0]}?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb&column=Scientific&column=Vernacular&limit=5">?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb</a> to show Crickets and Katydids.</li>
     <br>
     <p>To show specific taxa:</p>
-        <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology">?taxonName=Danaus plexippus</a></li>
-        <li><a href="${url.href.split('?')[0]}?taxonKey=1918395&column=Scientific&column=Vernacular">?taxonKey=5133088</a></li>
+        <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology&sort=0">?taxonName=Danaus plexippus</a></li>
+        <li><a href="${url.href.split('?')[0]}?taxonKey=1918395&column=Scientific&column=Vernacular&sort=0">?taxonKey=5133088</a></li>
     <br>
     <p>To show mulitple taxa:</p>
         <li>
-            <a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&taxonName=Cercyonis pegala&column=Scientific&column=Vernacular&column=Observations">
-            ?taxonName=Danaus plexippus&taxonName=Cercyonis pegala
+            <a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&taxonName=Cercyonis pegala&column=Scientific&column=Vernacular&column=Observations&sort=0">
+            Two Butterfly Species
             </a>
         </li>
         <li>
-            <a href="${url.href.split('?')[0]}?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999&column=Scientific&column=Vernacular&column=Family&column=Occurrences">
-            ?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999
+            <a href="${url.href.split('?')[0]}?taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999&column=Scientific&column=Vernacular&column=Family&column=Occurrences&paging=0&searching=0">
+            Six Butterfly Families
+            </a>
+        </li>
+        <li>
+            <a href="${url.href.split('?')[0]}?taxonName=Catharus%20guttatus&taxonName=Catharus%20bicknelli&taxonName=Catharus%20fuscescens&taxonName=Catharus%20fuscescens%20fuscescens&taxonName=Catharus%20ustulatus&taxonName=Catharus%20minimus&taxonName=Catharus%20guttatus%20faxoni&column=Scientific&column=Vernacular&column=Observations&showTitle=1&titleText=Catharus of VT&paging=0&searching=0">
+            VT Catharus taxa
             </a>
         </li>
     <br>
@@ -319,9 +324,10 @@ function showHelp() {
         <li>&Column=Family</li>
     <br>
     <p>You may include columns returned from the GBIF Species API.</p>
-    <br>
     <p>Sorting is turned ON by default. To turn sorting off:</p>
         <li>&sort=0</li>
+    <br>
+    <p>NOTE: You can print to PDF for a hard copy of a list. Use &sort=0 for a printer-friendly list.</p>
     <p>All sorting features are turned ON by default. To turn sorting features OFF:</p>
         <li>&paging=0</li>
         <li>&searching=0</li>
