@@ -67,7 +67,7 @@ async function addWeekHead() {
     //eleTbl.append(hedRow); //doing this orders table rows properly, but causes dataTable to fail
     let colObj;
     columnA.forEach(column => {
-        console.log(`addWeekHead | columnA:`, columnA, 'column:', column);
+        //console.log(`addWeekHead | columnA:`, columnA, 'column:', column);
         colObj = false;
         if ('scientific' == column.toLowerCase() || 'accepted' == column.toLowerCase()) {
             colObj = hedRow.insertCell(++colIdx);
@@ -114,7 +114,9 @@ async function addWeekHead() {
         }
         if (todayWeek == week) {
             colObj.classList.add('phenoCellToday');
+            console.log('addWeekHead | todayWeek:', todayWeek, '| week:', week, '| todayWeekHeadId:', todayWeek == week);
         }
+        
         colObj.classList.add('weekHeaderCell'); //this only applied to ALL week header cells
         colObj.classList.add('phenoCell');
         colObj.classList.add('lightCell');
@@ -199,10 +201,13 @@ async function addTaxonRow(pheno=false, taxon=false, rowIdx=0) {
         let wFreq = Math.ceil(wCount/pheno.total*100); //looks bad for small total counts
         wFreq = Math.ceil(wCount / Math.sqrt(wCount)); //looks OK for all data, includes single-values
         colObj = objRow.insertCell(colIdx + week);
-        if (pheno.weekToday == week) {
+        //if (pheno.weekToday == week) {
+        if (todayWeek == week) {
             colObj.classList.add('phenoCellToday');
             todayWeekColumnId = colIdx + week;
+            console.log('addTaxonRow | todayWeek:', todayWeek, '| week:', week, '| pheno.weekToday:', pheno.weekToday, '| todayWeekColumnId:', todayWeekColumnId);
         }
+
         colObj.innerHTML += `<div class="phenoBarWeek" style="height:${wFreq}px;"></div>`;
         colObj.setAttribute('data-sort', `${wCount}`); //to sort by phenoWeek, must add the dataTables sort attribute to colObj, not inner div
         colObj.setAttribute('title',  `${wCount}=>${wFreq}`);
