@@ -293,8 +293,17 @@ function showHelp() {
         eleInf.innerHTML = 
     `
     <p>Control the VAL phenology chart with query parameters:</p>
-        <li><a href="${url.href.split('?')[0]}?list=butterflies&column=Scientific&column=Vernacular&limit=5">?list=butterflies</a> to show VT Butterflies.</li>
-        <li><a href="${url.href.split('?')[0]}?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb&column=Scientific&column=Vernacular&limit=5">?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb</a> to show Crickets and Katydids.</li>
+        <li><a href="${url.href.split('?')[0]}?list=butterflies&column=Scientific&column=Vernacular&limit=5">
+        ?list=butterflies
+        </a> 
+        to show VT Butterflies.
+        </li>
+        <li>
+        <a href="${url.href.split('?')[0]}?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb&column=Scientific&column=Vernacular&showTitle=1&titleText=Crickets and Katydids of VT">
+        ?datasetKey=5b3274a2-f577-412a-9e17-57a89e0a41fb
+        </a> 
+        to show Crickets and Katydids.
+        </li>
     <br>
     <p>To show specific taxa:</p>
         <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology&sort=0">?taxonName=Danaus plexippus</a></li>
