@@ -39,11 +39,14 @@ export async function getSheetSignups(sheetNumber=0) {
         let sign = [];
         res.rows.forEach(row => {
             if (row.values[1]) { //if sheet's row values are deleted but row is not deleted, API returns row of empty values!!!
-                sign[row.values[1].formattedValue] = {
+                if (!sign[row.values[1].formattedValue]) {
+                    sign[row.values[1].formattedValue] = [];
+                }
+                sign[row.values[1].formattedValue].push({
                     'last':row.values[4].formattedValue, 
                     'first':row.values[3].formattedValue,
                     'date':row.values[0].formattedValue
-                }
+                });
             }
     })
     console.log('getSheetSignups 2D ARRAY', sign);
