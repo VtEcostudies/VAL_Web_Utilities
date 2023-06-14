@@ -1,6 +1,7 @@
 import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 var Storage = sessionStorage;
+var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the State of Vermont:
 
@@ -30,13 +31,17 @@ https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus
 https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */
 //wrap retrieval of phenology in this async function to return a promise, which elsewhere waits for data
-export async function getStoredPhenology(storeName, searchTerm) {
-    let phenology;
-        if (Storage.getItem(storeName)) {
+export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
+    let storeName = searchTerm;
+    if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
+    console.log(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    //alert(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    let phenology = Storage.getItem(storeName);
+    if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));
         console.log(`Storage.getItem(${storeName}) returned`, phenology);
     } else {
-        phenology = fetchAll(searchTerm); //returns a promise. handle that downstream with occs.then(occs => {}).
+        phenology = fetchAll(searchTerm, taxonName, geoSearch); //returns a promise. handle that downstream with occs.then(occs => {}).
         console.log(`fetchAll(${searchTerm}) returned`, phenology); //this returns 'Promise { <state>: "pending" }'
         phenology.then(pheno => { //convert promise to data object...
             Storage.setItem(storeName, JSON.stringify(pheno));
@@ -44,35 +49,44 @@ export async function getStoredPhenology(storeName, searchTerm) {
     }
     return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
 }
-export async function gbifCountsByWeekByTaxonKey(taxonKey) {
-    return await fetchAllByKey(taxonKey);
+export async function gbifCountsByWeekByTaxonKey(taxonKey, geoSearch) {
+    return await fetchAllByKey(taxonKey, null, geoSearch);
 }
-export async function gbifCountsByWeekByTaxonName(taxonName) {
-    return await fetchAllByName(taxonName);
+export async function gbifCountsByWeekByTaxonName(taxonName, geoSearch) {
+    return await fetchAllByName(taxonName, geoSearch);
 }
-export async function gbifCountsByWeek(taxonName) {
+export async function gbifCountsByWeek(taxonName, geoSearch) {
     try {
         let usageKey = await getGbifTaxonKeyFromName(taxonName);    
-        return await fetchAllByKey(usageKey, taxonName);
+        return await fetchAllByKey(usageKey, taxonName, geoSearch);
     } catch(err) {
-        return await fetchAllByName(taxonName);
+        return await fetchAllByName(taxonName, geoSearch);
     }
 }
-async function fetchAllByKey(taxonKey) {
+async function fetchAllByKey(taxonKey, taxonName, geoSearch) {
     //return await fetchAll(`taxonKey=${taxonKey}`);
-    return await getStoredPhenology(taxonKey, `taxonKey=${taxonKey}`)
+    return await getStoredPhenology(taxonName, `taxonKey=${taxonKey}`, geoSearch)
 }
-async function fetchAllByName(taxonName) {
+async function fetchAllByName(taxonName, geoSearch) {
     //return await fetchAll(`scientificName=${taxonName}`, taxonName);
-    return await getStoredPhenology(taxonName,`scientificName=${taxonName}`)
+    return await getStoredPhenology(taxonName, `scientificName=${taxonName}`, geoSearch)
 }
-function fetchAll(searchTerm, taxonName) {
+function fetchAll(searchTerm, taxonName, geoSearch) {
     let urls = [
         `https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`,
         `https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`
         ]
-    let all = Promise.all([fetch(encodeURI(urls[0])),fetch(encodeURI(urls[1]))])
-    //let all = Promise.all([fetch(encodeURI(urls[1]))]) //smaller result-set for testing
+    geoSearch = geoSearch.length ? geoSearch : vtGeo;
+    console.log(`fetchAll geoSearch`, geoSearch);
+    let trailing = 'facet=eventDate&facetLimit=1200000&limit=0';
+    let uris = [];
+    for (const geo of geoSearch) {
+        let uri = encodeURI(`https://api.gbif.org/v1/occurrence/search?${geo}&${searchTerm}&${trailing}`);
+        uris.push(uri);
+    }
+    //console.log('fetchAll URIs', uris);
+    //let all = Promise.all([fetch(encodeURI(urls[0])),fetch(encodeURI(urls[1]))])
+    let all = Promise.all(uris.map(uri => fetch(uri)))
         .then(responses => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) RAW RESULT:`, responses);
             //Convert each response to json object

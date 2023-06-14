@@ -10,7 +10,11 @@ const taxonNameA = objUrlParams.getAll('taxonName'); //Array of taxon names?
 const taxonKeyA = objUrlParams.getAll('taxonKey'); //Array of taxon keys
 const columnA = objUrlParams.getAll('column'); //Array of additional columns to show
 const list = objUrlParams.get('list'); //Single query param
-var datasetKey = objUrlParams.get('datasetKey');//5b3274a2-f577-412a-9e17-57a89e0a41fb
+var datasetKey = objUrlParams.get('datasetKey'); //5b3274a2-f577-412a-9e17-57a89e0a41fb
+const geometry = objUrlParams.get('geometry'); //POLYGON ((-72.66357 47.30605, -67.52197 47.39537, -67.47803 46.40453, -66.7749 44.806, -67.87354 44.14753, -69.71924 43.29, -69.104 41.66963, -70.81787 40.27617, -72.48779 40.67731, -74.64111 41.07604, -77.05811 41.60394, -77.93701 42.32281, -77.62939 43.41782, -76.35498 44.61863, -74.99268 45.82574, -72.66357 47.30605))
+const gadm_gid = objUrlParams.get('gadmGid'); //gadmGid=USA.46_1
+const province = objUrlParams.get('stateProvince'); //stateProvince=vermont&stateProvince=vermont (State)
+var geoSearch = [];
 var sort = objUrlParams.get('sort'); sort = sort ? Number(sort) : 1;
 var responsive = objUrlParams.get('responsive'); responsive = responsive ? Number(responsive) : 0;
 var paging = objUrlParams.get('paging'); paging = paging ? Number(paging) : 1;
@@ -223,7 +227,7 @@ function setTitleText(text=false, taxonNameA=[], taxonKeyA=[], butteflies=false,
     }
 }
 
-async function loadDataset(datasetKey=false) {
+async function loadDataset(datasetKey=false, geoSearch=[]) {
     let rowIdx = 0;
     addPageWait();
     let butts = await getGbifSpeciesDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
@@ -233,7 +237,7 @@ async function loadDataset(datasetKey=false) {
     for (var i=offset; i<(offset+limit); i++) {
         let taxon = butts.results[i];
         if (('SPECIES' == taxon.rank.toUpperCase() || 'SUBSPECIES' == taxon.rank.toUpperCase()) && 'ACCEPTED' == taxon.taxonomicStatus.toUpperCase()) {
-            let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName);
+            let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearch);
             //let pheno = await gbifCountsByWeekByTaxonKey(taxon).nubKey);
             addTaxonRow(pheno, taxon, rowIdx++);
         }
@@ -246,11 +250,14 @@ async function loadDataset(datasetKey=false) {
     delPageWait();
 }
 
+if (geometry) {geoSearch.push(`geometry=${geometry}`);}
+if (gadm_gid) {geoSearch.push(`gadmGid=${gadm_gid}`);}
+if (province) {geoSearch.push(`stateProvince=${province}`);} //this needs to be an array of values concatenated into an http &-seprated list
 if ('butterflies' ==  list) {
-    await loadDataset(datasetKeys['chkVtb1']); //Note: MUST await, here, else dataTables fires early with disastrous results
+    await loadDataset(datasetKeys['chkVtb1'], geoSearch); //Note: MUST await, here, else dataTables fires early with disastrous results
 } 
 else if (datasetKey) {
-    await loadDataset(datasetKey); //Note: MUST await, here, else dataTables fires early with disastrous results
+    await loadDataset(datasetKey, geoSearch); //Note: MUST await, here, else dataTables fires early with disastrous results
 }
 else if (taxonNameA.length || taxonKeyA.length) {
     addPageWait();
@@ -260,7 +267,7 @@ else if (taxonNameA.length || taxonKeyA.length) {
         console.log(`vbaFlightTimes=>getGbifTaxonObjFromName(${taxonName})`, match);
         let taxon = await getGbifSpeciesByTaxonKey(match.usageKey);
         console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
-        let pheno = await gbifCountsByWeek(taxon.canonicalName);
+        let pheno = await gbifCountsByWeek(taxon.canonicalName, geoSearch);
         console.log(`vbaFlightTimes=>gbifCountsByWeek(${taxon.canonicalName})`, pheno);
         addTaxonRow(pheno, taxon, i);
     }
@@ -268,7 +275,7 @@ else if (taxonNameA.length || taxonKeyA.length) {
         let taxonKey = taxonKeyA[i];
         let taxon = await getGbifSpeciesByTaxonKey(taxonKey);
         console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
-        let pheno = await gbifCountsByWeekByTaxonKey(taxonKey);
+        let pheno = await gbifCountsByWeekByTaxonKey(taxonKey, geoSearch);
         console.log(`vbaFlightTimes=>gbifCountsByWeekByTaxonKey(${taxonKey})`, pheno);
         addTaxonRow(pheno, taxon, i);
     }
@@ -306,7 +313,7 @@ function showHelp() {
         </li>
     <br>
     <p>To show specific taxa:</p>
-        <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=true&titleText=Monarch Phenology&sort=0">?taxonName=Danaus plexippus</a></li>
+        <li><a href="${url.href.split('?')[0]}?taxonName=Danaus plexippus&showTitle=1&titleText=Monarch Phenology&sort=0">?taxonName=Danaus plexippus</a></li>
         <li><a href="${url.href.split('?')[0]}?taxonKey=1918395&column=Scientific&column=Vernacular&sort=0">?taxonKey=5133088</a></li>
     <br>
     <p>To show mulitple taxa:</p>
@@ -325,6 +332,11 @@ function showHelp() {
             VT Catharus taxa
             </a>
         </li>
+    <br>
+    <p>The default search region is VT (by gadmGid and stateProvince). You may search different regions:</p>
+        <li>&gadmGid=USA.46_1</li>
+        <li>&stateProvince=vermont&stateProvince=vermont (State)</li>
+        <li>&geometry=POLYGON ((-72.66357 47.30605, -67.52197 47.39537, -67.47803 46.40453, -66.7749 44.806, -67.87354 44.14753, -69.71924 43.29, -69.104 41.66963, -70.81787 40.27617, -72.48779 40.67731, -74.64111 41.07604, -77.05811 41.60394, -77.93701 42.32281, -77.62939 43.41782, -76.35498 44.61863, -74.99268 45.82574, -72.66357 47.30605))</li>
     <br>
     <p>To show taxon information columns:</p>
         <li>&column=Scientific (or Accepted)</li>
