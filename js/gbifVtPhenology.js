@@ -337,12 +337,13 @@ function showHelp() {
         <li>&gadmGid=USA.46_1</li>
         <li>&stateProvince=vermont&stateProvince=vermont (State)</li>
         <li>&geometry=POLYGON ((-72.66357 47.30605, -67.52197 47.39537, -67.47803 46.40453, -66.7749 44.806, -67.87354 44.14753, -69.71924 43.29, -69.104 41.66963, -70.81787 40.27617, -72.48779 40.67731, -74.64111 41.07604, -77.05811 41.60394, -77.93701 42.32281, -77.62939 43.41782, -76.35498 44.61863, -74.99268 45.82574, -72.66357 47.30605))</li>
+        <li><a href="${url.href.split('?')[0]}?taxonName=Sterna%20hirundo&gadmGid=USA.22.4_1">Martha's Vineyard Common Terns</a></li>
     <br>
     <p>To show taxon information columns:</p>
         <li>&column=Scientific (or Accepted)</li>
         <li>&column=Vernacular (or Common)</li>
-        <li>&Column=Observations (or Occurrences)</li>
-        <li>&Column=Family</li>
+        <li>&column=Observations (or Occurrences)</li>
+        <li>&column=Family</li>
     <br>
     <p>You may include columns returned from the GBIF Species API.</p>
     <p>Sorting is turned ON by default. To turn sorting off:</p>

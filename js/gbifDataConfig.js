@@ -6,9 +6,19 @@ Define here the views and scope of data available to the
   - VAL GBIF species search/autocomplete (gbif_species_search.js, gbif_auto_complete.js)
   - VAL GBIF dashboard stats (gbif_data_stats.js)
 */
-import { siteConfig } from './gbifSiteConfig.js'; //in html must declare this as module eg. <script type="module" src="js/gbif_data_config.js"></script>
+//import { siteConfig } from './gbifSiteConfig.js'; //in html must declare this as module eg. <script type="module" src="js/gbif_data_config.js"></script>
 
+//get URL search params from calling http route address
 const thisUrl = new URL(document.URL);
+//get URL search params from calling module - a cool feature called a metaURL
+const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
+const fileSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
+console.log('gbifDataConfig calling module file siteName', fileSite);
+const httpSite = thisUrl.searchParams.get('siteName')
+console.log('gbifDataConfig calling http route siteName', httpSite);
+var siteName = httpSite ? httpSite : fileSite;
+siteName = siteName ? siteName : 'val';
+
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
 var urlRouts = urlPath.split('/'); //path contains route and file without host
@@ -406,7 +416,7 @@ const config = {
   },
 }
 
-export const dataConfig = config[siteConfig.siteName];
+export const dataConfig = config[siteName];
 
 //parse rootPredicate into an array of http query parameters for combined and iterative calls to API here
 export function predicateToQueries(rootPredicate=dataConfig.rootPredicate) {

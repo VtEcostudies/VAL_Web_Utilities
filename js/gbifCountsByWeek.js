@@ -1,6 +1,6 @@
 import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
 import './extendDate.js'; //import getWeek() and toUtc()
-var Storage = sessionStorage;
+var Storage = window.sessionStorage ? sessionStorage : false;
 var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the State of Vermont:
@@ -36,7 +36,7 @@ export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
     console.log(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
     //alert(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
-    let phenology = Storage.getItem(storeName);
+    let phenology = Storage ? Storage.getItem(storeName) : false;
     if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));
         console.log(`Storage.getItem(${storeName}) returned`, phenology);

@@ -9,7 +9,7 @@ export var defaultSheetIds = {
 /*
     Fetch a single Google sheet's data by sheet ID and ordinal sheet number.
 */
-export async function fetchGoogleSheetData(spreadsheetId=defaultSheetIds.signUps, sheetNumber=0) {
+export async function fetchGoogleSheetData(spreadsheetId=defaultSheetIds.vbaSignUps, sheetNumber=0) {
     let apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/?key=${googleApiKey}&includeGridData=true`;
 
     try {
