@@ -11,7 +11,7 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
     if (!taxonName || !taxonRank) {console.log(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); return Promise.reject({error:'Missing taxonName or taxonRank'});}
 
     let reqQuery = `?q=${taxonName}`;
-    let reqRank = taxonRank ? `&rank=${taxonRank}` : '';
+    let reqRank = taxonRank ? `&rank=${taxonRank.toLowerCase()}` : ''; //iNat ranks are LOWERCASE; API is CASE-SENSITIVE
     let reqLimit = '&per_page=100';
     let url = inatApi+reqQuery+reqRank+reqLimit;
     let enc = encodeURI(url);

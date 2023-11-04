@@ -80,6 +80,7 @@ const config = {
     atlasPlace: 'Vermont',
     atlasName: 'Vermont Atlas of Life',
     atlasAbbrev: 'VAL',
+    atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
@@ -170,6 +171,7 @@ const config = {
     atlasPlace: 'Marthas Vineyard',
     atlasName: 'Marthas Vineyard Atlas of Life',
     atlasAbbrev: 'MVAL',
+    atlasAdmin: 'MA', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     backgroundImageUrl: {
       default: 'https://mval.biodiversityworksmv.org/wp-content/uploads/2021/09/RTHU-at-Cardinal-Flower_PGilmore_1600x700_acf_cropped-1600x700.jpg'
@@ -248,6 +250,7 @@ const config = {
     atlasPlace: 'Field Museum',
     atlasName: 'Field Museum Atlas',
     atlasAbbrev: 'FMA',
+    atlasAdmin: 'IL', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     thisUrl: thisUrl,
     hostUrl: hostUrl,
@@ -285,10 +288,11 @@ const config = {
     }
   },
 
-  ebu: { //eButterfly datasets demo
+  ebu: { //eButterfly datasets demo - constrained by eB dataset keys, species and occurrence, and no geographic bounding-box
     atlasPlace: 'eButterfly',
     atlasName: 'eButterfly Atlas',
     atlasAbbrev: 'eBA',
+    atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     thisUrl: thisUrl,
     hostUrl: hostUrl,
@@ -327,10 +331,11 @@ const config = {
     }
   },
 
-  ebw: { //eButterfly Worldwide demo
+  ebw: { //eButterfly Worldwide demo - contrained by 6 butterfly families and no geographic bounding-box
     atlasPlace: 'eButterfly World',
     atlasName: 'eButterfly Atlas World Wide',
     atlasAbbrev: 'eBW',
+    atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     thisUrl: thisUrl,
     hostUrl: hostUrl,
@@ -381,6 +386,7 @@ const config = {
     atlasPlace: 'Vermont Butterfly',
     atlasName: 'VT Checklist of Butterflies',
     atlasAbbrev: 'VTB',
+    atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     thisUrl: thisUrl,
     hostUrl: hostUrl,
