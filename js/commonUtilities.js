@@ -117,7 +117,7 @@ export async function getGbifTaxonKeyFromName(taxonName) {
 }
 
 // Use the gbif taxon match API to resolve taxonName to taxonKey, or not.
-export async function getGbifTaxonObjFromName(taxonName) {
+export async function getGbifTaxonObjFromName(taxonName, taxonRank) {
 
     console.log(`getGbifTaxonKeyFromName ${taxonName}`);
 
@@ -128,10 +128,47 @@ export async function getGbifTaxonObjFromName(taxonName) {
         console.log(`getGbifTaxonKeyFromName(${enc}) RAW RESULT:`, res);
         let json = await res.json();
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
-        //return json.usageKey ? json.usageKey : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
-        return json.usageKey ? json : new Error({message:`GBIF usageKey not found for ${taxonName}`, status: 404});
+        if (json.usageKey && taxonRank.toUpperCase() == json.rank.toUpperCase()) {
+            //console.log('getGbifTaxonObjFromName MATCHED');
+            return Promise.resolve(json);
+         } else {
+            let err = {message:`Not found. ${taxonRank} ${taxonName} matched GBIF ${json.rank} ${json.canonicalName} with usageKey ${json.usageKey}`, status: 404};
+            console.log(`getGbifTaxonObjFromName(${enc}) ERROR`, err);
+            return Promise.reject(err);
+         }
     } catch (err) {
         console.log(`getGbifTaxonKeyFromName(${enc}) ERROR:`, err);
-        return new Error(err);
+        return Promise.reject(err);
     }
+}
+
+export async function getGbifTaxonObjFromKey(taxonKey) {
+
+    console.log(`getGbifTaxonObjFromKey ${taxonKey}`);
+
+    let url = `https://api.gbif.org/v1/species/${taxonKey}`;
+    let enc = encodeURI(url);
+    try {
+        let res = await fetch(url);
+        console.log(`getGbifTaxonObjFromKey(${enc}) RAW RESULT:`, res);
+        let json = await res.json();
+        console.log(`getGbifTaxonObjFromKey(${enc}) JSON RESULT:`, json);
+        if (json.key) {
+            return Promise.resolve(json);
+         } else {
+            let err = {message:`Not found: ${taxonKey}`, status: 404};
+            console.log(`getGbifTaxonObjFromKey(${enc}) ERROR`, err);
+            return Promise.reject(err);
+         }
+    } catch (err) {
+        console.log(`getGbifTaxonKeyFromKey(${enc}) ERROR:`, err);
+        return Promise.reject(err);
+    }
+}
+const ranks=['KINGDOM','PHYLUM','CLASS','ORDER','FAMILY','GENUS','SPECIES','SUBSPECIES'];
+export function getParentRank(trank) {
+    trank = trank.toUpperCase();
+    let idx = ranks.findIndex((ele) => {return ele == trank;});
+    console.log(`getParentRank`,trank,idx,ranks[idx-1]);
+    return ranks[idx-1];
 }

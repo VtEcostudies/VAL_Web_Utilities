@@ -5,17 +5,20 @@ Define here the views and scope of data available to the
   - VAL GBIF species explorer (gbif_species_search.js, gbif_species_results.js)
   - VAL GBIF species search/autocomplete (gbif_species_search.js, gbif_auto_complete.js)
   - VAL GBIF dashboard stats (gbif_data_stats.js)
+
+  The Atlas siteName is passed to this file one of two ways:
+  - as an http query parameter: siteName=val
+  - as a meta query parameter: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
 */
-//import { siteConfig } from './gbifSiteConfig.js'; //in html must declare this as module eg. <script type="module" src="js/gbif_data_config.js"></script>
 
 //get URL search params from calling http route address
 const thisUrl = new URL(document.URL);
 //get URL search params from calling module - a cool feature called a metaURL
 const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
 const fileSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
-console.log('gbifDataConfig calling module file siteName', fileSite);
+console.log('gbifDataConfig called by module with siteName', fileSite);
 const httpSite = thisUrl.searchParams.get('siteName')
-console.log('gbifDataConfig calling http route siteName', httpSite);
+console.log('gbifDataConfig called by http route with siteName', httpSite);
 var siteName = httpSite ? httpSite : fileSite;
 siteName = siteName ? siteName : 'val';
 
@@ -78,6 +81,12 @@ const config = {
     atlasName: 'Vermont Atlas of Life',
     atlasAbbrev: 'VAL',
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
@@ -86,6 +95,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: 'https://hp-vtatlasoflife.gbif.org',
+    inatProject: 'vermont-atlas-of-life',
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: 'USA.46_1', //'Vermont' GADM administrative bounding region
     speciesDatasetKey: '0b1735ff-6a66-454b-8686-cae1cbc732a2', //Species Dataset Key
@@ -97,8 +107,8 @@ const config = {
     columNames: columNames,
     downloadOccurrenceCounts: 1,
     mapSettings: {
-      lat: 43.9,
-      lng: -72.6,
+      lat: 43.858297,
+      lng: -72.446594,
       zoom: 7.75
     },
     rootPredicate: {
@@ -161,6 +171,9 @@ const config = {
     atlasName: 'Marthas Vineyard Atlas of Life',
     atlasAbbrev: 'MVAL',
     helpDeskUrl: false,
+    backgroundImageUrl: {
+      default: 'https://mval.biodiversityworksmv.org/wp-content/uploads/2021/09/RTHU-at-Cardinal-Flower_PGilmore_1600x700_acf_cropped-1600x700.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
@@ -169,6 +182,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
+    inatProject: 'martha-s-vineyard-atlas-of-life',
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: 'USA.22.4_1', //'Dukes County, MA' GADM administrative bounding region
     speciesDatasetKey: '298a29ef-a66a-4330-93a1-ea59482e25d9', //Martha's Vineyard Regional Species List Dataset Key
@@ -181,7 +195,7 @@ const config = {
     mapSettings: {
       lat: 41.4,
       lng: -70.6,
-      zoom: 12
+      zoom: 11
     },
     rootPredicate: {
       type: 'or',
@@ -243,6 +257,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
+    inatProject: false,
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: '', // World GADM administrative bounding region?
     speciesDatasetKey: 'ad8da44f-646f-4244-a6d0-5d1085ec6984', //Species Dataset Key
@@ -283,6 +298,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
+    inatProject: false,
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Species Dataset Key
@@ -324,6 +340,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
+    inatProject: false,
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
@@ -373,6 +390,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
+    inatProject: false,
     gbifApi: "https://api.gbif.org/v1", //this should not change at all
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key
@@ -382,8 +400,8 @@ const config = {
     columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown    columNames: columNames,
     columNames: columNames,
     mapSettings: {
-      lat: 43.9,
-      lng: -72.6,
+      lat: 43.858297,
+      lng: -72.446594,
       zoom: 7.75
     },
     rootPredicate: {

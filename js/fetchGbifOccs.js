@@ -2,13 +2,7 @@ import { fetchJsonFile } from "./commonUtilities.js";
 import { datasetKeys as dsKeys, fetchGbifDatasetInfo } from "./fetchGbifDataset.js";
 
 let gbifApi = "https://api.gbif.org/v1";
-/*
-export const datasetKeys = {
-    "vba1":"0901cecf-55f1-447e-8537-1f7b63a865a0",
-    "inat":"",
-    "ebut":""
-};
-*/
+
 export const datasetKeys = dsKeys;
 export const gadmGids = {vt:'USA.46_1'};
 export const butterflyKeys = "taxon_key=6953&taxon_key=5473&taxon_key=7017&taxon_key=9417&taxon_key=5481&taxon_key=1933999";
