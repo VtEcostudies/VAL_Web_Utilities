@@ -252,6 +252,12 @@ const config = {
     atlasAbbrev: 'FMA',
     atlasAdmin: 'IL', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
@@ -294,6 +300,12 @@ const config = {
     atlasAbbrev: 'eBA',
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
@@ -337,6 +349,12 @@ const config = {
     atlasAbbrev: 'eBW',
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
@@ -388,6 +406,12 @@ const config = {
     atlasAbbrev: 'VTB',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     exploreUrl: exploreUrl,
