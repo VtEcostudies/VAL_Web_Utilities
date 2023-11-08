@@ -22,6 +22,8 @@ console.log('gbifDataConfig called by http route with siteName', httpSite);
 var siteName = httpSite ? httpSite : fileSite;
 siteName = siteName ? siteName : 'val';
 
+const gbifApi = "https://api.gbif.org/v1";
+
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
 var urlRouts = urlPath.split('/'); //path contains route and file without host
@@ -97,7 +99,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: 'https://hp-vtatlasoflife.gbif.org',
     inatProject: 'vermont-atlas-of-life',
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //'Vermont' GADM administrative bounding region
     speciesDatasetKey: '0b1735ff-6a66-454b-8686-cae1cbc732a2', //Species Dataset Key
     speciesFilter: 'datasetKey=0b1735ff-6a66-454b-8686-cae1cbc732a2', //this replaces the above in speciesSearch so it can be something else
@@ -185,7 +187,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: 'martha-s-vineyard-atlas-of-life',
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: 'USA.22.4_1', //'Dukes County, MA' GADM administrative bounding region
     speciesDatasetKey: '298a29ef-a66a-4330-93a1-ea59482e25d9', //Martha's Vineyard Regional Species List Dataset Key
     speciesFilter: 'datasetKey=298a29ef-a66a-4330-93a1-ea59482e25d9', //this replaces the above in speciesSearch
@@ -267,7 +269,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: '', // World GADM administrative bounding region?
     speciesDatasetKey: 'ad8da44f-646f-4244-a6d0-5d1085ec6984', //Species Dataset Key
     speciesFilter: 'datasetKey=ad8da44f-646f-4244-a6d0-5d1085ec6984', //this replaces the above in speciesSearch
@@ -315,7 +317,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Species Dataset Key
     speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
@@ -364,7 +366,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
     speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
@@ -435,7 +437,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
-    gbifApi: "https://api.gbif.org/v1", //this should not change at all
+    gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key
     speciesFilter: 'datasetKey=73eb16f0-4b06-4347-8069-459bc2d96ddb', //Filter to use for species
@@ -467,8 +469,7 @@ const config = {
                 "5473",
                 "7017",
                 "9417",
-                "5481",
-                "1933999"
+                "5481"  //1933999-Riodinidae does not exist in Vermont
               ]
             }
           ]
@@ -480,8 +481,12 @@ const config = {
 
 export const dataConfig = config[siteName];
 
-//parse rootPredicate into an array of http query parameters for combined and iterative calls to API here
-//xClud flag means 'exclude taxon filters'
+/*
+  Parse rootPredicate into an array of http query parameters for combined and iterative calls to API here
+  The 'xClud' flag means 'exclude taxon filters'
+  NOTE: AND and IN queries are appended to lists of &-delimited contiguous queries instead of separate array-elements
+  NOTE: Queries are NOT prefixed by ?
+*/
 export function predicateToQueries(rootPredicate=dataConfig.rootPredicate, xClud=false) {
   let qrys = [];
   if ('or' == rootPredicate.type.toLowerCase()) {
@@ -489,7 +494,6 @@ export function predicateToQueries(rootPredicate=dataConfig.rootPredicate, xClud
       let topEle = rootPredicate.predicates[topIdx];
       //alert(`rootPredicate | ${JSON.stringify(topEle)} | ${topIdx}`);
       if (topEle.predicates) { //nested predicate object
-        //let qry = '?';
         let qry = '';
         for (var subIdx=0; subIdx<topEle.predicates.length; subIdx++) {
           let subEle = topEle.predicates[subIdx];
@@ -521,7 +525,7 @@ export function predicateToQueries(rootPredicate=dataConfig.rootPredicate, xClud
             }
           }
         }
-        if ('?' != qry) {qrys.push(qry);} //add single '?' query array-element for 'and' sub-predicate
+        if (qry) {qrys.push(qry);} //add single query array-element for 'and' sub-predicate
       } else {
         console.log(`predicateToQueries topEle type:${topEle.type} key:${topEle.key} values:`);
         if ('in' == topEle.type.toLowerCase()) {
