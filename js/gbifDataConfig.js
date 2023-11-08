@@ -396,6 +396,20 @@ const config = {
         {"type":"equals", "key":"taxonKey", "value":"9417"},
         {"type":"equals", "key":"taxonKey", "value":"5481"},
         {"type":"equals", "key":"taxonKey", "value":"1933999"}
+      /*
+        {
+          "type": "in",
+          "key": "taxonKey",
+          "values": [
+            "6953",
+            "5473",
+            "7017",
+            "9417",
+            "5481",
+            "1933999"
+          ]
+        }
+      */
       ]
     }
   },
@@ -467,7 +481,8 @@ const config = {
 export const dataConfig = config[siteName];
 
 //parse rootPredicate into an array of http query parameters for combined and iterative calls to API here
-export function predicateToQueries(rootPredicate=dataConfig.rootPredicate) {
+//xClud flag means 'exclude taxon filters'
+export function predicateToQueries(rootPredicate=dataConfig.rootPredicate, xClud=false) {
   let qrys = [];
   if ('or' == rootPredicate.type.toLowerCase()) {
     for (var topIdx=0; topIdx<rootPredicate.predicates.length;topIdx++) {
@@ -478,33 +493,62 @@ export function predicateToQueries(rootPredicate=dataConfig.rootPredicate) {
         let qry = '';
         for (var subIdx=0; subIdx<topEle.predicates.length; subIdx++) {
           let subEle = topEle.predicates[subIdx];
-          //alert(`subPredicate | ${JSON.stringify(subEle)} | ${subIdx}`);
+          console.log(`predicateToQueries | subPredicate | ${JSON.stringify(subEle)} | ${subIdx}`);
           if ('or' == topEle.type.toLowerCase()) {
             if ('in' == subEle.type.toLowerCase()) {
               for (var valIdx=0; valIdx<subEle.values.length; valIdx++) {
-                //qrys.push(`?${subEle.key}=${subEle.values[valIdx]}`); //add multiple '?' query array-elements for sub-predicates' sub-values
-                qrys.push(`${subEle.key}=${subEle.values[valIdx]}`); //add multiple '?' query array-elements for sub-predicates' sub-values
+                if (includeFilter(xClud, subEle.key, subEle.values[valIdx])) {
+                  //qrys.push(`${subEle.key}=${subEle.values[valIdx]}`); //add multiple query array-elements for sub-predicates' sub-values
+                  qry += `${subEle.key}=${subEle.values[valIdx]}&`; //multiple ANDs for the same key treated as ORs string sub-predicates' values together as '&' values in one query
+                }
               }
             } else {
-              //qrys.push(`?${subEle.key}=${subEle.value}`); //add multiple '?' query array-elements for sub-predicates
-              qrys.push(`${subEle.key}=${subEle.value}`); //add multiple '?' query array-elements for sub-predicates
+              if (includeFilter(xClud, subEle.key, subEle.value)) {
+                qrys.push(`${subEle.key}=${subEle.value}`); //add multiple query array-elements for sub-predicates, OR conditions
+              }
             }
           } else if ('and' == topEle.type.toLowerCase()) {
             if ('in' == subEle.type.toLowerCase()) {
               for (var valIdx=0; valIdx<subEle.values.length; valIdx++) {
-                qry += `${subEle.key}=${subEle.values[valIdx]}&`; //string sub-predicates' values together as '&' values in one query
+                if (includeFilter(xClud, subEle.key, subEle.values[valIdx])) {
+                  qry += `${subEle.key}=${subEle.values[valIdx]}&`; //string sub-predicates' values together as '&' values in one query
+                }
               }
             } else {
-              qry += `${subEle.key}=${subEle.value}&`; //string sub-predicates together as '&' values in one query
+              if (includeFilter(xClud, subEle.key, subEle.value)) {
+                qry += `${subEle.key}=${subEle.value}&`; //string sub-predicates together as '&' values in one query
+              }
             }
           }
         }
         if ('?' != qry) {qrys.push(qry);} //add single '?' query array-element for 'and' sub-predicate
       } else {
-        //qrys.push(`?${topEle.key}=${topEle.value}`);
-        qrys.push(`${topEle.key}=${topEle.value}`);
+        console.log(`predicateToQueries topEle type:${topEle.type} key:${topEle.key} values:`);
+        if ('in' == topEle.type.toLowerCase()) {
+          console.log(topEle.values);
+          let qry = '';
+          for (var valIdx=0; valIdx<topEle.values.length; valIdx++) {
+            if (includeFilter(xClud, topEle.key, topEle.values[valIdx])) {
+              qry += `${topEle.key}=${topEle.values[valIdx]}&`; //multiple ANDs for the same key treated as ORs string sub-predicates' values together as '&' values in one query
+            }
+          }
+          qrys.push(qry);
+        } else {
+        console.log(topEle.value);
+        if (includeFilter(xClud, topEle.key, topEle.value)) {
+          qrys.push(`${topEle.key}=${topEle.value}`);
+        }
       }
+    }
     }
   }
   return qrys;
+}
+
+function includeFilter(xClud, key, value) {
+  let xc = (xClud && (key.includes('taxonKey') || key.includes('scientificName')));
+  if (xc) {
+    console.log(`predicateToQueries excluded ${key}=${value}`);
+  }
+  return xc ? false : true;  
 }
