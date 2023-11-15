@@ -436,7 +436,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
-    inatProject: false,
+    inatProject: 'vermont-atlas-of-life',
     gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key

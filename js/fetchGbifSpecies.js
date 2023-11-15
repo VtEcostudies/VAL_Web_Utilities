@@ -10,7 +10,6 @@ export var checklistVernacularNames;
 /*
     https://api.gbif.org/v1/species/search?dataset_key=73eb16f0-4b06-4347-8069-459bc2d96ddb&limit=300
 */
-
 export async function getGbifSpeciesDataset(datasetKey=datasetKeys['chkVtb1'], offset=0, limit=1000, params=false) {
     let reqHost = gbifApi;
     let reqRoute = `/species/search?dataset_key=${datasetKey}`;
@@ -35,7 +34,6 @@ export async function getGbifSpeciesDataset(datasetKey=datasetKeys['chkVtb1'], o
 /*
     https://api.gbif.org/v1/species/search?dataset_key=73eb16f0-4b06-4347-8069-459bc2d96ddb&limit=300
 */
-
 export async function getGbifSpeciesByTaxonKey(taxonKey) {
     let reqHost = gbifApi;
     let reqRoute = `/species/${taxonKey}`;
@@ -58,7 +56,6 @@ export async function getGbifSpeciesByTaxonKey(taxonKey) {
 /*
     Convert GBIF checklist API json.results to object keyed by taxonId having array of vernacularNames.
 */
-
 async function checklistToVernaculars(list=[]) {
     //console.log(`checklistToVernaculars incoming list:`, list);
     let vern = {};
