@@ -34,8 +34,7 @@ https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=ve
 export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
-    console.log(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
-    //alert(`gbifCountByWeek::getStoredPhenolody | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    console.log(`gbifCountByWeek::getStoredPhenology | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
     let phenology = Storage ? Storage.getItem(storeName) : false;
     if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));

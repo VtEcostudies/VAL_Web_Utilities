@@ -54,6 +54,40 @@ export async function getGbifSpeciesByTaxonKey(taxonKey) {
 }
 
 /*
+    Get synonyms, etc for a taxonKey having the same taxonomic rank as the requested taxonKey
+    
+    https://api.gbif.org/v1/species/search?datasetKey=73eb16f0-4b06-4347-8069-459bc2d96ddb&higherTaxonKey=177419414
+*/
+export async function getGbifSynonymsByTaxonKey(higherTaxonKey, rank=0, fileConfig) {
+    let speciesFilter = fileConfig.dataConfig.speciesFilter;
+    let reqHost = gbifApi;
+    let reqRoute = "/species/search";
+    let reqFilter = `?${speciesFilter}&higherTaxonKey=${higherTaxonKey}`;
+    let url = reqHost+reqRoute+reqFilter;
+    let enc = encodeURI(url);
+
+    try {
+        let res = await fetch(enc);
+        let json = await res.json();
+        //console.log(`getGbifSynonymsByTaxonKey(${speciesFilter}, ${higherTaxonKey}) QUERY:`, enc);
+        //console.log(`getGbifSynonymsByTaxonKey(${speciesFilter}, ${higherTaxonKey}) RESULT:`, json);
+        let arr = [];
+        for (const idx in json.results) { //returns array indexes of array of objects
+            //console.log(`element of array:`, idx);
+            if ('ACCEPTED' != json.results[idx].taxonomicStatus && (!rank || rank == json.results[idx].rank)) {
+                arr.push(json.results[idx]);
+            }
+        }
+        console.log(`getGbifSynonymsByTaxonKey(${speciesFilter}, ${higherTaxonKey})`, arr);
+        return {'synonyms':arr, 'query':enc};
+    } catch (err) {
+        err.query = enc;
+        console.log(`getGbifSynonymsByTaxonKey(${speciesFilter}, ${higherTaxonKey}) ERROR:`, err);
+        return new Error(err)
+    }
+}
+
+/*
     Convert GBIF checklist API json.results to object keyed by taxonId having array of vernacularNames.
 */
 async function checklistToVernaculars(list=[]) {

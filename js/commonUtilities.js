@@ -107,6 +107,11 @@ export async function fetchImgFile(filePath, fileType='tiff') {
     }
 }
 
+/*
+NOTE: This fails to find a valid match for some common taxa (eg. Sterna), I think
+when this function is called with a species-list taxonKey rather than a nubKey.
+Everywhere possible we use taxonKey to search, not taxonName.
+*/
 export async function getGbifTaxonKeyFromName(taxonName) {
     try {
         let json = await getGbifTaxonObjFromName(taxonName);

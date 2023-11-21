@@ -473,8 +473,42 @@ const config = {
               ]
             }
           ]
-        }
-      ]
+        },
+        {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "6953",
+              "5473",
+              "7017",
+              "9417",
+              "5481"  //1933999-Riodinidae does not exist in Vermont
+            ]
+          }
+        ]
+      }
+    ]
     }
   },
 }
