@@ -30,6 +30,7 @@ var urlRouts = urlPath.split('/'); //path contains route and file without host
 console.log('gbif_data_config.js | urlRouts', urlRouts);
 //WordPress use routes to pages, defined by the user. See eg. page-species-explorer-2022.php. etc.
 var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages within WordPress.
+var homeEnd = '';
 var exploreEnd = 'gbif-explorer'; //occurrences
 var resultsEnd = 'gbif-species-explorer';
 var profileEnd = 'species-profile';
@@ -37,6 +38,7 @@ var literatEnd = 'gbif-literature';
 var publishEnd = 'gbif-publishers';
 if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //test sites use html for endpoints and has site-specific routing
   baseRoute = urlRouts.splice(0, urlRouts.length-1).join('/'); //remove the html file from the route and use what's left to build URLs for page links in code
+  homeEnd = 'index.html';
   exploreEnd = 'occurrences.html';
   resultsEnd = 'results.html';
   profileEnd = 'VAL_Species_Page/profile.html';
@@ -45,6 +47,7 @@ if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //
 }
 baseRoute = baseRoute.replace('VAL_Species_Page', ''); //Sp Page includes this file to get paths. Remove it from baseRoute to allow link to find VAL_Data_Explorers
 if (!baseRoute.endsWith('/')) {baseRoute += '/';}
+const homeUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${homeEnd}`;
 const exploreUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${exploreEnd}`;
 const resultsUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${resultsEnd}`;
 const profileUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${profileEnd}`;
@@ -92,7 +95,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
@@ -181,7 +184,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
@@ -264,7 +267,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
@@ -313,7 +316,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
@@ -363,7 +366,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
@@ -435,7 +438,7 @@ const config = {
       },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
-    baseRoute: baseRoute,
+    homeUrl: homeUrl,
     exploreUrl: exploreUrl,
     resultsUrl: resultsUrl,
     profileUrl: profileUrl,
