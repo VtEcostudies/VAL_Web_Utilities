@@ -66,13 +66,14 @@ const columns = ['scientificName','vernacularNames','rank','taxonomicStatus','ch
 const columNames = {
   'key':'Dataset Key',
   'nubKey':'Backbone Key',
+  'parentKey':'Parent Key',
   'scientificName': 'Scientific Name',
-  'canonicalName':'Name',
+  'canonicalName':'Taxon',
   'childTaxa': 'Child Taxa',
   'vernacularNames':'Common Names',
   'rank':'Rank',
   'taxonomicStatus':'Status',
-  'parent':'Parent Name',
+  'parent':'Parent Taxon',
   'parentTaxa': 'Parent Taxa',
   'higherClassificationMap':'Parent Taxa',
   'iconImage': '',
@@ -110,7 +111,7 @@ const config = {
     publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
     occurrenceDatasetKey: '', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: 'gadm_gid=USA.46_1',
-    columns: columns,
+    columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
     columNames: columNames,
     downloadOccurrenceCounts: 1,
     mapSettings: {
@@ -447,12 +448,12 @@ const config = {
     gbifPortal: false,
     inatProject: 'vermont-atlas-of-life',
     gbifApi: gbifApi,
-    gadmGid: '', //leave blank if N/A
+    gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key
     speciesFilter: 'datasetKey=73eb16f0-4b06-4347-8069-459bc2d96ddb', //Filter to use for species
     publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown    columNames: columNames,
+    columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
     columNames: columNames,
     mapSettings: {
       lat: 43.858297,
