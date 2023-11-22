@@ -76,7 +76,7 @@ const columNames = {
   'parent':'Parent Taxon',
   'parentTaxa': 'Parent Taxa',
   'higherClassificationMap':'Parent Taxa',
-  'iconImage': '',
+  'iconImage': 'Image',
   'occurrences':'Occurrences',
   'images':'Images'
 };
