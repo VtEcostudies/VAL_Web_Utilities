@@ -177,3 +177,9 @@ export function getParentRank(trank) {
     console.log(`getParentRank`,trank,idx,ranks[idx-1]);
     return ranks[idx-1];
 }
+export function getNextChildRank(trank) {
+    trank = trank.toUpperCase();
+    let idx = ranks.findIndex((ele) => {return ele == trank;});
+    console.log(`getNextChildRank`,trank,idx,ranks[idx+1]);
+    return ranks[idx+1];
+}

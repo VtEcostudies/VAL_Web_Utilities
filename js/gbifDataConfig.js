@@ -80,6 +80,7 @@ const columNames = {
   'occurrences':'Occurrences',
   'images':'Images'
 };
+const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY']; //ranks that allow occurrence search drill-downs
 
 const config = {
   val: { //Vermont Atlas of Life
@@ -113,6 +114,7 @@ const config = {
     occurrenceFilter: 'gadm_gid=USA.46_1',
     columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
     columNames: columNames,
+    drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
     mapSettings: {
       lat: 43.858297,
@@ -202,6 +204,7 @@ const config = {
     occurrenceFilter: 'geometry=POLYGON((-70.88477 41.33702,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88477 41.33702))',
     columns: columns,
     columNames: columNames,
+    drillRanks: drillRanks,
     mapSettings: {
       lat: 41.4,
       lng: -70.6,
@@ -285,6 +288,7 @@ const config = {
     occurrenceFilter: 'publishing_org=7b8aff00-a9f8-11d8-944b-b8a03c50a862',
     columns: columns,
     columNames: columNames,
+    drillRanks: drillRanks,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -333,8 +337,9 @@ const config = {
     publishingOrgKey: '', //leave blank if N/A
     occurrenceDatasetKey: 'cf3bdc30-370c-48d3-8fff-b587a39d72d6', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: '', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown    columNames: columNames,
+    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
     columNames: columNames,
+    drillRanks: drillRanks,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -382,8 +387,9 @@ const config = {
     publishingOrgKey: '', //leave blank if N/A
     occurrenceDatasetKey: '', //New idea NOT implemented yet
     occurrenceFilter: '', //'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown    columNames: columNames,
+    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
     columNames: columNames,
+    drillRanks: drillRanks,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -455,6 +461,7 @@ const config = {
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
     columNames: columNames,
+    drillRanks: drillRanks,
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,

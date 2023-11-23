@@ -50,13 +50,17 @@ export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
         let json = await res.json();
         //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) QUERY:`, enc);
         //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) RESULT:`, json);
-        let arr = [];
+        let nubs = [];
+        let name = [];
         for (const idx in json.results) { //returns array indexes of array of objects
             //console.log(`element of array:`, idx);
-            if (json.results[idx].nubKey) {arr.push(json.results[idx].nubKey);}
+            if (json.results[idx].nubKey) {
+                nubs.push(json.results[idx].nubKey);
+                name.push(json.results[idx].canonicalName);
+            }
         }
-        console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, arr);
-        return {'keys':arr, 'query':enc};
+        console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs);
+        return {'keys':nubs, 'names':name, 'query':enc};
     } catch (err) {
         err.query = enc;
         console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) ERROR:`, err);
