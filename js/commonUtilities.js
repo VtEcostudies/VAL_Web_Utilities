@@ -108,21 +108,26 @@ export async function fetchImgFile(filePath, fileType='tiff') {
 }
 
 /*
-NOTE: This fails to find a valid match for some common taxa (eg. Sterna), I think
-when this function is called with a species-list taxonKey rather than a nubKey.
+NOTE: This fails to find a valid match for some common taxa (eg. Sterna).
 Everywhere possible we use taxonKey to search, not taxonName.
 */
-export async function getGbifTaxonKeyFromName(taxonName) {
+export async function getGbifTaxonKeyFromName(taxonName, taxonRank='UNKNOWN') {
     try {
-        let json = await getGbifTaxonObjFromName(taxonName);
+        let json = await getGbifTaxonObjFromName(taxonName, taxonRank);
         return json.usageKey;
     } catch (err) {
         return new Error(err);
     }
 }
 
-// Use the gbif taxon match API to resolve taxonName to taxonKey, or not.
-export async function getGbifTaxonObjFromName(taxonName, taxonRank) {
+/* 
+Use the gbif taxon match API to resolve taxonName to taxonKey, or not.
+In rare cases matching unexpectedly fails (eg. Sterna matches Animalia).
+To avoid returning incorrect yet successful matches for such failures,
+pass a taxonRank as a secondary check. However if a taxonRank is not
+supplied, match will succeed with an 'UNKNOWN' rank.
+*/
+export async function getGbifTaxonObjFromName(taxonName, taxonRank='UNKNOWN') {
 
     console.log(`getGbifTaxonKeyFromName ${taxonName}`);
 
@@ -133,7 +138,7 @@ export async function getGbifTaxonObjFromName(taxonName, taxonRank) {
         console.log(`getGbifTaxonKeyFromName(${enc}) RAW RESULT:`, res);
         let json = await res.json();
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
-        if (json.usageKey && taxonRank.toUpperCase() == json.rank.toUpperCase()) {
+        if (json.usageKey && ('UNKNOWN' == taxonRank || taxonRank.toUpperCase() == json.rank.toUpperCase())) {
             //console.log('getGbifTaxonObjFromName MATCHED');
             return Promise.resolve(json);
          } else {
@@ -182,4 +187,13 @@ export function getNextChildRank(trank) {
     let idx = ranks.findIndex((ele) => {return ele == trank;});
     console.log(`getNextChildRank`,trank,idx,ranks[idx+1]);
     return ranks[idx+1];
+}
+export function parseNameToRank(name) {
+    name = decodeURI(name);
+    let nArr = name.split(' ');
+    let nLen = nArr.length;
+    let rank = 'UNKNOWN';
+    if (nLen > 2) rank = 'SUBSPECIES';
+    if (2 == nLen) rank = 'SPECIES';
+    return rank;
 }

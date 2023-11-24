@@ -62,7 +62,7 @@ console.log('gbif_data_config.js | profileUrl', profileUrl);
 console.log('gbif_data_config.js | literatUrl', literatUrl);
 console.log('gbif_data_config.js | publishUrl', publishUrl);
 //const allColumns = ['key','nubKey','canonicalName','scientificName','vernacularName','rank','taxonomicStatus','synonym','parentKey','parent','occurrences','images','childTaxa','iconImage'];
-const columns = ['scientificName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images']; //these are the columns that will be shown
+const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences']; //these are the columns that will be shown
 const columNames = {
   'key':'Dataset Key',
   'nubKey':'Backbone Key',
@@ -80,7 +80,7 @@ const columNames = {
   'occurrences':'Occurrences',
   'images':'Images'
 };
-const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY']; //ranks that allow occurrence search drill-downs
+const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
 
 const config = {
   val: { //Vermont Atlas of Life

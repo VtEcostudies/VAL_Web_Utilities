@@ -104,5 +104,5 @@ async function checklistToVernaculars(list=[]) {
 }
 
 checklistVtButterflies = await getGbifSpeciesDataset(); //load file-scope dataset
-checklistVernacularNames = await checklistToVernaculars(checklistVtButterflies.results); //fill file-scope vernacalar list object
+checklistVernacularNames = await checklistToVernaculars(checklistVtButterflies.results); //fill file-scope vernacular list object
 
