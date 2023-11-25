@@ -252,7 +252,7 @@ async function loadDataset(datasetKey=false, geoSearch=[]) {
 
 if (geometry) {geoSearch.push(`geometry=${geometry}`);}
 if (gadm_gid) {geoSearch.push(`gadmGid=${gadm_gid}`);}
-if (province) {geoSearch.push(`stateProvince=${province}`);} //this needs to be an array of values concatenated into an http &-seprated list
+if (province) {geoSearch.push(`stateProvince=${province}`);} //this needs to be an array of values concatenated into an http &-separated list
 if ('butterflies' ==  list) {
     await loadDataset(datasetKeys['chkVtb1'], geoSearch); //Note: MUST await, here, else dataTables fires early with disastrous results
 } 

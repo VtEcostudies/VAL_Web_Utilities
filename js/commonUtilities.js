@@ -129,13 +129,13 @@ supplied, match will succeed with an 'UNKNOWN' rank.
 */
 export async function getGbifTaxonObjFromName(taxonName, taxonRank='UNKNOWN') {
 
-    console.log(`getGbifTaxonKeyFromName ${taxonName}`);
+    //console.log(`getGbifTaxonKeyFromName ${taxonName}`);
 
     let url = `https://api.gbif.org/v1/species/match?name=${taxonName}`;
     let enc = encodeURI(url);
     try {
         let res = await fetch(url);
-        console.log(`getGbifTaxonKeyFromName(${enc}) RAW RESULT:`, res);
+        //console.log(`getGbifTaxonKeyFromName(${enc}) RAW RESULT:`, res);
         let json = await res.json();
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
         if (json.usageKey && ('UNKNOWN' == taxonRank || taxonRank.toUpperCase() == json.rank.toUpperCase())) {

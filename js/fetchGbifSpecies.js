@@ -10,7 +10,7 @@ export var checklistVernacularNames;
 /*
     https://api.gbif.org/v1/species/search?dataset_key=73eb16f0-4b06-4347-8069-459bc2d96ddb&limit=300
 */
-export async function getGbifSpeciesDataset(datasetKey=datasetKeys['chkVtb1'], offset=0, limit=1000, params=false) {
+export async function getGbifSpeciesByDataset(datasetKey=datasetKeys['chkVtb1'], offset=0, limit=1000, params=false) {
     let reqHost = gbifApi;
     let reqRoute = `/species/search?dataset_key=${datasetKey}`;
     let reqLimit = `&offset=${offset}&limit=${limit}`
@@ -103,6 +103,6 @@ async function checklistToVernaculars(list=[]) {
     return vern;
 }
 
-checklistVtButterflies = await getGbifSpeciesDataset(); //load file-scope dataset
+checklistVtButterflies = await getGbifSpeciesByDataset(); //load file-scope dataset
 checklistVernacularNames = await checklistToVernaculars(checklistVtButterflies.results); //fill file-scope vernacular list object
 
