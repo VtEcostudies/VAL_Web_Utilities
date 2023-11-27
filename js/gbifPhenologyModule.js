@@ -1,4 +1,4 @@
-import { gbifCountsByWeek, gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
+import { gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
 import { datasetKeys } from "./fetchGbifSpecies.js";
 import { getGbifSpeciesByDataset, getGbifSpeciesByTaxonKey } from './fetchGbifSpecies.js';
 import { getGbifTaxonObjFromName } from './commonUtilities.js';
@@ -80,7 +80,7 @@ async function addWeekHead(columnA=[]) {
         colObj.innerHTML = `<div id="week${week}" class="weekHeaderNumber">${week}</div>`;
         let days = 7 * week; //days at end of this week
         let diff = days - MonthDays[month]; //how far off we are from month boundary using weeks as a counter
-        console.log('calcMonth', 'month', month, 'week', week, 'days', days, 'diff', diff);
+        //console.log('Calculate Header Month position', 'month', month, 'week', week, 'days', days, 'diff', diff);
         if (days > MonthDays[month] && diff > 2) {
             colObj.innerHTML += `<div id="week${week}" class="monthHeaderName">${monthName[month]}</div>`;
             colObj.classList.add('no-stretch-cell');
@@ -201,7 +201,7 @@ function setTitleText(objTitle, taxonNameA=[], taxonKeyA=[], butterflies=false, 
     }
 }
 
-async function loadDataset(datasetKey=false, columnA=[], geoSearchA=[]) {
+async function loadDataset(datasetKey=false, columnA=[], geoSearchA=[], offset, limit) {
     let rowIdx = 0;
     let spcs = await getGbifSpeciesByDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
     console.log(`vbaFlightTimes=>getGbifSpeciesByDataset`, spcs);
@@ -211,7 +211,7 @@ async function loadDataset(datasetKey=false, columnA=[], geoSearchA=[]) {
         let taxon = spcs.results[i];
         if (('SPECIES' == taxon.rank.toUpperCase() || 'SUBSPECIES' == taxon.rank.toUpperCase()) && 'ACCEPTED' == taxon.taxonomicStatus.toUpperCase()) {
             let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearchA);
-            //let pheno = await gbifCountsByWeekByTaxonKey(taxon.nubKey, geoSearch);
+            //let pheno = await gbifCountsByWeekByTaxonKey(taxon.nubKey, geoSearchA);
             addTaxonRow(columnA, pheno, taxon, rowIdx++);
         }
     }
@@ -231,16 +231,16 @@ function afterTaxonRows(columnA=[], objHtmlIds, objSort, objTitle={show:0, text:
 /*
     geoSearch [`gadmGid=USA_46.1`,`geometry={WKT}`,`stateProvince='Vermont'`]
 */
-export async function gbifPhenologyBySpeciesListName(listName, columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle) {
+export async function gbifPhenologyBySpeciesListName(listName, columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle, offset, limit) {
     if ('butterflies' ==  listName) {
-        gbifPhenologyByDataSetKey(datasetKeys['chkVtb1'], columnA, geoSearchA, objHtmlIds, objSort, objTitle); //Note: MUST await, here, else dataTables fires early with disastrous results
+        gbifPhenologyByDataSetKey(datasetKeys['chkVtb1'], columnA, geoSearchA, objHtmlIds, objSort, objTitle, offset, limit); //Note: MUST await, here, else dataTables fires early with disastrous results
     } else {
         console.log(`Species-list named ${listName} NOT found.`);
     }
 }
-export async function gbifPhenologyByDataSetKey(datasetKey, columnA=[], geoSearchA, objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle) {
+export async function gbifPhenologyByDataSetKey(datasetKey, columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle, offset, limit) {
     beforeTaxonRows(objHtmlIds, objTitle);
-    await loadDataset(datasetKey, columnA, geoSearchA); //Note: MUST await, here, else dataTables fires early with disastrous results
+    await loadDataset(datasetKey, columnA, geoSearchA, offset, limit); //Note: MUST await, here, else dataTables fires early with disastrous results
     afterTaxonRows(columnA, objHtmlIds, objSort);
 }
 export async function gbifPhenologyByTaxonKeys(taxonKeyA=[], columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle) {
@@ -255,7 +255,7 @@ export async function gbifPhenologyByTaxonKeys(taxonKeyA=[], columnA=[], geoSear
     }
     afterTaxonRows(columnA, objHtmlIds, objSort);
 }
-export async function gbifPhenologyByTaxonNames(taxonNameA=[], columnA=[], geoSearchA, objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle) {
+export async function gbifPhenologyByTaxonNames(taxonNameA=[], columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle) {
     beforeTaxonRows(objHtmlIds, objTitle);
     for (var i=0; i<taxonNameA.length; i++) {
         let taxonName = taxonNameA[i];
@@ -263,7 +263,7 @@ export async function gbifPhenologyByTaxonNames(taxonNameA=[], columnA=[], geoSe
         console.log(`vbaFlightTimes=>getGbifTaxonObjFromName(${taxonName})`, match);
         let taxon = await getGbifSpeciesByTaxonKey(match.usageKey);
         console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
-        let pheno = await gbifCountsByWeek(taxon.canonicalName, geoSearchA);
+        let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearchA);
         console.log(`vbaFlightTimes=>gbifCountsByWeek(${taxon.canonicalName})`, pheno);
         addTaxonRow(columnA, pheno, taxon, i);
     }

@@ -1,10 +1,13 @@
-import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
+//import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
+import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
+import { getListSubTaxonKeys } from "./gbifItemCounts.js";
+import { getGbifSpeciesByTaxonKey } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
+const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
 var Storage = window.sessionStorage ? sessionStorage : false;
 var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
 /*
-Return an object having occurrence sums by week (and month) for a taxon in the State of Vermont:
-
+Return an object having occurrence sums by week (and month) for a taxon in the requested geometry/geography:
 {
     search: searchTerm, //the search term used, either scientificName=Turdus or taxonKey=12345
     taxonName: taxonName, //the taxonName requested, or empty if queried explicitly by taxonKey
@@ -13,6 +16,7 @@ Return an object having occurrence sums by week (and month) for a taxon in the S
     weekSum: wSum, //object with sums of occurrence counts by week, 1-based (1=first week, 53=last week): {...,'23':8, '24':25, '25':109, ...}
     monthSum: mSum, //object with sums of occurrence counts by month, 1-based (1=January, 12=December): {'1':2, ...,'5':239, '6':842, ..., '12':3}
     weekAgg: wAgg //object with sums of occurrence counts by week, plus month: {week:{count: wSum[week], week: week, month: month}}
+    weekArr: wArr //array of 53 weekly occurrence counts for d3.js chart: [{count: wSum[week], week: week, month: month}]
 }
 
 Since 'In the State of Vermont' is represented in occurrence data differently for different datasets, 
@@ -31,7 +35,7 @@ https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus
 https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */
 //wrap retrieval of phenology in this async function to return a promise, which elsewhere waits for data
-export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
+export async function getStoredPhenology(searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
     console.log(`gbifCountByWeek::getStoredPhenology | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
@@ -40,7 +44,7 @@ export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
         phenology = JSON.parse(Storage.getItem(storeName));
         console.log(`Storage.getItem(${storeName}) returned`, phenology);
     } else {
-        phenology = fetchAll(searchTerm, taxonName, geoSearch); //returns a promise. handle that downstream with occs.then(occs => {}).
+        phenology = fetchAll(searchTerm, geoSearch); //returns a promise. handle that downstream with occs.then(occs => {}).
         console.log(`fetchAll(${searchTerm}) returned`, phenology); //this returns 'Promise { <state>: "pending" }'
         phenology.then(pheno => { //convert promise to data object...
             Storage.setItem(storeName, JSON.stringify(pheno));
@@ -48,46 +52,54 @@ export async function getStoredPhenology(taxonName, searchTerm, geoSearch) {
     }
     return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
 }
+export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
+    let self = await getGbifSpeciesByTaxonKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
+    let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
+    let subs = {keys:[]};
+    if (fileConfig.dataConfig.drillRanks.includes(self.rank)) { //only drill-down lower ranks
+        subs = await getListSubTaxonKeys(fileConfig, taxonKey); //get sub-nubKeys of species-list key
+        for (const key of subs.keys) {
+            srch += `&taxonKey=${key}`; //add sub-nubKeys to searchTerm to be used by fetchAll
+        }
+    }
+    console.log(`gbifCountsByWeekByListTaxonKey(${taxonKey}) | self-nubKey:`, self.nubKey, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
+    
+    let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
+    let res = await fetchAll(srch, geoSearchA);
+    res.nubKey = self.nubKey;
+    res.keys = subs.keys.push(self.nubKey); //add self nubKey to array of keys for species-list key
+    res.names = subs.names;
+    res.search = srch; //return our enhanced searchTerm for caller to use
+    return res;
+}
 export async function gbifCountsByWeekByTaxonKey(taxonKey, geoSearch) {
-    return await fetchAllByKey(taxonKey, null, geoSearch);
+    return await fetchAllByKey(taxonKey, geoSearch);
 }
 export async function gbifCountsByWeekByTaxonName(taxonName, geoSearch) {
     return await fetchAllByName(taxonName, geoSearch);
 }
-export async function gbifCountsByWeek(taxonName, geoSearch) {
-    try {
-        let usageKey = await getGbifTaxonKeyFromName(taxonName);    
-        return await fetchAllByKey(usageKey, taxonName, geoSearch);
-    } catch(err) {
-        return await fetchAllByName(taxonName, geoSearch);
-    }
-}
-async function fetchAllByKey(taxonKey, taxonName, geoSearch) {
-    //return await fetchAll(`taxonKey=${taxonKey}`);
-    return await getStoredPhenology(taxonName, `taxonKey=${taxonKey}`, geoSearch)
+async function fetchAllByKey(taxonKey, geoSearch) {
+    return await fetchAll(`taxonKey=${taxonKey}`, geoSearch);
+    //return await getStoredPhenology(`taxonKey=${taxonKey}`, geoSearch);
 }
 async function fetchAllByName(taxonName, geoSearch) {
-    //return await fetchAll(`scientificName=${taxonName}`, taxonName);
-    return await getStoredPhenology(taxonName, `scientificName=${taxonName}`, geoSearch)
+    return await fetchAll(`scientificName=${taxonName}`, geoSearch);
+    //return await getStoredPhenology(`scientificName=${taxonName}`, geoSearch)
 }
-function fetchAll(searchTerm, taxonName, geoSearch) {
-    let urls = [
-        `https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`,
-        `https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&${searchTerm}&facet=eventDate&facetLimit=1200000&limit=0`
-        ]
+//function fetchAll(searchTerm, taxonName, geoSearch) {
+function fetchAll(searchTerm, geoSearch) {
     geoSearch = geoSearch.length ? geoSearch : vtGeo;
-    console.log(`fetchAll geoSearch`, geoSearch);
-    let trailing = 'facet=eventDate&facetLimit=1200000&limit=0';
+    console.log(`gbifCountsByWeek=>fetchAll | searchTerm`, searchTerm, `geoSearch`, geoSearch);
+    //let trailing = 'facet=eventDate&facetLimit=1200000&limit=0';
     let uris = [];
     for (const geo of geoSearch) {
-        let uri = encodeURI(`https://api.gbif.org/v1/occurrence/search?${geo}&${searchTerm}&${trailing}`);
+        let uri = encodeURI(`https://api.gbif.org/v1/occurrence/search?${geo}&${searchTerm}&${facetQuery}`);
         uris.push(uri);
     }
-    //console.log('fetchAll URIs', uris);
-    //let all = Promise.all([fetch(encodeURI(urls[0])),fetch(encodeURI(urls[1]))])
+    console.log(`gbifCountsByWeek=>fetchAll | URIs`, uris);
     let all = Promise.all(uris.map(uri => fetch(uri)))
         .then(responses => {
-            //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) RAW RESULT:`, responses);
+            //console.log(`gbifCountsByWeek=>fetchAll(${searchTerm}) RAW RESULT:`, responses);
             //Convert each response to json object
             return Promise.all(responses.map(async res => {
                 let json = await res.json();
@@ -97,7 +109,7 @@ function fetchAll(searchTerm, taxonName, geoSearch) {
         })
         .then(arrj => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) ALL JSON RESULT:`, arrj);
-            let total = 0, wSum = {}, mSum = {}, wAgg = {}, counts = [];
+            let total = 0, wSum = {}, mSum = {}, wAgg = {};
             arrj.forEach(json => {
                 //console.log('json', json);
                 total += json.count;
@@ -121,8 +133,14 @@ function fetchAll(searchTerm, taxonName, geoSearch) {
             });
             let tday = new Date().toUtc(); //today's date shifted to UTC
             let tdWk = tday.getWeek()+1; // the week we're in today, 1-based
+            let wArr = [];
+            for (var i=1;i<54;i++) { //convert sparse object to complete array (for d3.js charts)
+                if (wAgg[i]) {wArr.push(wAgg[i]);}
+                else {wArr.push({count:0, week:i, month:weekToMonth(i)});}
+            }
             //return Promise.resolve({search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
-            return {search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg};
+            //return {search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr};
+            return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr};
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
@@ -131,4 +149,17 @@ function fetchAll(searchTerm, taxonName, geoSearch) {
         })
     console.log(`fetchAll promise.all`, all);
     return all; //this is how it's done. strange errors when not.
+}
+
+function weekToMonth(weekNumber, year=2023) {
+    // Create a date based on the first day of the given year
+    const date = new Date(year, 0, 1);
+    
+    // Adjust the date to the first day of the week
+    date.setDate(date.getDate() + (weekNumber - 1) * 7 - date.getDay());
+
+    // Get the month of the adjusted date
+    const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
+
+    return month;
 }

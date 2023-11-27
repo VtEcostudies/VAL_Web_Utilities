@@ -1,5 +1,8 @@
 import {
-    gbifPhenologyByTaxonNames
+    gbifPhenologyByDataSetKey,
+    gbifPhenologyBySpeciesListName,
+    gbifPhenologyByTaxonKeys,
+    gbifPhenologyByTaxonNames,
 } from './gbifPhenologyModule.js';
 
 const objUrlParams = new URLSearchParams(window.location.search);
@@ -32,7 +35,7 @@ console.log('offset', offset, 'limit', limit);
 let objHtmlIds = {tblId:'phenologyTable', ttlId:'phenologyTitle'};
 let objSort = {sort:sort, responsive:responsive, paging:paging, searching:searching, sortInfo:sortInfo}
 let objTitle = {show:showTitle, text:titleText};
-if (taxonNameA) {
+if (taxonNameA.length) {
     if (1==taxonNameA.length) {
         objSort = {sort:0, responsive:0, paging:0, searching:0, sortInfo:0}
         objTitle = {show:1, text:`${taxonNameA[0]} Phenology`}
@@ -40,15 +43,25 @@ if (taxonNameA) {
         objTitle = {show:1, text:`${taxonNameA.join(', ')} Phenology`}
     }
     gbifPhenologyByTaxonNames(taxonNameA, columnA, geoSearchA, objHtmlIds, objSort, objTitle);
+} else if (taxonKeyA.length) {
+    if (1==taxonKeyA.length) {
+        objSort = {sort:0, responsive:0, paging:0, searching:0, sortInfo:0}
+    }
+    gbifPhenologyByTaxonKeys(taxonKeyA, columnA, geoSearchA, objHtmlIds, objSort, objTitle);
+} else if (listName) {
+    gbifPhenologyBySpeciesListName(listName, columnA, geoSearchA, objHtmlIds, objSort, objTitle, offset, limit);
+} else if (datasetKey) {
+    gbifPhenologyByDataSetKey(datasetKey, columnA, geoSearchA, objHtmlIds, objSort, objTitle, offset, limit);
+} else {
+    showHelp();
 }
 
 function showHelp() {
     let eleDiv = document.getElementById("phenologyDiv");
     let eleInf = document.getElementById("phenologyParamsInfo");
     let url = new URL(window.location);
-    eleDiv.style.display = 'none';
-    if (eleInf) {
-        eleInf.innerHTML = 
+    if (eleDiv) {eleDiv.style.display = 'none';}
+    if (eleInf) {eleInf.innerHTML = 
     `
     <p>Control the VAL phenology chart with query parameters:</p>
         <li><a href="${url.href.split('?')[0]}?list=butterflies&column=Scientific&column=Vernacular&limit=5">

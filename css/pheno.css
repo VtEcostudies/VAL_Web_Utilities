@@ -1,3 +1,16 @@
+/*
+    Tooltip styling for d3.js phenology by week chart
+*/
+.tooltip {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 14px;
+    pointer-events: none;
+    display: none;
+}
+
 /* 
     Resize the dataTables drop-down box to fit number and down-arrow 
     Naming: DataTables appends _wrapper and _length to our table's id.
@@ -39,6 +52,7 @@ table.dataTable thead>tr>td.sorting_desc_disabled:after
     font-size: .7em !important; /* Override Datatables '.8em' */
 }
 
+/* these interfere with other styles. do not include.
 body {
     margin: 5px;
 }
@@ -47,6 +61,7 @@ body {
     padding: 0px;
     margin: 0px;
 }
+*/
 
 .centerTitle {
     text-align: center;

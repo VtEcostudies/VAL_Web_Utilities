@@ -1,6 +1,6 @@
-import { gbifCountsByWeek, gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
+import { gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
 import { datasetKeys } from "./fetchGbifSpecies.js";
-import { getGbifSpeciesDataset, getGbifSpeciesByTaxonKey } from './fetchGbifSpecies.js';
+import { getGbifSpeciesByDataset, getGbifSpeciesByTaxonKey } from './fetchGbifSpecies.js';
 import { getGbifTaxonObjFromName } from './commonUtilities.js';
 import { tableSortHeavy } from './tableSortHeavy.js'
 import './extendDate.js'; //import getWeek() and toUtc()
@@ -230,8 +230,8 @@ function setTitleText(text=false, taxonNameA=[], taxonKeyA=[], butteflies=false,
 async function loadDataset(datasetKey=false, geoSearch=[]) {
     let rowIdx = 0;
     addPageWait();
-    let butts = await getGbifSpeciesDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
-    console.log(`vbaFlightTimes=>getGbifSpeciesDataset`, butts);
+    let butts = await getGbifSpeciesByDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
+    console.log(`vbaFlightTimes=>getGbifSpeciesByDataset`, butts);
     offset = offset < butts.results.length ? offset : butts.results.length - 1;
     limit = (offset+limit) < butts.results.length ? limit : butts.results.length - offset;
     for (var i=offset; i<(offset+limit); i++) {
@@ -267,7 +267,7 @@ else if (taxonNameA.length || taxonKeyA.length) {
         console.log(`vbaFlightTimes=>getGbifTaxonObjFromName(${taxonName})`, match);
         let taxon = await getGbifSpeciesByTaxonKey(match.usageKey);
         console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
-        let pheno = await gbifCountsByWeek(taxon.canonicalName, geoSearch);
+        let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearch);
         console.log(`vbaFlightTimes=>gbifCountsByWeek(${taxon.canonicalName})`, pheno);
         addTaxonRow(pheno, taxon, i);
     }
