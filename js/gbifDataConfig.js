@@ -112,7 +112,7 @@ const config = {
     publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
     occurrenceDatasetKey: '', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: 'gadm_gid=USA.46_1',
-    columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
+    columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
@@ -459,7 +459,7 @@ const config = {
     speciesFilter: 'datasetKey=73eb16f0-4b06-4347-8069-459bc2d96ddb', //Filter to use for species
     publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parent','iconImage','occurrences'],
+    columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
     mapSettings: {

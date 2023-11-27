@@ -1,9 +1,9 @@
 /*
-    Tooltip styling for d3.js phenology by week chart
+    Tooltip styling for d3.js phenology by week chart and inat donut chart
 */
-.tooltip {
+.d3tooltip {
     position: absolute;
-    background-color: white;
+    background-color: orange;
     border: 1px solid #ddd;
     padding: 8px;
     font-size: 14px;
