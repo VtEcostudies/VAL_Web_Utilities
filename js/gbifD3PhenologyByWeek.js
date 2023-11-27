@@ -36,7 +36,8 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     const margin = { top: 20, right: 20, bottom: 30, left: 30 };
 
     let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
-    let height = 250;//document.getElementById(htmlId).offsetHeight - margin.bottom - margin.top;
+    let height = 250;//document.getElementById(htmlId).offsetHeight - margin.bottom - margin.top - axisOffset*2;
+    let axisOffset = 5; //push x-axes away from y-axis and tallest bar this amount to show a gap
 
     console.log(width, height);
 
@@ -51,11 +52,11 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     */
     let svg = d3.select(`#${htmlId}`)
         .append("svg")
-        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + axisOffset*2}`)
         .attr("width", "100%")
         .attr("height", "100%")
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${margin.left},${margin.top + axisOffset*2})`);
 
     // Set the ranges
     const x = d3.scaleBand().range([0, width]).padding(0.1);
@@ -76,8 +77,8 @@ function createChart(htmlId='chart', data, searchTerm=0) {
 
     // Add the weeks X Axis
     svg.append("g")
-        .attr("transform", `translate(0, ${height + 5})`) //5 px below the chart
-        //.attr("transform", `translate(0, -5)`) //5 px above the chart
+        .attr("transform", `translate(0, ${height + axisOffset})`) //5 px below the chart
+        //.attr("transform", `translate(0, ${-axisOffset})`) //5 px above the chart
         //.call(d3.axisTop(x)) //above the line
         .call(d3.axisBottom(x)) //below the line
     /*
@@ -87,8 +88,8 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     */
     // Add the months X Axis
     svg.append("g")
-        //.attr("transform", `translate(0, ${height + 5})`) //5 px below the chart
-        .attr("transform", `translate(0, -5)`) //5 px above the chart
+        //.attr("transform", `translate(0, ${height + axisOffset})`) //5 px below the chart
+        .attr("transform", `translate(0, ${-axisOffset})`) //5 px above the chart
         .call(d3.axisTop(xM) //above the line
         //.call(d3.axisBottom(xM) //below the line
         .tickFormat(d => {
@@ -116,9 +117,9 @@ function createChart(htmlId='chart', data, searchTerm=0) {
         .style("cursor", "pointer"); // Change cursor on hover to indicate clickability
 
     // Add the tooltip
-    const tooltip = d3.select("#chart")
-        .append("div")
-        .attr("class", "tooltip");
+    //let tooltip = svg.append("div").attr("class", "d3tooltip");
+    let tooltip = d3.select(`#${htmlId}`).append("div").attr("class", "d3tooltip");;
+
     // Mouseover event handler
     function handleMouseOver(event, d) {
         d3.select(this)
@@ -129,8 +130,8 @@ function createChart(htmlId='chart', data, searchTerm=0) {
 
         tooltip
             .html(`Week: ${d.week}<br>Month: ${d.month}<br>Count: ${d.count}`)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px")
+            .style("left", (event.pageX) + "px")
+            .style("top", (event.pageY) + "px")
             .style("display", "block");
     }
     // Mouseout event handler
