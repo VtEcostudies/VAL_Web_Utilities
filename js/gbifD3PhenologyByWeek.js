@@ -117,7 +117,6 @@ function createChart(htmlId='chart', data, searchTerm=0) {
         .style("cursor", "pointer"); // Change cursor on hover to indicate clickability
 
     // Add the tooltip
-    //let tooltip = svg.append("div").attr("class", "d3tooltip");
     let tooltip = d3.select(`#${htmlId}`).append("div").attr("class", "d3tooltip");;
 
     // Mouseover event handler
@@ -130,8 +129,8 @@ function createChart(htmlId='chart', data, searchTerm=0) {
 
         tooltip
             .html(`Week: ${d.week}<br>Month: ${d.month}<br>Count: ${d.count}`)
-            .style("left", (event.pageX) + "px")
-            .style("top", (event.pageY) + "px")
+            .style("left", (event.pageX-80) + "px")
+            .style("top", (event.pageY-90) + "px")
             .style("display", "block");
     }
     // Mouseout event handler
