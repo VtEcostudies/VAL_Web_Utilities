@@ -26,7 +26,6 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
             json.query = enc;
             console.log(`getInatSpecies(${taxonName}, ${taxonRank}, ${parentName}, ${parentRank}) JSON RESULT:`, json);
             if (1 == json.results.length) {
-                //return Promise.resolve(json.results[0]);
                 return json.results[0];
             } else {
                 let match = false;
@@ -37,7 +36,7 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                         console.log(`getInatSpecies(${taxonName}) FOUND ${find.matched_term}`, find);
                         //oops. In some cases there are duplicate names at the same rank in different trees. eg. Morus. Compare parent taxa.
                         let parentObj = await findParentNameRank(parentName, parentRank, find.parent_id);
-                        //oops. iNat includes subTaxa in its tree, so parent_id can be eg. 'subfamily'. yikes, we need to travserse parent_ids to find a taxon for comparison.
+                        //oops. iNat includes subTaxa in its tree, so parent_id can be eg. 'subfamily'. yikes, we need to traverse parent_ids to find a taxon for comparison.
                         console.log('findParentNameRank returned', parentObj);
                         if (parentObj.name) {
                             match = find;
@@ -45,19 +44,17 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                         }
                     }
                 }
-                //return Promise.resolve(match);
-                return match;
+                if (match.id) {return match;}
+                else {return Promise.reject({'message':`No match found for ${taxonRank} ${taxonName}`});}   
             }
         } else {
             console.log(`getInatSpecies(${taxonName}) BAD RESULT:`, res.status);
-            //return Promise.reject(res);
-            return res;
+            return Promise.reject(res);
         }
     } catch (err) {
         err.query = enc;
         console.log(`getInatSpecies(${taxonName}) ERROR:`, err);
-        //return Promise.reject(err);
-        return err;
+        return Promise.reject(err);
     }
 }
 

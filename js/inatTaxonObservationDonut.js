@@ -1,3 +1,4 @@
+import { getInatSpecies } from './inatSpeciesData.js';
 /*
 To-do:
 - allow for other ways to scope the view of iNat data, other than by project
@@ -25,18 +26,36 @@ To-do:
       Allowed values: iNat list ID 
 */
 export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, commonName=false, inatProject=false) {
-  let promise = inatTaxonObsData(taxonName, taxonRank, inatProject).then(inat => {
+  let promise = inatTaxonObsDataByName(taxonName, taxonRank, inatProject).then(inat => {
     d3.select(htmlId).remove();
     makeDonut(inat, htmlId);
     return inat;
   }).catch(err => {
     console.log('inatTaxonObservationDonut=>inatTaxonObsDonut ERROR', err);
     console.dir(err); //this shows you the error structure
+    showError(err, htmlId);
     return Promise.reject({'message':err.message});
   })
   return promise;
 }
-export async function inatTaxonObsData(taxonName, taxonRank='species', inatProject=false) {
+
+export async function inatTaxonObsDataByName(taxonName, taxonRank='species', inatProject=false) {
+  let iSpc = getInatSpecies(taxonName, taxonRank).then(spc => {
+      console.log('inatTaxonObservationDonut=>inatTaxonObsDataByName=>getInatSpecies', spc);
+      let iObs = inatTaxonObsDataById(spc.id, spc.rank, inatProject).then(obs => {
+        console.log('inatTaxonObservationDonut=>inatTaxonObsDataByName=>inatTaxonObsDataById', obs);
+        return obs;
+      }).catch(err => {
+        return Promise.reject({'message':err.message})
+      })
+      return iObs;
+    }).catch(err => {
+      return Promise.reject({'message':err.message})
+    })
+  return iSpc;
+}
+
+export async function inatTaxonObsDataById(taxonId, taxonRank='species', inatProject=false) {
 
   //console.log('inatTaxonObsData', taxonName, taxonRank, inatProject);
 
@@ -47,17 +66,17 @@ export async function inatTaxonObsData(taxonName, taxonRank='species', inatProje
   const needs_id = '&quality_grade=needs_id';
   const casual = '&quality_grade=casual';
   const tParam = {'NeedsID':needs_id, 'Research':research, 'Casual':casual};
-  const tName = `&taxon_name=${taxonName}`;
+  const taxId = `&taxon_id=${taxonId}`;
   const tRank = ['SUBSPECIES', 'VARIETY'].includes(taxonRank) ? `&rank=${taxonRank.toLowerCase()}` : '';
   const lrank = `&lrank=${taxonRank.toLowerCase()}`;
   const limit = `&per_page=0`;
 
   //iNat needs rank param to count just subsp. obs. However to include sub-taxa counts for upper taxa, don't include the rank param.
-  const qTotalObs = encodeURI(apiUrl + project + tName + tRank + limit);
-  const qNeedsID = encodeURI(apiUrl + project + needs_id + tName + tRank + limit);
-  const qResearch = encodeURI(apiUrl + project + research + tName + tRank + limit);
-  const qCasual = encodeURI(apiUrl + project + casual + tName + tRank + limit);
-  const qSppCount = encodeURI(apiUrl + '/species_counts' + project + tName + tRank);
+  const qTotalObs = encodeURI(apiUrl + project + taxId + limit);
+  const qNeedsID = encodeURI(apiUrl + project + needs_id + taxId + limit);
+  const qResearch = encodeURI(apiUrl + project + research + taxId + limit);
+  const qCasual = encodeURI(apiUrl + project + casual + taxId + limit);
+  const qSppCount = encodeURI(apiUrl + '/species_counts' + project + taxId);
 
   let prom1 = Promise.all([
       fetch(qTotalObs),
@@ -70,7 +89,7 @@ export async function inatTaxonObsData(taxonName, taxonRank='species', inatProje
       // Get a JSON object from each response
       return Promise.all(responses.map(async res => {
         let json = await res.json();
-        console.log(`inatTaxonObsDonut::fetchAll(${taxonName  }) JSON RESULT FOR URL:`, res.url, json);
+        console.log(`inatTaxonObsDonut::fetchAll(${taxonId}) JSON RESULT FOR URL:`, res.url, json);
         return json;
       }));
     })
@@ -92,7 +111,7 @@ export async function inatTaxonObsData(taxonName, taxonRank='species', inatProje
       */
       let arrIds = [];
       for (const [key, val] of Object.entries(inat.objIds)) {
-          arrIds.push({'type':key, 'value':val, 'url':webUrl+project+tParam[key]+tName+tRank});
+          arrIds.push({'type':key, 'value':val, 'url':webUrl+project+tParam[key]+taxId+tRank, 'api':apiUrl+project+tParam[key]+taxId+tRank});
       }
       inat.arrIds = arrIds;
       return inat; //this returns data for return below
@@ -104,6 +123,20 @@ export async function inatTaxonObsData(taxonName, taxonRank='species', inatProje
     return prom4;
   }
 
+function showError(err, htmlId) {
+  const width = 300; const height = 250;
+  const svg = d3.select(`#${htmlId}`)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr('font-size', '1em')
+    .attr('y', -40)
+    .text(err.message);
+}
 /*
     arrIds[
         { type: "NeedsID", value: 365, url: "https://www.inaturalist.org/observations?project_id=vermont-atlas-of-life&quality_grade=needs_id&taxon_name=Phyciodes tharos&rank=species" }
@@ -217,10 +250,11 @@ function makeDonut(inat, htmlId) {
             .attr("fill", "orange"); // Change color or add other effects on mouseover
         
         let data; if (d.data) {data = d.data;} else {data = d;}
+        
         tooltip
             .html(`${data.type}: ${data.value}`)
-            .style("left", (event.pageX-80) + "px")
-            .style("top", (event.pageY-90) + "px")
+            .style("left", (event.pageX-50) + "px")
+            .style("top", (event.pageY-50) + "px")
             .style("display", "block");
     }
 
@@ -229,11 +263,10 @@ function makeDonut(inat, htmlId) {
         // Remove the tooltip
         tooltip.style("display", "none");
 
-        let data; let index; 
-        if (d.data) {data = d.data;} else {data = d;}
+        let data; let index; if (d.data) {data = d.data;} else {data = d;}
         index=inat.arrIds.findIndex(o => {return data.type==o.type})
 
-        console.log(index);
+        //console.log(index);
 
         d3.select(this)
             .attr("fill", color(index)); // Change back to the original color on mouseout    
@@ -242,7 +275,17 @@ function makeDonut(inat, htmlId) {
     // Click event handler
     function handleClick(event, d) {
         // Open the URL in a new tab/window
-        let data; if (d.data) {data = d.data;} else {data = d;}
-        window.open(data.url, "_blank");
+        let data;
+        //console.log(data);
+        if (d.data) {
+          data = d.data;
+          //location.assign(data.url, "_blank");
+          window.open(data.url, "_blank");
+        } else {
+          data = d;
+          //location.assign(data.api, "_blank");
+          //window.open(data.api, "_blank");
+          window.open(data.url, "_blank");
+        }
     }
 }
