@@ -45,7 +45,10 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                     }
                 }
                 if (match.id) {return match;}
-                else {return Promise.reject({'message':`No match found for ${taxonRank} ${taxonName}`});}   
+                else {
+                    console.log(`getInatSpecies: No match found for ${taxonRank} ${taxonName}`);
+                    return Promise.reject({'message':`No match found for ${taxonRank} ${taxonName}`});
+                }
             }
         } else {
             console.log(`getInatSpecies(${taxonName}) BAD RESULT:`, res.status);

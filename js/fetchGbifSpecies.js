@@ -21,7 +21,7 @@ export async function getGbifSpeciesByDataset(datasetKey=datasetKeys['chkVtb1'],
         let res = await fetch(enc);
         //console.log(`getGbifSpeciesDataset(${datasetKey}) RAW RESULT:`, res);
         let json = await res.json();
-        //console.log(`getGbifSpeciesDataset(${datasetKey}) JSON RESULT:`, json);
+        console.log(`getGbifSpeciesDataset(${datasetKey}) JSON RESULT:`, json);
         json.query = enc;
         return json;
     } catch (err) {

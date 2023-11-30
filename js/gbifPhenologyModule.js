@@ -201,19 +201,21 @@ function setTitleText(objTitle, taxonNameA=[], taxonKeyA=[], butterflies=false, 
     }
 }
 
-async function loadDataset(datasetKey=false, columnA=[], geoSearchA=[], offset, limit) {
+async function loadDataset(datasetKey=false, columnA=[], geoSearchA=[], offset, limit, params='rank=SPECIES&rank=SUBSPECIES&status=ACCEPTED') {
     let rowIdx = 0;
-    let spcs = await getGbifSpeciesByDataset(datasetKey, offset, limit, 'rank=SPECIES'); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
-    console.log(`vbaFlightTimes=>getGbifSpeciesByDataset`, spcs);
-    offset = offset < spcs.results.length ? offset : spcs.results.length - 1;
-    limit = (offset+limit) < spcs.results.length ? limit : spcs.results.length - offset;
-    for (var i=offset; i<(offset+limit); i++) {
+    let spcs = await getGbifSpeciesByDataset(datasetKey, offset, limit, params); //the default checklist is VT Butterflies. Prolly should make that explicit, here.
+    console.log(`gbifPhenologyModule=>getGbifSpeciesByDataset`, spcs.results.length, spcs);
+    //offset = offset < spcs.results.length ? offset : spcs.results.length - 1;
+    //limit = (offset+limit) < spcs.results.length ? limit : spcs.results.length - offset;
+    //for (var i=offset; i<(offset+limit); i++) {
+    for (var i=0; i<spcs.results.length; i++) {
         let taxon = spcs.results[i];
-        if (('SPECIES' == taxon.rank.toUpperCase() || 'SUBSPECIES' == taxon.rank.toUpperCase()) && 'ACCEPTED' == taxon.taxonomicStatus.toUpperCase()) {
+        //if (('SPECIES' == taxon.rank.toUpperCase() || 'SUBSPECIES' == taxon.rank.toUpperCase()) && 'ACCEPTED' == taxon.taxonomicStatus.toUpperCase()) {
             let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearchA);
             //let pheno = await gbifCountsByWeekByTaxonKey(taxon.nubKey, geoSearchA);
+            //let pheno = await gbifCountsByWeekByListTaxonKey(taxon.key, geoSearchA);
             addTaxonRow(columnA, pheno, taxon, rowIdx++);
-        }
+        //}
     }
 }
 function beforeTaxonRows(objHtmlIds, objTitle={show:0, text:''}) {

@@ -1,6 +1,5 @@
-//import { getGbifTaxonKeyFromName, getGbifTaxonObjFromName } from "./commonUtilities.js";
 import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
-import { getListSubTaxonKeys } from "./gbifItemCounts.js";
+import { getListSubTaxonKeysByFilter } from "./gbifItemCounts.js";
 import { getGbifSpeciesByTaxonKey } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
@@ -38,7 +37,7 @@ https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=ve
 export async function getStoredPhenology(searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
-    console.log(`gbifCountByWeek::getStoredPhenology | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    console.log(`gbifCountsByWeek::getStoredPhenology | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
     let phenology = Storage ? Storage.getItem(storeName) : false;
     if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));
@@ -53,19 +52,25 @@ export async function getStoredPhenology(searchTerm, geoSearch) {
     return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
 }
 export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
+    let speciesFilter = fileConfig.dataConfig.speciesFilter;
+    let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
+    let drillRanks = fileConfig.dataConfig.drillRanks;
+    return gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks);
+}
+export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
     let self = await getGbifSpeciesByTaxonKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
     let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
     let subs = {keys:[]};
-    if (fileConfig.dataConfig.drillRanks.includes(self.rank)) { //only drill-down lower ranks
-        subs = await getListSubTaxonKeys(fileConfig, taxonKey); //get sub-nubKeys of species-list key
+    if (drillRanks.includes(self.rank)) { //only drill-down lower ranks
+        subs = await getListSubTaxonKeysByFilter(speciesFilter, taxonKey); //get sub-nubKeys of species-list key
         for (const key of subs.keys) {
             srch += `&taxonKey=${key}`; //add sub-nubKeys to searchTerm to be used by fetchAll
         }
     }
-    console.log(`gbifCountsByWeekByListTaxonKey(${taxonKey}) | self-nubKey:`, self.nubKey, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
+    console.log(`gbifCountsByWeekByListKeyByFilters(${taxonKey}) | self-nubKey:`, self.nubKey, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
     
-    let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
-    let res = await fetchAll(srch, geoSearchA);
+    //let res = await fetchAll(srch, geoSearchA);
+    let res = await getStoredPhenology(srch, geoSearchA);
     res.nubKey = self.nubKey;
     res.keys = subs.keys.push(self.nubKey); //add self nubKey to array of keys for species-list key
     res.names = subs.names;
@@ -79,12 +84,12 @@ export async function gbifCountsByWeekByTaxonName(taxonName, geoSearch) {
     return await fetchAllByName(taxonName, geoSearch);
 }
 async function fetchAllByKey(taxonKey, geoSearch) {
-    return await fetchAll(`taxonKey=${taxonKey}`, geoSearch);
-    //return await getStoredPhenology(`taxonKey=${taxonKey}`, geoSearch);
+    //return await fetchAll(`taxonKey=${taxonKey}`, geoSearch);
+    return await getStoredPhenology(`taxonKey=${taxonKey}`, geoSearch);
 }
 async function fetchAllByName(taxonName, geoSearch) {
-    return await fetchAll(`scientificName=${taxonName}`, geoSearch);
-    //return await getStoredPhenology(`scientificName=${taxonName}`, geoSearch)
+    //return await fetchAll(`scientificName=${taxonName}`, geoSearch);
+    return await getStoredPhenology(`scientificName=${taxonName}`, geoSearch)
 }
 //function fetchAll(searchTerm, taxonName, geoSearch) {
 function fetchAll(searchTerm, geoSearch) {

@@ -39,6 +39,9 @@ export async function getStoredOccCnts(fileConfig, searchTerm='') {
 */
 export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
     let speciesFilter = fileConfig.dataConfig.speciesFilter;
+    return getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey);
+}
+export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
     let reqHost = gbifApi;
     let reqRoute = "/species/search";
     let reqFilter = `?${speciesFilter}&higherTaxonKey=${higherTaxonKey}`;

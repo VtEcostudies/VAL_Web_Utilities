@@ -32,14 +32,14 @@ export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, 
     return inat;
   }).catch(err => {
     console.log('inatTaxonObservationDonut=>inatTaxonObsDonut ERROR', err);
-    console.dir(err); //this shows you the error structure
+    //console.dir(err); //this shows you the error structure
     showError(err, htmlId);
     return Promise.reject({'message':err.message});
   })
   return promise;
 }
 
-export async function inatTaxonObsDataByName(taxonName, taxonRank='species', inatProject=false) {
+export async function inatTaxonObsDataByName(taxonName, taxonRank=false, inatProject=false) {
   let iSpc = getInatSpecies(taxonName, taxonRank).then(spc => {
       console.log('inatTaxonObservationDonut=>inatTaxonObsDataByName=>getInatSpecies', spc);
       let iObs = inatTaxonObsDataById(spc.id, spc.rank, inatProject).then(obs => {
@@ -124,18 +124,8 @@ export async function inatTaxonObsDataById(taxonId, taxonRank='species', inatPro
   }
 
 function showError(err, htmlId) {
-  const width = 300; const height = 250;
-  const svg = d3.select(`#${htmlId}`)
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-    .append("text")
-    .attr("text-anchor", "middle")
-    .attr('font-size', '1em')
-    .attr('y', -40)
-    .text(err.message);
+  let eleDiv = document.getElementById(htmlId);
+  eleDiv.innerHTML = `<p>${err.message}</p>`
 }
 /*
     arrIds[
