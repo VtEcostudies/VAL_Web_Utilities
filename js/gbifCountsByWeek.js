@@ -1,5 +1,5 @@
 import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
-import { getListSubTaxonKeysByFilter } from "./gbifItemCounts.js";
+import { getListSubTaxonKeysByFilter } from "./gbifOccFacetCounts.js";
 import { getGbifSpeciesByTaxonKey } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';

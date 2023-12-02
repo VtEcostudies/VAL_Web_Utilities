@@ -141,24 +141,30 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
     of occurrence-counts and present the union, ordered by those counts. This seems impossible
     unless we find a way to retrieve all results for any query all the time.
 */
-export async function getAggOccCounts(fileConfig, searchTerm='', occCnts = {}, arrCnts = []) {
-    let qrys = fileConfig.predicateToQueries();
-
+//export async function getAggOccCounts(fileConfig, searchTerm='', objOcc = {}, arrCnts = []) {
+export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey', facetArgs='&facetLimit=1199999') {
     try {
+        let xClu = searchTerm ? (searchTerm.includes('taxonKey') ? true : false) : false;
+        let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClu);
+        let objOcc = {};
+        let occTot = 0;
+        let arrQry = [];
         for (var i=0; i<qrys.length; i++) { //necessary: wait for a synchronous loop
-            let qry = `${qrys[i]}&${searchTerm}`;
-            let aoc = await getAggOccCount(fileConfig.dataConfig, qry);
+            let qry = qrys[i];
+            qry += searchTerm ? `&${searchTerm}` : '';
+            let aoc = await getAggOccCount(fileConfig.dataConfig, qry, facet, facetArgs);
+            occTot += aoc.total;
+            arrQry.push(aoc.query);
             for await (const [key,val] of Object.entries(aoc.obj)) {
-                if (occCnts[key]) {occCnts[key] += Number(val);}
-                else {occCnts[key] = Number(val);}
+                if (objOcc[key]) {objOcc[key] += Number(val);}
+                else {objOcc[key] = Number(val);}
             }
-            console.log(`getAggOccCounts RESULT`, occCnts);
+            console.log(`getAggOccCounts RESULT`, objOcc);
         }
-        return occCnts;
+        return {total:occTot, objOcc:objOcc, arrQry:arrQry};
     } catch (err) {
         console.log(`getAggOccCounts ERROR`, err);
-        //throw new Error(err)
-        return new Error(err);
+        return Promise.reject(err);
     }
 }
   
@@ -169,11 +175,12 @@ export async function getAggOccCounts(fileConfig, searchTerm='', occCnts = {}, a
     https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&limit=0&taxonKey=5&facet=taxonKey&facetLimit=100000
     IMPORTANT NOTE: It appears that this approach returns occurrence counts for nubKeys. Everywhere that uses these must do the same.
 */
-export async function getAggOccCount(dataConfig, filter = dataConfig.occurrenceFilter) {
+export async function getAggOccCount(dataConfig, filter=dataConfig.occurrenceFilter, facet='taxonKey', facetArgs='&facetLimit=1199999') {
     let reqHost = gbifApi;
     let reqRoute = "/occurrence/search";
     let reqFilter = `?limit=0&${filter}`;
-    let reqFacet = `&facet=taxonKey&facetLimit=1199999`;
+    //let reqFacet = facets.map(facet => `&facet=${facet}`); reqFacet += facetArgs;
+    let reqFacet = `&facet=${facet}&${facetArgs}`;
     let url = reqHost+reqRoute+reqFilter+reqFacet;
     let enc = encodeURI(url);
 
@@ -182,16 +189,15 @@ export async function getAggOccCount(dataConfig, filter = dataConfig.occurrenceF
         let json = await res.json();
         console.log(`getAggOccCount(${filter}) QUERY:`, enc);
         console.log(`getAggOccCount(${filter}) RESULT:`, json);
-        let aCount = json.facets[0].counts; //array of occurrence-counts by taxonKey
-        let bCount = [];
+        let fCount = json.facets[0] ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
+        let aCount = [];
         let oCount = {};
-        for (var i=0; i<aCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
-            oCount[aCount[i].name]=Number(aCount[i].count);
-            bCount[i] = {'taxonKey':aCount[i].name, 'occurrences':Number(aCount[i].count)};
+        for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
+            oCount[fCount[i].name]=Number(fCount[i].count);
+            aCount[i] = {'taxonKey':fCount[i].name, 'occurrences':Number(fCount[i].count)};
         }
-        //oCount.query = enc;
-        //return oCount;
-        return {'obj':oCount, 'arr':bCount, 'count':bCount.length, 'query':enc};
+        let retObj =  {'obj':oCount, 'arr':aCount, 'total':json.count, 'query':enc};
+        return retObj;
     } catch (err) {
         err.query = enc;
         console.log(`getAggOccCount(${filter}) ERROR:`, err);
@@ -220,10 +226,10 @@ export async function getAggImgCount(dataConfig, filter = dataConfig.occurrenceF
         let json = await res.json();
         //console.log(`getAggImgCount(${filter}) QUERY:`, enc);
         console.log(`getAggImgCount(${filter}) RESULT:`, json);
-        let aCount = json.facets[0].counts; //array of occurrence-counts by taxonKey
+        let fCount = json.facets[0].counts; //array of occurrence-counts by taxonKey
         let oCount = {};
-        for (var i=0; i<aCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
-            oCount[aCount[i].name]=Number(aCount[i].count);
+        for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
+            oCount[fCount[i].name]=Number(fCount[i].count);
         }
         oCount.query = enc;
         return oCount;

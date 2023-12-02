@@ -62,7 +62,7 @@ console.log('gbif_data_config.js | profileUrl', profileUrl);
 console.log('gbif_data_config.js | literatUrl', literatUrl);
 console.log('gbif_data_config.js | publishUrl', publishUrl);
 //const allColumns = ['key','nubKey','canonicalName','scientificName','vernacularName','rank','taxonomicStatus','synonym','parentKey','parent','occurrences','images','childTaxa','iconImage'];
-const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences']; //these are the columns that will be shown
+const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images']; //these are the columns that will be shown
 const columNames = {
   'key':'Dataset Key',
   'nubKey':'Backbone Key',
@@ -107,7 +107,7 @@ const config = {
     inatProject: 'vermont-atlas-of-life',
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //'Vermont' GADM administrative bounding region
-    speciesDatasetKey: '0b1735ff-6a66-454b-8686-cae1cbc732a2', //Species Dataset Key
+    speciesDatasetKey: '0b1735ff-6a66-454b-8686-cae1cbc732a2',
     speciesFilter: 'datasetKey=0b1735ff-6a66-454b-8686-cae1cbc732a2', //this replaces the above in speciesSearch so it can be something else
     publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
     occurrenceDatasetKey: '', //New idea from eButterfly config NOT implemented yet
@@ -281,7 +281,7 @@ const config = {
     inatProject: false,
     gbifApi: gbifApi,
     gadmGid: '', // World GADM administrative bounding region?
-    speciesDatasetKey: 'ad8da44f-646f-4244-a6d0-5d1085ec6984', //Species Dataset Key
+    speciesDatasetKey: 'ad8da44f-646f-4244-a6d0-5d1085ec6984', //FMA Species Dataset Key has been removed
     speciesFilter: 'datasetKey=ad8da44f-646f-4244-a6d0-5d1085ec6984', //this replaces the above in speciesSearch
     publishingOrgKey: '7b8aff00-a9f8-11d8-944b-b8a03c50a862', //FMA publ key
     occurrenceDatasetKey: '', //New idea from eButterfly config NOT implemented yet
@@ -331,10 +331,10 @@ const config = {
     inatProject: false,
     gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
-    speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Species Dataset Key
+    speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Ebutterfly Species Dataset Key?
     speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
     //speciesFilter: 'higherTaxonKey=6953&higherTaxonKey=5473&higherTaxonKey=7017&higherTaxonKey=9417&higherTaxonKey=5481&higherTaxonKey=1933999', //Filter to use if not speciesDaatasetKey
-    publishingOrgKey: '', //leave blank if N/A
+    publishingOrgKey: '', //leave blank if N/A VCE is publisher of eButterfly datasets
     occurrenceDatasetKey: 'cf3bdc30-370c-48d3-8fff-b587a39d72d6', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: '', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
@@ -381,7 +381,7 @@ const config = {
     gbifPortal: false,
     inatProject: false,
     gbifApi: gbifApi,
-    gadmGid: '', //leave blank if N/A
+    gadmGid: '', //leave blank if worldwide
     speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
     speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
     publishingOrgKey: '', //leave blank if N/A
