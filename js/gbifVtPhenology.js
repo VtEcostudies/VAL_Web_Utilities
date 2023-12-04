@@ -1,7 +1,7 @@
 import { gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
 import { datasetKeys } from "./fetchGbifSpecies.js";
 import { getGbifSpeciesByDataset, getGbifSpeciesByTaxonKey } from './fetchGbifSpecies.js';
-import { getGbifTaxonObjFromName } from './commonUtilities.js';
+import { getGbifTaxonObjFromName } from './fetchGbifSpecies.js';
 import { tableSortHeavy } from './tableSortHeavy.js'
 import './extendDate.js'; //import getWeek() and toUtc()
 

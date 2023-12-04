@@ -143,7 +143,7 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     // Click event handler
     function handleClick(event, d) {
         if (exploreUrl && searchTerm) {
-            window.open(`${exploreUrl}?${searchTerm}&month=${d.month}`);
+            window.open(`${exploreUrl}?${searchTerm}&month=${d.month}&view=TABLE`);
         }
     }
 }

@@ -42,13 +42,13 @@ export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
     return getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey);
 }
 export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
-    let reqHost = gbifApi;
-    let reqRoute = "/species/search";
-    let reqFilter = `?${speciesFilter}&higherTaxonKey=${higherTaxonKey}`;
-    let url = reqHost+reqRoute+reqFilter;
-    let enc = encodeURI(url);
-
     try {
+        let reqHost = gbifApi;
+        let reqRoute = "/species/search";
+        let reqFilter = `?${speciesFilter}&higherTaxonKey=${higherTaxonKey}`;
+        let url = reqHost+reqRoute+reqFilter;
+        let enc = encodeURI(url);
+
         let res = await fetch(enc);
         let json = await res.json();
         //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) QUERY:`, enc);
@@ -62,42 +62,48 @@ export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey)
                 name.push(json.results[idx].canonicalName);
             }
         }
-        console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs);
+        console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs, name);
         return {'keys':nubs, 'names':name, 'query':enc};
     } catch (err) {
         err.query = enc;
         console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) ERROR:`, err);
-        return new Error(err)
+        return Promise.reject(err);
     }
 }
 /*
     For a given GBIF backbone higherTaxonKey, get a list of all its backbone sub-taxonKeys. 
     This is used as a list of keys to remove from a retrieved list of species-list keys NOT
     recognized by the GBIF backbone.
+
+    Input: higherTaxonKey MUST be a GBIF nubKey
 */
 export async function getBoneSubTaxonKeys(higherTaxonKey) {
-    let reqHost = gbifApi;
-    let reqRoute = "/species/search";
-    let reqFilter = `?higherTaxonKey=${higherTaxonKey}`;
-    let url = reqHost+reqRoute+reqFilter;
-    let enc = encodeURI(url);
-
     try {
+        let reqHost = gbifApi;
+        let reqRoute = "/species/search";
+        let reqFilter = `?higherTaxonKey=${higherTaxonKey}`;
+        let url = reqHost+reqRoute+reqFilter;
+        let enc = encodeURI(url);
+
         let res = await fetch(enc);
         let json = await res.json();
         //console.log(`getBoneSubTaxonKeys(${higherTaxonKey}) QUERY:`, enc);
         //console.log(`getBoneSubTaxonKeys(${higherTaxonKey}) RESULT:`, json);
-        let arr = [];
+        let nubs = [];
+        let name = [];
         for (const idx in json.results) { //returns array indexes of array of objects
             //console.log(`element of array:`, idx);
-            if (json.results[idx].nubKey) {arr.push(json.results[idx].nubKey);}
+            if (json.results[idx].nubKey) {
+                nubs.push(json.results[idx].nubKey);
+                name.push(json.results[idx].canonicalName);
+            }
         }
-        console.log(`getBoneSubTaxonKeys(${higherTaxonKey})`, arr);
-        return {'keys':arr, 'query':enc};
+        console.log(`getBoneSubTaxonKeys(${higherTaxonKey})`, nubs, name);
+        return {'keys':nubs, 'names':name, 'query':enc};
     } catch (err) {
         err.query = enc;
         console.log(`getBoneSubTaxonKeys(${higherTaxonKey}) ERROR:`, err);
-        return new Error(err)
+        return Promise.reject(err);
     }
 }
 /*
@@ -125,11 +131,12 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
         return res;
     } catch(err) {
         console.log(`sumSubTaxonOccs(${higherTaxonKey}) ERROR:`, err);
-        return new Error(err)
+        return Promise.reject(err)
     }
 }
 /*
-    Iterate over root predicate queries. Sum aggregate occurrence counts across queries.
+    Iterate over root predicate queries. Sum aggregate occurrence counts across queries for a
+    single facet (or NO facet by passing facet=false).
 
     To potentially order species-list results across a large number of results, we need an
     ordered list of occurrence counts by taxonKey and taxonRank. The taxonKey facet results
@@ -140,12 +147,17 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
     within it (filtered by user-defined constraints) then compare that list to our ordered list
     of occurrence-counts and present the union, ordered by those counts. This seems impossible
     unless we find a way to retrieve all results for any query all the time.
+
+    NOTE: Here the xClu flag is critical. When an explorer site's scope is defined by taxonomy, we
+    must remove those taxonNames or Keys when searching for specific taxa because the http API converts
+    duplicate AND params to ORs.
 */
 //export async function getAggOccCounts(fileConfig, searchTerm='', objOcc = {}, arrCnts = []) {
 export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey', facetArgs='&facetLimit=1199999') {
     try {
-        let xClu = searchTerm ? (searchTerm.includes('taxonKey') ? true : false) : false;
-        let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClu);
+        let xClud = searchTerm ? (searchTerm.includes('taxonKey')  ? 'taxonKey' : false) : false;
+        xClud += searchTerm ? (searchTerm.includes('scientificName')  ? 'scientificName' : false) : false;
+        let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClud);
         let objOcc = {};
         let occTot = 0;
         let arrQry = [];
@@ -169,7 +181,7 @@ export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey
 }
   
 /*
-    Get occurrence-counts aggregated by facet taxonKey for a filter query.
+    Get occurrence-counts aggregated by facet (taxonKey, mediaType, etc.) for a filter query.
     Return an object like {taxonKey:count, taxonKey:count, ...}
     https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&limit=0&taxonKey=5&facet=taxonKey&facetLimit=100000
     https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&limit=0&taxonKey=5&facet=taxonKey&facetLimit=100000

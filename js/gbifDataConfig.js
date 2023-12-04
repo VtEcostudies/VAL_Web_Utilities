@@ -62,7 +62,7 @@ console.log('gbif_data_config.js | profileUrl', profileUrl);
 console.log('gbif_data_config.js | literatUrl', literatUrl);
 console.log('gbif_data_config.js | publishUrl', publishUrl);
 //const allColumns = ['key','nubKey','canonicalName','scientificName','vernacularName','rank','taxonomicStatus','synonym','parentKey','parent','occurrences','images','childTaxa','iconImage'];
-const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images']; //these are the columns that will be shown
+const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences']; //these are the columns that will be shown
 const columNames = {
   'key':'Dataset Key',
   'nubKey':'Backbone Key',
@@ -121,6 +121,7 @@ const config = {
       lng: -72.446594,
       zoom: 7.75
     },
+    rootRank: 'KINGDOM', //the starting view in the species explorer
     rootPredicate: {
       type: 'or',
       predicates: [
@@ -210,6 +211,7 @@ const config = {
       lng: -70.6,
       zoom: 11
     },
+    rootRank: 'KINGDOM', //the starting view in the species explorer
     rootPredicate: {
       type: 'or',
       predicates: [
@@ -294,6 +296,7 @@ const config = {
       lng: -87.636,
       zoom: 2
     },
+    rootRank: 'KINGDOM', //the starting view in the species explorer
     rootPredicate: {
       type: 'or',
       predicates: [
@@ -332,8 +335,9 @@ const config = {
     gbifApi: gbifApi,
     gadmGid: '', //leave blank if N/A
     speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Ebutterfly Species Dataset Key?
-    speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
-    //speciesFilter: 'higherTaxonKey=6953&higherTaxonKey=5473&higherTaxonKey=7017&higherTaxonKey=9417&higherTaxonKey=5481&higherTaxonKey=1933999', //Filter to use if not speciesDaatasetKey
+    //speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
+    speciesFilter: 'higherTaxonKey=6953&higherTaxonKey=5473&higherTaxonKey=7017&higherTaxonKey=9417&higherTaxonKey=5481&higherTaxonKey=1933999', //Filter to use if not speciesDatasetKey
+    //speciesFilter: 'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999',
     publishingOrgKey: '', //leave blank if N/A VCE is publisher of eButterfly datasets
     occurrenceDatasetKey: 'cf3bdc30-370c-48d3-8fff-b587a39d72d6', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: '', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
@@ -345,6 +349,7 @@ const config = {
       lng: -87.636,
       zoom: 2
     },
+    rootRank: 'FAMILY', //the starting view in the species explorer
     rootPredicate: {
       type: 'or',
       predicates: [
@@ -395,6 +400,7 @@ const config = {
       lng: -87.636,
       zoom: 2
     },
+    rootRank: 'FAMILY', //the starting view in the species explorer
     rootPredicate: {
       type: 'or', //currently the only supported type
       predicates: [
@@ -431,7 +437,7 @@ const config = {
     }
   },
 
-  vtb: { //VT Checklist of Butterflies
+  vtButterflies: { //VT Checklist of Butterflies
     atlasPlace: 'Vermont Butterfly',
     atlasName: 'VT Checklist of Butterflies',
     atlasAbbrev: 'VTB',
@@ -467,6 +473,7 @@ const config = {
       lng: -72.446594,
       zoom: 7.75
     },
+    rootRank: 'FAMILY', //the starting view in the species explorer
     rootPredicate: {
       type: 'or', //currently the only supported type
       predicates: [
@@ -521,6 +528,96 @@ const config = {
               "7017",
               "9417",
               "5481"  //1933999-Riodinidae does not exist in Vermont
+            ]
+          }
+        ]
+      }
+    ]
+    }
+  },
+  vtMammals: { //Checklist of Vermont Mammals
+    atlasPlace: 'Vermont Mammal',
+    atlasName: 'VT Checklist of Mammals',
+    atlasAbbrev: 'VTM',
+    atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+    helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
+    thisUrl: thisUrl,
+    hostUrl: hostUrl,
+    homeUrl: homeUrl,
+    exploreUrl: exploreUrl,
+    resultsUrl: resultsUrl,
+    profileUrl: profileUrl,
+    literatUrl: literatUrl,
+    publishUrl: publishUrl,
+    gbifPortal: false,
+    inatProject: 'vermont-atlas-of-life',
+    gbifApi: gbifApi,
+    gadmGid: 'USA.46_1', //leave blank if N/A
+    speciesDatasetKey: 'f2faaa4c-74e9-457a-8265-06ef5cc73626', //Species Dataset Key
+    speciesFilter: 'datasetKey=f2faaa4c-74e9-457a-8265-06ef5cc73626', //Filter to use for species
+    publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
+    occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+    columns: columns,
+    columNames: columNames,
+    drillRanks: drillRanks,
+    mapSettings: {
+      lat: 43.858297,
+      lng: -72.446594,
+      zoom: 7.75
+    },
+    rootRank: 'CLASS', //the starting view in the species explorer
+    rootPredicate: {
+      type: 'or', //currently the only supported type
+      predicates: [
+        {
+          "type": "and",
+          "predicates": [
+            {
+              "type": "equals",
+              "key": "gadmGid",
+              "value": "USA.46_1"
+            },
+            {
+              "type": "in",
+              "key": "taxonKey",
+              "values": [
+                "359",
+              ]
+            }
+          ]
+        },
+        {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "359",
             ]
           }
         ]
@@ -600,8 +697,11 @@ export function predicateToQueries(rootPredicate=dataConfig.rootPredicate, xClud
   return qrys;
 }
 
+//xClud can be true/false or named searchTerms like 'taxonKey|scientificName' 
 function includeFilter(xClud, key, value) {
-  let xc = (xClud && (key.includes('taxonKey') || key.includes('scientificName')));
+  let xc = false;
+  if (typeof(xClud) == "boolean") {xc = (xClud && (key.includes('taxonKey') || key.includes('scientificName')));}
+  else {xc = (xClud && (xClud.includes(key)));} //xClud can be concatenated field names like 'taxonKey|taxonName'
   if (xc) {
     console.log(`predicateToQueries excluded ${key}=${value}`);
   }

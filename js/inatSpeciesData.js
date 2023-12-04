@@ -1,3 +1,5 @@
+import { parseNameToRank, getParentRank } from './fetchGbifSpecies.js';
+
 //https://api.inaturalist.org/v1/taxa?q=Acipenser%20fulvescens
 
 const inatApi = 'https://api.inaturalist.org/v1/taxa';
@@ -7,8 +9,16 @@ export async function findInatSpecies(taxonName, parentName, parentRank) {
 }
 
 export async function getInatSpecies(taxonName=false, taxonRank=false, parentName=false, parentRank=false) {
-
-    if (!taxonName || !taxonRank) {console.log(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); return Promise.reject({error:'Missing taxonName or taxonRank'});}
+    if (typeof(taxonName) == 'undefined') {taxonName = false;} 
+    if (typeof(taxonRank) == 'undefined') {taxonRank = false;}
+    if (!taxonRank) {
+        taxonRank = parseNameToRank(taxonName);
+        taxonRank = 'UNKNOWN' != taxonRank ? taxonRank : false;
+    }
+    if (!taxonName || !taxonRank) {
+        console.log(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); 
+        return Promise.reject({error:'Missing taxonName or taxonRank'});
+    }
 
     let reqQuery = `?q=${taxonName}`;
     let reqRank = taxonRank ? `&rank=${taxonRank.toLowerCase()}` : ''; //iNat ranks are LOWERCASE; API is CASE-SENSITIVE

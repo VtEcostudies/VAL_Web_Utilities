@@ -25,7 +25,7 @@ To-do:
       Restrict results to observations of taxa on the specified list. Limited to lists with 2000 taxa or less.
       Allowed values: iNat list ID 
 */
-export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, commonName=false, inatProject=false) {
+export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, inatProject=false) {
   let promise = inatTaxonObsDataByName(taxonName, taxonRank, inatProject).then(inat => {
     d3.select(htmlId).remove();
     makeDonut(inat, htmlId);

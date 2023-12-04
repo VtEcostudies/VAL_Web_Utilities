@@ -1,7 +1,6 @@
 import { gbifCountsByWeekByTaxonKey, gbifCountsByWeekByTaxonName } from './gbifCountsByWeek.js';
-import { datasetKeys } from "./fetchGbifSpecies.js";
-import { getGbifSpeciesByDataset, getGbifSpeciesByTaxonKey } from './fetchGbifSpecies.js';
-import { getGbifTaxonObjFromName } from './commonUtilities.js';
+import { datasetKeys, getGbifTaxonFromName } from "./fetchGbifSpecies.js";
+import { getGbifSpeciesByDataset, getGbifTaxonFromKey } from './fetchGbifSpecies.js';
 import { tableSortHeavy } from './tableSortHeavy.js'
 import './extendDate.js'; //import getWeek() and toUtc()
 
@@ -249,8 +248,8 @@ export async function gbifPhenologyByTaxonKeys(taxonKeyA=[], columnA=[], geoSear
     beforeTaxonRows(objHtmlIds, objTitle);
     for (var i=0; i<taxonKeyA.length; i++) {
         let taxonKey = taxonKeyA[i];
-        let taxon = await getGbifSpeciesByTaxonKey(taxonKey);
-        console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
+        let taxon = await getGbifTaxonFromKey(taxonKey);
+        console.log(`vbaFlightTimes=>getGbifTaxonFromKey(${taxon.canonicalName})`, taxon);
         let pheno = await gbifCountsByWeekByTaxonKey(taxonKey, geoSearchA);
         console.log(`vbaFlightTimes=>gbifCountsByWeekByTaxonKey(${taxonKey})`, pheno);
         addTaxonRow(columnA, pheno, taxon, i);
@@ -261,10 +260,10 @@ export async function gbifPhenologyByTaxonNames(taxonNameA=[], columnA=[], geoSe
     beforeTaxonRows(objHtmlIds, objTitle);
     for (var i=0; i<taxonNameA.length; i++) {
         let taxonName = taxonNameA[i];
-        let match = await getGbifTaxonObjFromName(taxonName); 
-        console.log(`vbaFlightTimes=>getGbifTaxonObjFromName(${taxonName})`, match);
-        let taxon = await getGbifSpeciesByTaxonKey(match.usageKey);
-        console.log(`vbaFlightTimes=>getGbifSpeciesByTaxonKey(${taxon.canonicalName})`, taxon);
+        let match = await getGbifTaxonFromName(taxonName); 
+        console.log(`vbaFlightTimes=>getGbifTaxonFromName(${taxonName})`, match);
+        let taxon = await getGbifTaxonFromKey(match.usageKey);
+        console.log(`vbaFlightTimes=>getGbifTaxonFromKey(${taxon.canonicalName})`, taxon);
         let pheno = await gbifCountsByWeekByTaxonName(taxon.canonicalName, geoSearchA);
         console.log(`vbaFlightTimes=>gbifCountsByWeek(${taxon.canonicalName})`, pheno);
         addTaxonRow(columnA, pheno, taxon, i);

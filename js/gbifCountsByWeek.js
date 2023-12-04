@@ -1,6 +1,5 @@
-import { getGbifTaxonKeyFromName } from "./commonUtilities.js";
 import { getListSubTaxonKeysByFilter } from "./gbifOccFacetCounts.js";
-import { getGbifSpeciesByTaxonKey } from "./fetchGbifSpecies.js";
+import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
 var Storage = window.sessionStorage ? sessionStorage : false;
@@ -58,7 +57,7 @@ export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
     return gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks);
 }
 export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
-    let self = await getGbifSpeciesByTaxonKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
+    let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
     let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
     let subs = {keys:[]};
     if (drillRanks.includes(self.rank)) { //only drill-down lower ranks
