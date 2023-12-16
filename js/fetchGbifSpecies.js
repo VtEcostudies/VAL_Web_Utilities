@@ -199,7 +199,7 @@ export async function getGbifTaxonFromKey(taxonKey) {
             return Promise.reject(err);
          }
     } catch (err) {
-        console.log(`getGbifTaxonKeyFromKey(${enc}) ERROR:`, err);
+        console.log(`getGbifTaxonFromKey(${enc}) ERROR:`, err);
         return Promise.reject(err);
     }
 }

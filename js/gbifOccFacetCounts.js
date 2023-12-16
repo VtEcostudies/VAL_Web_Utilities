@@ -41,11 +41,22 @@ export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
     let speciesFilter = fileConfig.dataConfig.speciesFilter;
     return getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey);
 }
+/* 
+    Again here as with elsewhere, if an Atlas speciesFilter is defined by higherTaxonKeys, then our search for 
+    subKeys by a specific higherTaxonKey fails because duplicate http query params are treated as ORs.
+    Same as elsewhere, if speciesFilter contains higherTaxonKeys, we remove those and just find subKeys for
+    the search item itself, since it constrains the taxonomic scope.
+*/
 export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
     try {
+        let fixedFilter = speciesFilter.split('&').map(ele => {
+            console.log(`getListSubTaxonKeys=>speciesFilter element:`, ele, 'includes higherTaxonKey:', ele.includes('higherTaxonKey'));
+            return !ele.includes('higherTaxonKey') ? ele : null;
+            }).join('&');
+        console.log('gbifOccFacetCounts=>getListSubTaxonKeys | speciesFilter:', speciesFilter, 'fixedFilter',fixedFilter);
         let reqHost = gbifApi;
         let reqRoute = "/species/search";
-        let reqFilter = `?${speciesFilter}&higherTaxonKey=${higherTaxonKey}`;
+        let reqFilter = `?${fixedFilter}&higherTaxonKey=${higherTaxonKey}`;
         let url = reqHost+reqRoute+reqFilter;
         let enc = encodeURI(url);
 

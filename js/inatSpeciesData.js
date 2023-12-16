@@ -1,4 +1,4 @@
-import { parseNameToRank, getParentRank } from './fetchGbifSpecies.js';
+import { parseNameToRank, getParentRank, getGbifParentsFromKey } from './fetchGbifSpecies.js';
 
 //https://api.inaturalist.org/v1/taxa?q=Acipenser%20fulvescens
 
@@ -11,9 +11,14 @@ export async function findInatSpecies(taxonName, parentName, parentRank) {
 export async function getInatSpecies(taxonName=false, taxonRank=false, parentName=false, parentRank=false) {
     if (typeof(taxonName) == 'undefined') {taxonName = false;} 
     if (typeof(taxonRank) == 'undefined') {taxonRank = false;}
+    if (typeof(parentName) == 'undefined') {parentName = false;}
+    if (typeof(parentRank) == 'undefined') {parentRank = false;}
     if (!taxonRank) {
         taxonRank = parseNameToRank(taxonName);
         taxonRank = 'UNKNOWN' != taxonRank ? taxonRank : false;
+    }
+    if (taxonRank && parentName && !parentRank) {
+        parentRank = getParentRank(taxonRank);
     }
     if (!taxonName || !taxonRank) {
         console.log(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); 
@@ -41,14 +46,19 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                 let match = false;
                 for (var i=0; i<json.results.length; i++) {
                     let find = json.results[i];
-                    //console.log(`getInatSpecies(${taxonName})`, find.matched_term, taxonName);
+                    //console.log(`getInatSpecies(${taxonName},${taxonRank},${parentName},${parentRank})`, find.matched_term, taxonName);
                     if (find.matched_term == taxonName) {
-                        console.log(`getInatSpecies(${taxonName}) FOUND ${find.matched_term}`, find);
+                        console.log(`getInatSpecies(${taxonName},${taxonRank},${parentName},${parentRank}) FOUND ${find.matched_term}`, find);
                         //oops. In some cases there are duplicate names at the same rank in different trees. eg. Morus. Compare parent taxa.
-                        let parentObj = await findParentNameRank(parentName, parentRank, find.parent_id);
-                        //oops. iNat includes subTaxa in its tree, so parent_id can be eg. 'subfamily'. yikes, we need to traverse parent_ids to find a taxon for comparison.
-                        console.log('findParentNameRank returned', parentObj);
-                        if (parentObj.name) {
+                        if (parentName && parentRank) {
+                            let parentObj = await findParentNameRank(parentName, parentRank, find.parent_id);
+                            //oops. iNat includes infraTaxa in its tree, so parent_id can be eg. 'subfamily'. yikes, we need to traverse parent_ids to find a taxon for comparison.
+                            if (parentObj.name) {
+                                match = find;
+                                break;
+                            }
+                        } else {
+                            console.log(`inatSpeciesData=>getiNatSpecies(${taxonName},${taxonRank}) - no parent info. Taxon match is suspect.`)
                             match = find;
                             break;
                         }

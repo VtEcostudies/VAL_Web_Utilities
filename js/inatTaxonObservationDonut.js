@@ -25,8 +25,8 @@ To-do:
       Restrict results to observations of taxa on the specified list. Limited to lists with 2000 taxa or less.
       Allowed values: iNat list ID 
 */
-export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, inatProject=false) {
-  let promise = inatTaxonObsDataByName(taxonName, taxonRank, inatProject).then(inat => {
+export async function inatTaxonObsDonut(taxonName, taxonRank=false, parentName=false, htmlId, inatProject=false) {
+  let promise = inatTaxonObsDataByName(taxonName, taxonRank, parentName, inatProject).then(inat => {
     d3.select(htmlId).remove();
     makeDonut(inat, htmlId);
     return inat;
@@ -39,8 +39,8 @@ export async function inatTaxonObsDonut(taxonName, taxonRank='species', htmlId, 
   return promise;
 }
 
-export async function inatTaxonObsDataByName(taxonName, taxonRank=false, inatProject=false) {
-  let iSpc = getInatSpecies(taxonName, taxonRank).then(spc => {
+export async function inatTaxonObsDataByName(taxonName, taxonRank=false, parentName=false, inatProject=false) {
+  let iSpc = getInatSpecies(taxonName, taxonRank, parentName).then(spc => {
       console.log('inatTaxonObservationDonut=>inatTaxonObsDataByName=>getInatSpecies', spc);
       let iObs = inatTaxonObsDataById(spc.id, spc.rank, inatProject).then(obs => {
         console.log('inatTaxonObservationDonut=>inatTaxonObsDataByName=>inatTaxonObsDataById', obs);
@@ -54,7 +54,7 @@ export async function inatTaxonObsDataByName(taxonName, taxonRank=false, inatPro
     })
   return iSpc;
 }
-
+//get iNat observation data by iNat taxon_id
 export async function inatTaxonObsDataById(taxonId, taxonRank='species', inatProject=false) {
 
   //console.log('inatTaxonObsData', taxonName, taxonRank, inatProject);
@@ -132,7 +132,7 @@ function showError(err, htmlId) {
         { type: "NeedsID", value: 365, url: "https://www.inaturalist.org/observations?project_id=vermont-atlas-of-life&quality_grade=needs_id&taxon_name=Phyciodes tharos&rank=species" }
         { type: "Research", value: 199, url: "https://www.inaturalist.org/observations?project_id=vermont-atlas-of-life&quality_grade=research&taxon_name=Phyciodes tharos&rank=species" }
         { type: "Casual", value: 6, url: "https://www.inaturalist.org/observations?project_id=vermont-atlas-of-life&quality_grade=casual&taxon_name=Phyciodes tharos&rank=species" }
-
+    ]
 */
 function makeDonut(inat, htmlId) {
   let objObs = inat.objObs;

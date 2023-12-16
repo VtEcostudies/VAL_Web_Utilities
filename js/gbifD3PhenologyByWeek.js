@@ -35,9 +35,9 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     // Set the dimensions of the canvas
     const margin = { top: 20, right: 20, bottom: 30, left: 30 };
 
-    let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
-    let height = 250;//document.getElementById(htmlId).offsetHeight - margin.bottom - margin.top - axisOffset*2;
     let axisOffset = 5; //push x-axes away from y-axis and tallest bar this amount to show a gap
+    let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
+    let height = 250-margin.top-margin.bottom-axisOffset*2;//document.getElementById(htmlId).offsetHeight - margin.bottom - margin.top - axisOffset*2;
 
     console.log(width, height);
 
@@ -46,7 +46,7 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     let svg = d3.select(`#${htmlId}`)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", height + margin.top + margin.bottom + axisOffset*2)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
     */

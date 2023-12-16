@@ -13,14 +13,14 @@ Define here the views and scope of data available to the
 
 //get URL search params from calling http route address
 const thisUrl = new URL(document.URL);
-//get URL search params from calling module - a cool feature called a metaURL
+//get URL search params from calling module file - a cool feature called a metaURL
 const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
 const fileSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
 console.log('gbifDataConfig called by module with siteName', fileSite);
 const httpSite = thisUrl.searchParams.get('siteName')
 console.log('gbifDataConfig called by http route with siteName', httpSite);
-var siteName = httpSite ? httpSite : fileSite;
-siteName = siteName ? siteName : 'val';
+var siteName = httpSite ? httpSite : fileSite; //http route param 'siteName' overrides file param 'siteName'
+siteName = siteName ? siteName : 'val'; //if none specified, default to VAL
 
 const gbifApi = "https://api.gbif.org/v1";
 
@@ -177,7 +177,7 @@ const config = {
   /*
   https://www.gbif.org/occurrence/search?has_geospatial_issue=false&geometry=POLYGON((-70.88477 41.33702,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88477 41.33702))
   */
-  mva: { //Martha's Vineyard Atlas of Life
+  mval: { //Martha's Vineyard Atlas of Life
     atlasPlace: 'Marthas Vineyard',
     atlasName: 'Marthas Vineyard Atlas of Life',
     atlasAbbrev: 'MVAL',
@@ -259,7 +259,7 @@ const config = {
     }
   },
 
-  fma: { //Chicago Field Museum
+  fieldMuseum: { //Chicago Field Museum
     atlasPlace: 'Field Museum',
     atlasName: 'Field Museum Atlas',
     atlasAbbrev: 'FMA',
@@ -310,7 +310,7 @@ const config = {
     }
   },
 
-  ebu: { //eButterfly datasets demo - constrained by eB dataset keys, species and occurrence, and no geographic bounding-box
+  eButterfly: { //eButterfly datasets demo - constrained by eB dataset keys, species and occurrence, and no geographic bounding-box
     atlasPlace: 'eButterfly',
     atlasName: 'eButterfly Atlas',
     atlasAbbrev: 'eBA',
@@ -337,8 +337,7 @@ const config = {
     speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Ebutterfly Species Dataset Key?
     //speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
     speciesFilter: 'higherTaxonKey=6953&higherTaxonKey=5473&higherTaxonKey=7017&higherTaxonKey=9417&higherTaxonKey=5481&higherTaxonKey=1933999', //Filter to use if not speciesDatasetKey
-    //speciesFilter: 'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999',
-    publishingOrgKey: '', //leave blank if N/A VCE is publisher of eButterfly datasets
+    publishingOrgKey: false, //leave blank if N/A VCE is publisher of eButterfly datasets
     occurrenceDatasetKey: 'cf3bdc30-370c-48d3-8fff-b587a39d72d6', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: '', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
@@ -363,7 +362,7 @@ const config = {
     }
   },
 
-  ebw: { //eButterfly Worldwide demo - contrained by 6 butterfly families and no geographic bounding-box
+  wwButterfly: { //eButterfly Worldwide demo - contrained by 6 butterfly families and no geographic bounding-box
     atlasPlace: 'eButterfly World',
     atlasName: 'eButterfly Atlas World Wide',
     atlasAbbrev: 'eBW',
@@ -389,7 +388,7 @@ const config = {
     gadmGid: '', //leave blank if worldwide
     speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
     speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
-    publishingOrgKey: '', //leave blank if N/A
+    publishingOrgKey: false, //leave blank if N/A
     occurrenceDatasetKey: '', //New idea NOT implemented yet
     occurrenceFilter: '', //'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
@@ -619,6 +618,99 @@ const config = {
             "values": [
               "359",
             ]
+          }
+        ]
+      }
+    ]
+    }
+  },
+  vtFungi: { //Checklist of Vermont Macro Fungi
+    atlasPlace: 'Vermont Macro Fungi',
+    atlasName: 'VT Macro Fungi',
+    atlasAbbrev: 'VTF',
+    atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+    helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
+    thisUrl: thisUrl,
+    hostUrl: hostUrl,
+    homeUrl: homeUrl,
+    exploreUrl: exploreUrl,
+    resultsUrl: resultsUrl,
+    profileUrl: profileUrl,
+    literatUrl: literatUrl,
+    publishUrl: publishUrl,
+    gbifPortal: false,
+    inatProject: 'vermont-atlas-of-life',
+    gbifApi: gbifApi,
+    gadmGid: 'USA.46_1', //leave blank if N/A
+    speciesDatasetKey: '', //Species Dataset Key
+    speciesFilter: 'higherTaxonKey=160776583&higherTaxonKey=160780279',
+    publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
+    literatureFilters: ['Fungi','Ascomycota','Basidiomycota'],
+    occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+    columns: columns,
+    columNames: columNames,
+    drillRanks: drillRanks,
+    mapSettings: {
+      lat: 43.858297,
+      lng: -72.446594,
+      zoom: 7.75
+    },
+    rootRank: 'CLASS', //the starting view in the species explorer
+    rootPredicate: {
+      type: 'or', //currently the only supported type
+      predicates: [
+        {
+          "type": "and",
+          "predicates": [
+            {
+              "type": "equals",
+              "key": "gadmGid",
+              "value": "USA.46_1"
+            },
+            {
+              "type": "in",
+              "key": "taxonKey",
+              "values": [
+                "34",
+                "95",
+              ]
+            }
+          ]
+        },
+        {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "34",
+              "95",
+          ]
           }
         ]
       }
