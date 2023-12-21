@@ -340,7 +340,7 @@ const config = {
     publishingOrgKey: false, //leave blank if N/A VCE is publisher of eButterfly datasets
     occurrenceDatasetKey: 'cf3bdc30-370c-48d3-8fff-b587a39d72d6', //New idea from eButterfly config NOT implemented yet
     occurrenceFilter: '', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
+    columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
     mapSettings: {
@@ -391,7 +391,7 @@ const config = {
     publishingOrgKey: false, //leave blank if N/A
     occurrenceDatasetKey: '', //New idea NOT implemented yet
     occurrenceFilter: '', //'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: ['key','nubKey','canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences','images'], //these are the columns that will be shown
+    columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
     mapSettings: {
