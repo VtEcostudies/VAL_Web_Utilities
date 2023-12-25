@@ -101,9 +101,10 @@ function createChart(htmlId='chart', data, searchTerm=0) {
             })
         );
 
+    // Create Y Axis with only whole number tickmarks
     let yAxis;
     if (yMax > 10) {
-        yAxis = d3.axisLeft(y); //autorange tick values
+        yAxis = d3.axisLeft(y); //auto-range tick values, auto-format large numbers
     } else {
         yAxis = d3.axisLeft(y)
             .tickValues(d3.range(yMax+1)) //only allow tick divisions at whole numbers
