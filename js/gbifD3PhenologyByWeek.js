@@ -101,9 +101,19 @@ function createChart(htmlId='chart', data, searchTerm=0) {
             })
         );
 
+    let yAxis;
+    if (yMax > 10) {
+        yAxis = d3.axisLeft(y); //autorange tick values
+    } else {
+        yAxis = d3.axisLeft(y)
+            .tickValues(d3.range(yMax+1)) //only allow tick divisions at whole numbers
+            .tickFormat(d3.format(".0f")); //specify whole number values at ticks w/o decimals
+    }
+
     // Add the Y Axis
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .attr("class", "y-axis")
+        .call(yAxis);
 
     svg.selectAll("centerBar")
         .data(data)
