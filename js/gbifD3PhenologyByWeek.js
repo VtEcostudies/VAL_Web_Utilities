@@ -32,8 +32,10 @@ export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
 }
 function createChart(htmlId='chart', data, searchTerm=0) {
 
+    let yMax = d3.max(data, d => d.count)
+
     // Set the dimensions of the canvas
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 };
+    const margin = { top: 20, right: 20, bottom: 30, left: 30 + (String(yMax).length-3)*7 };
 
     let axisOffset = 5; //push x-axes away from y-axis and tallest bar this amount to show a gap
     let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
