@@ -462,7 +462,7 @@ const config = {
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key
     speciesFilter: 'datasetKey=73eb16f0-4b06-4347-8069-459bc2d96ddb', //Filter to use for species
-    publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
+    publishingOrgKey: false,
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: columns,
     columNames: columNames,
@@ -560,7 +560,7 @@ const config = {
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: 'f2faaa4c-74e9-457a-8265-06ef5cc73626', //Species Dataset Key
     speciesFilter: 'datasetKey=f2faaa4c-74e9-457a-8265-06ef5cc73626', //Filter to use for species
-    publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
+    publishingOrgKey: false,
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: columns,
     columNames: columNames,
@@ -650,7 +650,7 @@ const config = {
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '', //Species Dataset Key
     speciesFilter: 'higherTaxonKey=160776583&higherTaxonKey=160780279',
-    publishingOrgKey: 'b6d09100-919d-4026-b35b-22be3dae7156', //VCE key
+    publishingOrgKey: false,
     literatureFilters: ['Fungi','Ascomycota','Basidiomycota'],
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: columns,
