@@ -8,7 +8,7 @@ export async function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig) 
 
     gbifCountsByWeekByTaxonName(taxonName, geoSearchA).then(pheno => {
 
-        console.log('gbifD3PhenologyByWeek=>gbifCountsByWeekByListTaxonName', pheno);
+        //console.log('gbifD3PhenologyByWeek=>gbifCountsByWeekByListTaxonName', pheno);
 
         let data = pheno.weekArr;
     
@@ -23,7 +23,7 @@ export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
 
     gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig).then(pheno => {
 
-        console.log('gbifD3PhenologyByWeek=>gbifCountsByWeekByListTaxonKey', pheno);
+        //console.log('gbifD3PhenologyByWeek=>gbifCountsByWeekByListTaxonKey', pheno);
 
         let data = pheno.weekArr;
     
@@ -104,14 +104,15 @@ function createChart(htmlId='chart', data, searchTerm=0) {
                 return monthNames[d - 1]; // Months are one-indexed in JavaScript
             })
         )
-    xMonth.selectAll(".tick line")
+    xMonth.selectAll(".tick line") //select month top tick marks
         .attr("transform", `translate(${width/30}, 0)`) //shift the month x-axis tick-marks to the right
         .attr("y2", height+axisOffset*2) // Adjust the length of the tick lines
         .classed("upper-tick", true); // Apply custom class so we can style just these tick lines
-    xMonth.selectAll(".tick text")
-        .attr("transform", `translate(-${width/90}, 0)`); //shift the month x-axis labels to the left
+    xMonth.selectAll(".tick text") //select month top text labels
+        .attr("transform", `translate(-${width/90}, 0)`) //shift the month x-axis labels to the left
+        .classed("upper-text", true); // Apply custom class so we can style just these tick lines
 
-    //add text label to lower axis
+    //add 'Week' text label to lower axis
     svg.append("text")
         .attr("x", width/2-20) // Adjust the x-coordinate
         .attr("y", height + margin.bottom - 5) // Adjust the y-coordinate

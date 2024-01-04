@@ -128,7 +128,6 @@ function fetchAll(searchTerm, geoSearch) {
                         } else {
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
-                            //wAgg[week] = {count: wSum[week], week: week, month: mnth};
                             wAgg[week] = {count: wSum[week], week: week, month: weekToMonth(week)}; //a week's month is now an array
                         }
                     });
@@ -140,11 +139,9 @@ function fetchAll(searchTerm, geoSearch) {
             let tdWk = tday.getWeek()+1; // the week we're in today, 1-based
             let wArr = [];
             for (var i=1;i<54;i++) { //convert sparse object to complete array (for d3.js charts)
-                //if (wAgg[i]) {wArr.push(wAgg[i]);}
-                //else {wArr.push({count:0, week:i, month:weekToMonth(i)});}
                 let monthOfWeek = weekToMonth(i);
                 let objWeek = {count:wSum[i]?wSum[i]:0, week:i, month:monthOfWeek};
-                console.log('gbifCountsByWeek=>monthOfWeek', monthOfWeek, objWeek);
+                //console.log('gbifCountsByWeek=>monthOfWeek', monthOfWeek, objWeek);
                 wArr.push(objWeek);
             }
             //return Promise.resolve({search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
