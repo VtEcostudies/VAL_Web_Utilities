@@ -2,7 +2,7 @@ import { getListSubTaxonKeysByFilter } from "./gbifOccFacetCounts.js";
 import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
-var Storage = window.sessionStorage ? sessionStorage : false;
+var Storage = false; //window.sessionStorage ? sessionStorage : false;
 var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the requested geometry/geography:
@@ -45,7 +45,7 @@ export async function getStoredPhenology(searchTerm, geoSearch) {
         phenology = fetchAll(searchTerm, geoSearch); //returns a promise. handle that downstream with occs.then(occs => {}).
         console.log(`fetchAll(${searchTerm}) returned`, phenology); //this returns 'Promise { <state>: "pending" }'
         phenology.then(pheno => { //convert promise to data object...
-            Storage.setItem(storeName, JSON.stringify(pheno));
+            if (Storage) {Storage.setItem(storeName, JSON.stringify(pheno));}
         });
     }
     return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
@@ -128,7 +128,8 @@ function fetchAll(searchTerm, geoSearch) {
                         } else {
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
-                            wAgg[week] = {count: wSum[week], week: week, month: mnth};
+                            //wAgg[week] = {count: wSum[week], week: week, month: mnth};
+                            wAgg[week] = {count: wSum[week], week: week, month: weekToMonth(week)}; //a week's month is now an array
                         }
                     });
                 } else {
@@ -139,8 +140,12 @@ function fetchAll(searchTerm, geoSearch) {
             let tdWk = tday.getWeek()+1; // the week we're in today, 1-based
             let wArr = [];
             for (var i=1;i<54;i++) { //convert sparse object to complete array (for d3.js charts)
-                if (wAgg[i]) {wArr.push(wAgg[i]);}
-                else {wArr.push({count:0, week:i, month:weekToMonth(i)});}
+                //if (wAgg[i]) {wArr.push(wAgg[i]);}
+                //else {wArr.push({count:0, week:i, month:weekToMonth(i)});}
+                let monthOfWeek = weekToMonth(i);
+                let objWeek = {count:wSum[i]?wSum[i]:0, week:i, month:monthOfWeek};
+                console.log('gbifCountsByWeek=>monthOfWeek', monthOfWeek, objWeek);
+                wArr.push(objWeek);
             }
             //return Promise.resolve({search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
             //return {search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr};
@@ -157,13 +162,26 @@ function fetchAll(searchTerm, geoSearch) {
 
 function weekToMonth(weekNumber, year=2023) {
     // Create a date based on the first day of the given year
-    const date = new Date(year, 0, 1);
+    const dateBeg = new Date(year, 0, 1);
+    const dateEnd = new Date(year, 0, 1);
     
     // Adjust the date to the first day of the week
-    date.setDate(date.getDate() + (weekNumber - 1) * 7 - date.getDay());
+    dateBeg.setDate(dateBeg.getDate() + (weekNumber - 1) * 7 - dateBeg.getDay());
 
-    // Get the month of the adjusted date
-    const month = date.getMonth() + 1; // Months are zero-indexed, so add 1
+    // Get the month of the adjusted first day of week
+    let begMon = dateBeg.getMonth() + 1; // Months are zero-indexed, so add 1
+    
+    // Adjust the date to the last day of the week
+    dateEnd.setDate(dateEnd.getDate() + (weekNumber) * 7 - dateEnd.getDay());
 
-    return month;
+    // Get the month of the adjusted last day of week
+    let endMon = dateEnd.getMonth() + 1; // Months are zero-indexed, so add 1
+
+    if (begMon == 12) {endMon=begMon;} //don't wrap month of year back to January for last week of December 
+
+    let arrMon = begMon == endMon ? [begMon] : [begMon, endMon];
+
+    console.log('weekToMonth', arrMon);
+
+    return arrMon;
 }

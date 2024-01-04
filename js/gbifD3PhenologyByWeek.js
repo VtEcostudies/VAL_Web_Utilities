@@ -8,11 +8,13 @@ export async function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig) 
 
     gbifCountsByWeekByTaxonName(taxonName, geoSearchA).then(pheno => {
 
+        console.log('gbifD3PhenologyByWeek=>gbifCountsByWeekByListTaxonName', pheno);
+
         let data = pheno.weekArr;
     
         console.log('Phenology data for', taxonName, data);
     
-        createChart(htmlId, data);
+        createChart(htmlId, data); //we don't allow drill-down search for taxonName view of data!?!
     })
 }
 export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
@@ -35,7 +37,7 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     let yMax = d3.max(data, d => d.count)
 
     // Set the dimensions of the canvas
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 + (String(yMax).length-3)*7 };
+    const margin = { top: 20, right: 20, bottom: 40, left: 30 + (String(yMax).length-3)*7 };
 
     let axisOffset = 5; //push x-axes away from y-axis and tallest bar this amount to show a gap
     let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
@@ -68,7 +70,9 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     // Fix the data
     data.forEach(d => {
         d.week = +d.week;
-        d.month = +d.month;
+        //d.month0 = Array.isArray(d.month) ? +d.month[0] : +d.month;
+        d.month1 = Array.isArray(d.month) ? (2 == d.month.length ? +d.month[1] : 0) : 0; 
+        d.month = Array.isArray(d.month) ? +d.month[0] : +d.month;
         d.count = +d.count;
     });
 
@@ -78,18 +82,18 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     y.domain([0, d3.max(data, d => d.count)]);
 
     // Add the weeks X Axis
-    svg.append("g")
+    const xWeek = svg.append("g")
         .attr("transform", `translate(0, ${height + axisOffset})`) //5 px below the chart
         //.attr("transform", `translate(0, ${-axisOffset})`) //5 px above the chart
         //.call(d3.axisTop(x)) //above the line
         .call(d3.axisBottom(x)) //below the line
-    /*
-        .selectAll("text")
-        .attr("transform", "rotate(0)")
-        .style("text-anchor", "end");
-    */
+    
+        .selectAll(".tick text") //'.tick text' and just 'text' both work, here
+        .attr("transform", "rotate(-70) translate(-12,-10)") //rotate week numbers and shift to match tickmarks
+        //.style("text-anchor", "end"); //this moves the text to the end of the tickmark, but only for non-transformed text
+    
     // Add the months X Axis
-    svg.append("g")
+    const xMonth = svg.append("g")
         //.attr("transform", `translate(0, ${height + axisOffset})`) //5 px below the chart
         .attr("transform", `translate(0, ${-axisOffset})`) //5 px above the chart
         .call(d3.axisTop(xM) //above the line
@@ -99,7 +103,20 @@ function createChart(htmlId='chart', data, searchTerm=0) {
                 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                 return monthNames[d - 1]; // Months are one-indexed in JavaScript
             })
-        );
+        )
+    xMonth.selectAll(".tick line")
+        .attr("transform", `translate(${width/30}, 0)`) //shift the month x-axis tick-marks to the right
+        .attr("y2", height+axisOffset*2) // Adjust the length of the tick lines
+        .classed("upper-tick", true); // Apply custom class so we can style just these tick lines
+    xMonth.selectAll(".tick text")
+        .attr("transform", `translate(-${width/90}, 0)`); //shift the month x-axis labels to the left
+
+    //add text label to lower axis
+    svg.append("text")
+        .attr("x", width/2-20) // Adjust the x-coordinate
+        .attr("y", height + margin.bottom - 5) // Adjust the y-coordinate
+        .text('Week')
+        .style("font-size", "10px");
 
     // Create Y Axis with only whole number tickmarks
     let yAxis;
@@ -110,7 +127,6 @@ function createChart(htmlId='chart', data, searchTerm=0) {
             .tickValues(d3.range(yMax+1)) //only allow tick divisions at whole numbers
             .tickFormat(d3.format(".0f")); //specify whole number values at ticks w/o decimals
     }
-
     // Add the Y Axis
     svg.append("g")
         .attr("class", "y-axis")
@@ -140,8 +156,10 @@ function createChart(htmlId='chart', data, searchTerm=0) {
         // Display data in the console or update a tooltip
         //console.log("Mouseover: ", d);
 
+        let month = d.month1 ? `${d.month},${d.month1}` : d.month;
+
         tooltip
-            .html(`Week: ${d.week}<br>Month: ${d.month}<br>Count: ${d.count}`)
+            .html(`Week: ${d.week}<br>Month: ${month}<br>Count: ${d.count}`)
             .style("left", (event.pageX-50) + "px")
             .style("top", (event.pageY-50) + "px")
             .style("display", "block");
@@ -155,8 +173,11 @@ function createChart(htmlId='chart', data, searchTerm=0) {
     }
     // Click event handler
     function handleClick(event, d) {
+        let monthFilter = d.month1 ? `month=${d.month}&month=${d.month1}` : `month=${d.month}`;
         if (exploreUrl && searchTerm) {
-            window.open(`${exploreUrl}?${searchTerm}&month=${d.month}&view=TABLE`);
+            window.open(`${exploreUrl}?${searchTerm}&${monthFilter}&view=TABLE`);
+        } else {
+            alert('Phenology links to GBIF Occurrences only available for queries by taxonKey.')
         }
     }
 }
