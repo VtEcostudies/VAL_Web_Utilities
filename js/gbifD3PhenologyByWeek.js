@@ -217,7 +217,9 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     function handleClick(event, d) {
         let monthFilter = d.month1 ? `month=${d.month}&month=${d.month1}` : `month=${d.month}`;
         if (exploreUrl && searchTerm) {
-            window.open(`${exploreUrl}?${searchTerm}&${monthFilter}&view=TABLE`);
+            let url = `${exploreUrl}?${searchTerm}&${monthFilter}&view=TABLE`;
+            console.log('gbifD3PhenologyByWeek.js=>handleClick | url:', url);
+            window.open(url);
         } else {
             alert('Phenology links to GBIF Occurrences only available for queries by taxonKey.')
         }
