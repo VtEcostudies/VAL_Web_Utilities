@@ -21,6 +21,16 @@ Date.prototype.getWeek = function () {
     return weekOfYear;
 };
 
+Date.prototype.getDOY = function () {
+    var then = new Date(this);
+    var start = new Date(then.getFullYear(), 0, 0);
+    var diff = (then - start) + ((start.getTimezoneOffset() - then.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var doy = Math.floor(diff / oneDay);
+    //console.log('Day of year: ' + doy);
+    return doy;
+}
+
 /*
     For an instantiated Date object, which *must* be created like dt = new Date(),
     toUtc() returns a Date object whose millisecond value has been *shifted* to 

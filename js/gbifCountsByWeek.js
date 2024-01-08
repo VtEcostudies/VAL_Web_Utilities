@@ -113,7 +113,7 @@ function fetchAll(searchTerm, geoSearch) {
         })
         .then(arrj => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) ALL JSON RESULT:`, arrj);
-            let total = 0, wSum = {}, mSum = {}, wAgg = {};
+            let total = 0, dSum = {}, wSum = {}, mSum = {}, wAgg = {}, dMin = 366, dMax = 0;
             arrj.forEach(json => {
                 //console.log('json', json);
                 total += json.count;
@@ -122,13 +122,17 @@ function fetchAll(searchTerm, geoSearch) {
                         let date = new Date(count.name).toUtc();
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
+                        let doy = date.getDOY(); //getDOY is 1-based?
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
                             console.log('NOT Adding to Sums by Week and removing', count.count, 'from total for:', searchTerm, date, week, mnth);
                             total -= count.count; //don't include these in totals either
                         } else {
+                            dSum[doy] = dSum[doy] ? dSum[doy] + count.count : count.count;
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
-                            wAgg[week] = {count: wSum[week], week: week, month: weekToMonth(week)}; //a week's month is now an array
+                            //wAgg[week] = {count: wSum[week], week: week, month: weekToMonth(week)}; //a week's month is now an array
+                            if (doy < dMin) dMin = doy;
+                            if (doy > dMax) dMax = doy;
                         }
                     });
                 } else {
@@ -139,14 +143,14 @@ function fetchAll(searchTerm, geoSearch) {
             let tdWk = tday.getWeek()+1; // the week we're in today, 1-based
             let wArr = [];
             for (var i=1;i<54;i++) { //convert sparse object to complete array (for d3.js charts)
-                let monthOfWeek = weekToMonth(i);
-                let objWeek = {count:wSum[i]?wSum[i]:0, week:i, month:monthOfWeek};
-                //console.log('gbifCountsByWeek=>monthOfWeek', monthOfWeek, objWeek);
-                wArr.push(objWeek);
+                wArr.push({count:wSum[i]?wSum[i]:0, week:i, month:weekToMonth(i)});
             }
-            //return Promise.resolve({search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg}); //this works too, but not needed
-            //return {search:searchTerm, taxonName:taxonName, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr};
-            return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr};
+            let dArr = [];
+            for (var i=1;i<367;i++) { //convert sparse object to complete array (for d3.js charts)
+                dArr.push({count:dSum[i]?dSum[i]:0, doy:i});
+            }
+            //return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr, doyArr:dArr};
+            return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekArr:wArr, doyArr:dArr, doyExt:{min:dMin,max:dMax}};
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
@@ -178,7 +182,7 @@ function weekToMonth(weekNumber, year=2023) {
 
     let arrMon = begMon == endMon ? [begMon] : [begMon, endMon];
 
-    console.log('weekToMonth', arrMon);
+    //console.log('weekToMonth', arrMon);
 
     return arrMon;
 }
