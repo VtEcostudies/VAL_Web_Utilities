@@ -17,15 +17,16 @@ export async function getGbifSpeciesByDataset(datasetKey=datasetKeys['chkVtb1'],
     let enc = encodeURI(url);
     try {
         let res = await fetch(enc);
-        //console.log(`getGbifSpeciesDataset(${datasetKey}) RAW RESULT:`, res);
+        //console.log(`getGbifSpeciesByDataset(${datasetKey}) RAW RESULT:`, res);
         let json = await res.json();
-        console.log(`getGbifSpeciesDataset(${datasetKey}) JSON RESULT:`, json);
+        console.log(`getGbifSpeciesByDataset(${datasetKey}) JSON RESULT:`, json);
         json.query = enc;
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getGbifSpeciesDataset(${datasetKey}) ERROR:`, err);
-        return new Error(err)
+        console.log(`getGbifSpeciesByDataset(${datasetKey}) ERROR:`, err);
+        return Promise.reject(err);
+        //return new Error(err)
     }
 }
 
@@ -135,6 +136,38 @@ export async function getGbifSynonymsByHigherTaxonKey(higherTaxonKey, rank=0, fi
         return new Error(err)
     }
 }
+/*
+    Search for a taxonName (and taxonRank) within a Species List. Return failure if search yields no matching results.
+*/
+export async function findListTaxonByNameAndRank(fileConfig, taxonName, taxonRank='UNKNOWN') {
+    let datasetKey = fileConfig.dataConfig.speciesDatasetKey;
+    try {
+        if (datasetKey && taxonName) {
+            let params = `q=${taxonName}&qField=SCIENTIFIC`;
+            if ('UNKNOWN' != taxonRank) params += `&rank=${taxonRank}`;
+            let json = await getGbifSpeciesByDataset(datasetKey, 0, 20, params);
+            if (0 == json.count) {
+                return Promise.reject(new Error(`${taxonRank ? taxonRank : ''} ${taxonName} Not Found in ${fileConfig.dataConfig.atlasName}`))
+            }
+            if (1 == json.count) {
+                return Promise.resolve(json.results[0]);
+            }
+            if (json.count > 1) {
+                for (var i=0;i<json.results.length;i++) {
+                    let txn = json.results[i];
+                    if (txn.canonicalName.toUpperCase() == taxonName.toUpperCase() && ('UNKNOWN' == taxonRank || txn.rank.toUpperCase() == taxonRank.toUpperCase())) {
+                        return Promise.resolve(json.results[i]);
+                    }
+                }
+            }
+        } else {
+            return Promise.reject(new Error(`speciesDatasetKey is not defined for '${fileConfig.dataConfig.atlasName}'`))
+        }
+    } catch (err) {
+        return Promise.reject(err);
+    }
+}
+
 /*
 NOTE: This fails to find a valid match for some common taxa (eg. Sterna).
 Everywhere possible we use taxonKey to search, not taxonName.
