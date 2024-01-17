@@ -717,6 +717,108 @@ const config = {
     ]
     }
   },
+  //VT Bees: 950853df-adf7-4c5a-b955-266bb6a194df
+  vtBees: { //Checklist of Vermont Bees
+    atlasPlace: 'Vermont Bees',
+    atlasName: 'VT Bees',
+    atlasAbbrev: 'VTB',
+    atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+    helpDeskUrl: false,
+    backgroundImageUrl: {
+      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+      },
+    thisUrl: thisUrl,
+    hostUrl: hostUrl,
+    homeUrl: homeUrl,
+    exploreUrl: exploreUrl,
+    resultsUrl: resultsUrl,
+    profileUrl: profileUrl,
+    literatUrl: literatUrl,
+    publishUrl: publishUrl,
+    gbifPortal: false,
+    inatProject: 'vermont-wild-bee-survey', //'vermont-atlas-of-life',
+    gbifApi: gbifApi,
+    gadmGid: 'USA.46_1', //leave blank if N/A
+    speciesDatasetKey: '950853df-adf7-4c5a-b955-266bb6a194df',
+    speciesFilter: 'datasetKey=950853df-adf7-4c5a-b955-266bb6a194df',
+    publishingOrgKey: false,
+    literatureFilters: ['Apoidea','Anthophila','Andrenidae','Apidae','Colletidae','Halictidae','Megachilidae','Melittidae'],
+    occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+    columns: columns,
+    columNames: columNames,
+    drillRanks: drillRanks,
+    mapSettings: {
+      lat: 43.858297,
+      lng: -72.446594,
+      zoom: 7.75
+    },
+    rootRank: 'FAMILY', //the starting view in the species explorer
+    rootPredicate: {
+      type: 'or', //currently the only supported type
+      predicates: [
+        {
+          "type": "and",
+          "predicates": [
+            {
+              "type": "equals",
+              "key": "gadmGid",
+              "value": "USA.46_1"
+            },
+            {
+              "type": "in",
+              "key": "taxonKey",
+              "values": [
+                "7901", //Andrenidae
+                "4334", //Apidae
+                "7905", //Colletidae
+                "7908", //Halictidae
+                "7911", //Megachilidae
+                "4345" //Melittidae
+              ]
+            }
+          ]
+        },
+        {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7901", //Andrenidae
+              "4334", //Apidae
+              "7905", //Colletidae
+              "7908", //Halictidae
+              "7911", //Megachilidae
+              "4345" //Melittidae
+            ]
+        }
+        ]
+      }
+    ]
+    }
+  }
 }
 
 export const dataConfig = config[siteName];
