@@ -18,9 +18,10 @@ export async function getSetStoredData(dataType, searchTerm, geoSearchA, fetchFu
     }
     return storeData; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
 }
-export async function getStoredData(dataType, searchTerm, geoSearchA) {
-    let storeName = `${dataType}-${searchTerm}`;
-    if (geoSearchA) {storeName = storeName + '-' + JSON.stringify(geoSearchA);}
+export async function getStoredData(dataType, searchTerm=false, geoSearchA=[]) {
+    let storeName = dataType;
+    if (searchTerm) storeName += searchTerm;
+    if (geoSearchA && geoSearchA.length) {storeName = storeName + '-' + JSON.stringify(geoSearchA);}
     console.log(`storedData=>getSetStoredData | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch:`, geoSearchA);
     let storeData = Storage ? Storage.getItem(storeName) : false;
     console.log('gbifcountsByData=>getStoredData | storeData:', storeData);
@@ -30,10 +31,11 @@ export async function getStoredData(dataType, searchTerm, geoSearchA) {
     }
     return storeData;
 }
-export async function setStoredData(dataType, searchTerm, geoSearchA, data) {
+export async function setStoredData(dataType, searchTerm=false, geoSearchA=[], data) {
     if (Storage) {
-        let storeName = `${dataType}-${searchTerm}`;
-        if (geoSearchA) {storeName = storeName + '-' + JSON.stringify(geoSearchA);}
+        let storeName = dataType;
+        if (searchTerm) storeName += searchTerm;
+        if (geoSearchA && geoSearchA.length) {storeName = storeName + '-' + JSON.stringify(geoSearchA);}
         console.log(`storedData=>setStoredData | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch:`, geoSearchA);
         Storage.setItem(storeName, JSON.stringify(data));
     } else {
