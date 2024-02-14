@@ -30,7 +30,6 @@ export function parseCanonicalFromScientific(occJson, nameKey='scientificName') 
     }
     return name;
   }
-  
 /*
     content-types: https://www.iana.org/assignments/media-types/media-types.xhtml
     eg.

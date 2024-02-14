@@ -15,11 +15,11 @@ Define here the views and scope of data available to the
 const thisUrl = new URL(document.URL);
 //get URL search params from calling module file - a cool feature called a metaURL
 const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
-const fileSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
-console.log('gbifDataConfig called by module with siteName', fileSite);
+const metaSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
+console.log('gbifDataConfig called by module with siteName', metaSite);
 const httpSite = thisUrl.searchParams.get('siteName')
 console.log('gbifDataConfig called by http route with siteName', httpSite);
-var siteName = httpSite ? httpSite : fileSite; //http route param 'siteName' overrides file param 'siteName'
+var siteName = httpSite ? httpSite : metaSite; //http route param 'siteName' overrides file param 'siteName'
 siteName = siteName ? siteName : 'val'; //if none specified, default to VAL
 
 const gbifApi = "https://api.gbif.org/v1";
@@ -38,12 +38,12 @@ var literatEnd = 'gbif-literature';
 var publishEnd = 'gbif-publishers';
 if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //test sites use html for endpoints and has site-specific routing
   baseRoute = urlRouts.splice(0, urlRouts.length-1).join('/'); //remove the html file from the route and use what's left to build URLs for page links in code
-  homeEnd = 'index.html';
-  exploreEnd = 'occurrences.html';
-  resultsEnd = 'results.html';
-  profileEnd = 'VAL_Species_Page/profile.html';
-  literatEnd = 'literature.html';
-  publishEnd = 'publishers.html';
+  homeEnd = '_index.html';
+  exploreEnd = '_occurrences.html';
+  resultsEnd = '_species.html';
+  profileEnd = '_profile.html';
+  literatEnd = '_literature.html';
+  publishEnd = '_publishers.html';
 }
 baseRoute = baseRoute.replace('VAL_Species_Page', ''); //Sp Page includes this file to get paths. Remove it from baseRoute to allow link to find VAL_Data_Explorers
 if (!baseRoute.endsWith('/')) {baseRoute += '/';}
@@ -105,6 +105,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: 'https://hp-vtatlasoflife.gbif.org',
     inatProject: 'vermont-atlas-of-life',
+    inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //'Vermont' GADM administrative bounding region
     speciesDatasetKey: '0b1735ff-6a66-454b-8686-cae1cbc732a2',
@@ -196,6 +197,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: 'martha-s-vineyard-atlas-of-life',
+    inatPlaceId: 142435,
     gbifApi: gbifApi,
     gadmGid: 'USA.22.4_1', //'Dukes County, MA' GADM administrative bounding region
     speciesDatasetKey: '298a29ef-a66a-4330-93a1-ea59482e25d9', //Martha's Vineyard Regional Species List Dataset Key
@@ -281,6 +283,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
+    inatPlaceId: false,
     gbifApi: gbifApi,
     gadmGid: '', // World GADM administrative bounding region?
     speciesDatasetKey: 'ad8da44f-646f-4244-a6d0-5d1085ec6984', //FMA Species Dataset Key has been removed
@@ -332,8 +335,9 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
+    inatPlaceId: false,
     gbifApi: gbifApi,
-    gadmGid: '', //leave blank if N/A
+    gadmGid: false, //leave blank if N/A
     speciesDatasetKey: 'afff5f4d-742e-4db0-b750-6766306f3a0a', //Ebutterfly Species Dataset Key?
     //speciesFilter: 'datasetKey=afff5f4d-742e-4db0-b750-6766306f3a0a',
     speciesFilter: 'higherTaxonKey=6953&higherTaxonKey=5473&higherTaxonKey=7017&higherTaxonKey=9417&higherTaxonKey=5481&higherTaxonKey=1933999', //Filter to use if not speciesDatasetKey
@@ -384,8 +388,9 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: false,
+    inatPlaceId: false,
     gbifApi: gbifApi,
-    gadmGid: '', //leave blank if worldwide
+    gadmGid: false, //leave blank if worldwide
     speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
     speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
     publishingOrgKey: false, //leave blank if N/A
@@ -458,6 +463,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: 'vermont-atlas-of-life',
+    inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '73eb16f0-4b06-4347-8069-459bc2d96ddb', //Species Dataset Key
@@ -556,6 +562,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: 'vermont-atlas-of-life',
+    inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: 'f2faaa4c-74e9-457a-8265-06ef5cc73626', //Species Dataset Key
@@ -646,6 +653,7 @@ const config = {
     publishUrl: publishUrl,
     gbifPortal: false,
     inatProject: 'vermont-atlas-of-life',
+    inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '', //Species Dataset Key
@@ -739,7 +747,8 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
-    inatProject: 'vermont-wild-bee-survey', //'vermont-atlas-of-life',
+    inatProject: 'vermont-wild-bee-survey',
+    inatPlaceId: 47, //this used to query iNat observers
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
     speciesDatasetKey: '950853df-adf7-4c5a-b955-266bb6a194df',
