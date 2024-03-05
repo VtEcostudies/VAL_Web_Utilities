@@ -26,7 +26,7 @@ export async function getWikiPage(searchTerm=false) {
         if (res.status < 300) {
             let json = await res.json();
             json.query = enc;
-            console.log(`getWikiPage(${searchTerm}) JSON RESULT:`, json);
+            //console.log(`getWikiPage(${searchTerm}) JSON RESULT:`, json);
             return json;
         } else {
             console.log(`getWikiPage(${searchTerm}) BAD RESULT:`, res.status);

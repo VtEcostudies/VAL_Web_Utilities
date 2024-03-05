@@ -3,7 +3,8 @@ import { googleApiKey } from "./secrets.js";
 export var defaultSheetIds = {
     "vbaSignUps": '1O5fk2pDQCg_U4UNzlYSbewRJs4JVgonKEjg3jzDO6mA',
     "vernacular": '17_e15RB8GgpMVZgvwkFHV8Y9ZgLRXg5Swow49wZsAyQ',
-    "taxonSrank": '1bEu_14eXGaBvPiwEirJs88F2ZdwR_ywBMpamtgIv0lc'
+    "taxonSrank": '1bEu_14eXGaBvPiwEirJs88F2ZdwR_ywBMpamtgIv0lc',
+    "statusMVAL": '1Y1DCKqIQG0inJMaganaosVC-hgMjagXfcIDOkUfPMYM' //MVAL MA Conservation Status values distilled from https://www.mass.gov/info-details/list-of-endangered-threatened-and-special-concern-species#list-of-species-
 }
 
 /*
@@ -143,3 +144,52 @@ export async function getSheetSranks(sheetNumber=0) {
         return new Error(err)
     }
 }
+
+/*
+    Load entire data sheet into object keyed by nKey (SCIENTIFIC_NAME). Return object.
+*/
+export async function getSheetMAStatus(sheetNumber=0) {
+    try {
+        let res = await fetchGoogleSheetData(defaultSheetIds.statusMVAL, sheetNumber);
+        console.log('getSheetMAStatus RESULT:', res);
+        if (res.status > 299) {return res;}
+        let name = {};
+        let nKey = 'SCIENTIFIC_NAME'; //the column name whose value is the key to its row
+        res.rows.forEach((row,rid) => {
+            //console.log('row:', rid);
+            let data = {};
+            /*
+            Build a JSON object using headRow keys with eachRow values like {head[i]:row.value[i], head[i+1]:row.value[i+1], ...}
+            */
+            res.head.forEach((col,idx) => { //Asynchronous loop works here! This is better UX so use it.
+            //for (var idx=0; idx<res.head.length; idx++) { let col = res.head[idx]; //synchronous loop works but delays page loading...
+                let val = row.values[idx];
+                //console.log('head:', idx, col.formattedValue);
+                //console.log('col:', idx, val ? val.formattedValue : null);
+                data[col.formattedValue] = val ? val.formattedValue : null;
+            })
+            //console.log(`Row ${rid} JSON:`, data);
+            /*
+                Now we have a JSON header-keyed row of data. Use specific keys to build a nested object of vernacular names like this:
+                name[nKey] = {head1:row1value1, head2:row1value2, ...}
+                name[nKey] = {head1:row2value1, head2:row2value2, ...}
+                name[nKey] = {head1:rowNvalue1, head2:rowNvalue2, ...}
+            */
+            if (name[data[nKey]]) { //We assume that if the 1st Dimension exists, the 2nd Dimension has been instantiated, as below.
+                //name[data[nKey]].push(data);
+                name[data[nKey]] = data;
+                //console.log('duplicate', name[data.taxonId]);
+            } else {
+                //name[data[nKey]] = {}; //We must instantiate a 2D array somehow before we push values on the the 1st Dimension
+                //name[data[nKey]][0] = data;
+                name[data[nKey]] = data;
+            }
+        })
+        //console.log('getSheetMAStatus Nested Object', name);
+        return name;
+    } catch(err) {
+        console.log(`getSheetMAStatus(${sheetNumber}) ERROR:`, err);
+        return new Error(err)
+    }
+}
+

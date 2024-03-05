@@ -14,6 +14,7 @@ var todayWeek = todayDate.getWeek()+1; // the week we're in today, 1-based
 var todayWeekColumnId = 0; //the columnId in the table of this week in the year, to (hopefully) auto-sort by that phenology
 var firstWeekColumnId = 0;
 var occurrenceColumnId = -1;
+var siteName = false; //if this value is set, pass it as parameter to species-profiles. we set this only for calls here for known lists, eg. butterflies.
 
 async function addPageWait() {
     if (divWait) {    
@@ -145,7 +146,8 @@ async function addTaxonRow(columnA=[], pheno=false, taxon=false, rowIdx=0) {
         colObj = false;
         if ('scientific' == column.toLowerCase() || 'accepted' == column.toLowerCase()) {
             colObj = objRow.insertCell(++colIdx);
-            let ancTag = `<a title="VAL Species Profile: ${taxon.canonicalName}" href="https://val.vtecostudies.org/species-profile?taxonName=${taxon.canonicalName}">${taxon.canonicalName}</a>`
+            let siteParm=''; if (siteName) {siteParm = `siteName=${siteName}&`;}
+            let ancTag = `<a title="VAL Species Profile: ${taxon.canonicalName}" href="https://val.vtecostudies.org/species-profile?${siteParm}taxonName=${taxon.canonicalName}">${taxon.canonicalName}</a>`
             colObj.innerHTML = ancTag;
         }
         else if ('common' == column.toLowerCase() || 'vernacular' == column.toLowerCase()) {
@@ -234,6 +236,7 @@ function afterTaxonRows(columnA=[], objHtmlIds, objSort, objTitle={show:0, text:
 */
 export async function gbifPhenologyBySpeciesListName(listName, columnA=[], geoSearchA=[], objHtmlIds={tblId:false, ttlId:false}, objSort, objTitle, offset, limit) {
     if ('butterflies' ==  listName) {
+        siteName = 'vtButterflies'; //this is used to pass siteName parameter to the species-profile
         gbifPhenologyByDataSetKey(datasetKeys['chkVtb1'], columnA, geoSearchA, objHtmlIds, objSort, objTitle, offset, limit); //Note: MUST await, here, else dataTables fires early with disastrous results
     } else {
         console.log(`Species-list named ${listName} NOT found.`);
