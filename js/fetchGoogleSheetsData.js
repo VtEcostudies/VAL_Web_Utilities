@@ -154,7 +154,7 @@ export async function getSheetMAStatus(sheetNumber=0) {
         console.log('getSheetMAStatus RESULT:', res);
         if (res.status > 299) {return res;}
         let name = {};
-        let nKey = 'SCIENTIFIC_NAME'; //the column name whose value is the key to its row
+        let nKey = 'SCIENTIFIC_NAME'; //the column name whose value is the key to its spreadsheet row
         res.rows.forEach((row,rid) => {
             //console.log('row:', rid);
             let data = {};

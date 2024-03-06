@@ -215,7 +215,7 @@ export async function getGbifTaxonFromName(taxonName, taxonRank='UNKNOWN') {
 
 export async function getGbifTaxonFromKey(taxonKey) {
 
-    console.log(`getGbifTaxonFromKey ${taxonKey}`);
+    //console.log(`getGbifTaxonFromKey ${taxonKey}`);
 
     let url = `${gbifApi}/species/${taxonKey}`;
     let enc = encodeURI(url);
