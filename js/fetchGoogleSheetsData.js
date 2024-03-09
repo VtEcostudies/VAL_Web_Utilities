@@ -6,7 +6,39 @@ export var defaultSheetIds = {
     "taxonSrank": '1bEu_14eXGaBvPiwEirJs88F2ZdwR_ywBMpamtgIv0lc',
     "statusMVAL": '1Y1DCKqIQG0inJMaganaosVC-hgMjagXfcIDOkUfPMYM' //MVAL MA Conservation Status values distilled from https://www.mass.gov/info-details/list-of-endangered-threatened-and-special-concern-species#list-of-species-
 }
+const Storage = sessionStorage; //localStorage;
 
+export async function getStoredConservationStatus(storeName, sheetNumber) {
+    console.log(`fetchGoogleSheetData=>getStoredConservationStatus(${storeName}, ${sheetNumber})`);
+    let storeData;
+    if (Storage.getItem(storeName)) {
+        storeData = JSON.parse(Storage.getItem(storeName));
+        console.log(`fetchGoogleSheetData=>getStoredConservationStatus=>Storage.getItem(${storeName}) returned`, storeData);
+    } else {
+        storeData = getSheetConservationStatus(storeName, sheetNumber); //returns a promise. handle that downstream with storeData.then(data => {}).
+        console.log(`${storeName} returned`, storeData); //this returns 'Promise { <state>: "pending" }'
+        storeData.then(data => { //convert promise to data object...
+            Storage.setItem(storeName, JSON.stringify(data));
+        });
+    }
+    return storeData; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
+}
+
+//wrap retrieval of data in this async function to return a promise, which elsewhere waits for data
+export async function getStoredDataByFunc(storeFunc=getSheetSranks, sheetNumber=0) {
+    let storeData; let storeName=`${storeFunc}`;
+    if (Storage.getItem(storeName)) {
+        storeData = JSON.parse(Storage.getItem(storeName));
+        console.log(`fetchGoogleSheetData=>getStoredDataByFunc=>Storage.getItem(${storeName}) returned`, storeData);
+    } else {
+        storeData = storeFunc(sheetNumber); //returns a promise. handle that downstream with storeData.then(data => {}).
+        console.log(`${storeName} returned`, storeData); //this returns 'Promise { <state>: "pending" }'
+        storeData.then(data => { //convert promise to data object...
+            Storage.setItem(storeName, JSON.stringify(data));
+        });
+    }
+    return storeData; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
+}
 /*
     Fetch a single Google sheet's data by sheet ID and ordinal sheet number.
 */
@@ -28,10 +60,13 @@ export async function fetchGoogleSheetData(spreadsheetId=defaultSheetIds.vbaSign
         return {'properties':prop, 'head':head, 'rows':data};
     } catch (err) {
         console.log(`fetchGoogleSheetData(${spreadsheetId}) ERROR:`, err);
-        return new Error(err)
+        //return new Error(err)
+        return Promise.reject(err);
     }
 }
-
+/* 
+    Retrieve VBA2 Signups from Google Sheet for VBA2 Block Mapper Tool
+*/
 export async function getSheetSignups(sheetNumber=0) {
     try {
         let res = await fetchGoogleSheetData(defaultSheetIds.vbaSignUps, sheetNumber);
@@ -54,10 +89,13 @@ export async function getSheetSignups(sheetNumber=0) {
     return sign;
     } catch(err) {
         console.log(`getSheetSignups(${sheetNumber}) ERROR:`, err);
-        return new Error(err)
+        //return new Error(err)
+        return Promise.reject(err);
     }
 }
-
+/*
+    Load entire data sheet into 2D Array keyed like [taxonId][i]. Return array.
+*/
 export async function getSheetVernaculars(sheetNumber=0) {
     try {
         let res = await fetchGoogleSheetData(defaultSheetIds.vernacular, sheetNumber);
@@ -96,10 +134,13 @@ export async function getSheetVernaculars(sheetNumber=0) {
         return name;
     } catch(err) {
         console.log(`getSheetVernaculars(${sheetNumber}) ERROR:`, err);
-        return new Error(err)
+        //return new Error(err)
+        return Promise.reject(err);
     }
 }
-
+/*
+    Load entire data sheet into object keyed by nKey (SCIENTIFIC_NAME). Return object.
+*/
 export async function getSheetSranks(sheetNumber=0) {
     try {
         let res = await fetchGoogleSheetData(defaultSheetIds.taxonSrank, sheetNumber);
@@ -127,31 +168,24 @@ export async function getSheetSranks(sheetNumber=0) {
                 name[nKey] = {head1:row2value1, head2:row2value2, ...}
                 name[nKey] = {head1:rowNvalue1, head2:rowNvalue2, ...}
             */
-            if (name[data[nKey]]) { //We assume that if the 1st Dimension exists, the 2nd Dimension has been instantiated, as below.
-                //name[data[nKey]].push(data);
-                name[data[nKey]] = data;
-                //console.log('duplicate', name[data.taxonId]);
-            } else {
-                //name[data[nKey]] = {}; //We must instantiate a 2D array somehow before we push values on the the 1st Dimension
-                //name[data[nKey]][0] = data;
-                name[data[nKey]] = data;
-            }
+            name[data[nKey]] = data; //S-Ranks MUST have unique nKey entries
         })
         //console.log('getSheetSranks Nested Object', name);
         return name;
     } catch(err) {
         console.log(`getSheetSranks(${sheetNumber}) ERROR:`, err);
-        return new Error(err)
+        //return new Error(err)
+        return Promise.reject(err);
     }
 }
-
 /*
     Load entire data sheet into object keyed by nKey (SCIENTIFIC_NAME). Return object.
 */
-export async function getSheetMAStatus(sheetNumber=0) {
+export async function getSheetConservationStatus(sheetName=false, sheetNumber=0) {
+    if (!sheetName) {return {};}
     try {
-        let res = await fetchGoogleSheetData(defaultSheetIds.statusMVAL, sheetNumber);
-        console.log('getSheetMAStatus RESULT:', res);
+        let res = await fetchGoogleSheetData(defaultSheetIds[sheetName], sheetNumber);
+        console.log('getSheetConservationStatus RESULT:', res);
         if (res.status > 299) {return res;}
         let name = {};
         let nKey = 'SCIENTIFIC_NAME'; //the column name whose value is the key to its spreadsheet row
@@ -175,21 +209,13 @@ export async function getSheetMAStatus(sheetNumber=0) {
                 name[nKey] = {head1:row2value1, head2:row2value2, ...}
                 name[nKey] = {head1:rowNvalue1, head2:rowNvalue2, ...}
             */
-            if (name[data[nKey]]) { //We assume that if the 1st Dimension exists, the 2nd Dimension has been instantiated, as below.
-                //name[data[nKey]].push(data);
-                name[data[nKey]] = data;
-                //console.log('duplicate', name[data.taxonId]);
-            } else {
-                //name[data[nKey]] = {}; //We must instantiate a 2D array somehow before we push values on the the 1st Dimension
-                //name[data[nKey]][0] = data;
-                name[data[nKey]] = data;
-            }
-        })
-        //console.log('getSheetMAStatus Nested Object', name);
+            name[data[nKey]] = data; //MA Status values MUST have unique nKey entries
+            })
+        //console.log('getSheetConservationStatus Compiled Object', name);
         return name;
     } catch(err) {
-        console.log(`getSheetMAStatus(${sheetNumber}) ERROR:`, err);
-        return new Error(err)
+        console.log(`getSheetConservationStatus(${sheetNumber}) ERROR:`, err);
+        //return new Error(err)
+        return Promise.reject(err);
     }
 }
-

@@ -117,6 +117,7 @@ const config = {
     columNames: columNames,
     drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
+    conservationStatusName: 'taxonSrank',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
@@ -208,6 +209,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'statusMVAL',
     mapSettings: {
       lat: 41.4,
       lng: -70.6,
@@ -294,6 +297,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: false,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -347,6 +352,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: false,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -399,6 +406,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: false,
     mapSettings: {
       lat: 41.885,
       lng: -87.636,
@@ -473,6 +482,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'taxonSrank',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
@@ -572,6 +583,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'taxonSrank',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
@@ -664,6 +677,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'taxonSrank',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
@@ -759,6 +774,8 @@ const config = {
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'taxonSrank',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
