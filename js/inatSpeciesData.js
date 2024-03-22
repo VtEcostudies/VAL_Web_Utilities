@@ -4,6 +4,7 @@ import { parseNameToRank, getParentRank, getGbifParentsFromKey } from './fetchGb
 
 const inatApi = 'https://api.inaturalist.org/v1/taxa';
 
+//To-do: these args are out-of-date. Check who's calling it.
 export async function findInatSpecies(taxonName, parentName, parentRank) {
     return await getInatSpecies(taxonName, parentName, parentRank);
 }

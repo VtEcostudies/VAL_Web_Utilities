@@ -2,10 +2,10 @@
     Use json object from GBIF occurrence/search API to parse
     scientificName into canonicalName.
 */
-export function parseCanonicalFromScientific(occJson, nameKey='scientificName') {
+export function parseCanonicalFromScientific(occJson, nameKey='scientificName', rankKey='taxonRank') {
     var toks = occJson[nameKey].split(' ');
     var name = null;
-    switch(occJson.taxonRank.toUpperCase()) {
+    switch(occJson[rankKey].toUpperCase()) {
       case 'SUBSPECIES':
       case 'VARIETY':
       case 'FORM':

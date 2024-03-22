@@ -19,7 +19,7 @@ export async function getGbifSpeciesByDataset(datasetKey=datasetKeys['chkVtb1'],
         let res = await fetch(enc);
         //console.log(`getGbifSpeciesByDataset(${datasetKey}) RAW RESULT:`, res);
         let json = await res.json();
-        console.log(`getGbifSpeciesByDataset(${datasetKey}) JSON RESULT:`, json);
+        console.log(`getGbifSpeciesByDataset(${datasetKey}) JSON RESULT:`, json, enc);
         json.query = enc;
         return json;
     } catch (err) {
@@ -267,9 +267,22 @@ async function checklistToVernaculars(list=[]) {
     //console.log(`checklistToVernaculars incoming list:`, list);
     let vern = {};
     list.forEach(spc => {
-        if (spc.vernacularNames.length) {
-            let key = spc.nubKey ? spc.nubKey : spc.key;
-            vern[key] = spc.vernacularNames;
+        if (1 == spc.vernacularNames.length) {
+            //vern[key] = spc.vernacularNames; //former method: return array of objects
+            vern[spc.nubKey] = spc.vernacularNames[0].vernacularName; //new method: set one name
+            vern[spc.key] = spc.vernacularNames[0].vernacularName; //new method: set one name
+        } else if (1 < spc.vernacularNames.length) {
+            let name = false;
+            for (const objN of spc.vernacularNames) {
+                console.log('MULTIPLE VERNACULAR NAMES', objN)
+                if (objN.preferred) {
+                    name =  objN.vernacularName;
+                }
+            }
+            if (!name) {
+                vern[spc.nubKey] = spc.vernacularNames[0].vernacularName;
+                vern[spc.key] = spc.vernacularNames[0].vernacularName;
+            }
         }
     })
     //console.log(`checklistToVernaculars outgoing list:`, vern);

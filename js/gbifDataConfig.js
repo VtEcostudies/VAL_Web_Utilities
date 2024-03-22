@@ -177,7 +177,9 @@ const config = {
   },
 
   /*
-  https://www.gbif.org/occurrence/search?has_geospatial_issue=false&geometry=POLYGON((-70.88477 41.33702,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88477 41.33702))
+  Martha's Vineyard Occurrence Queries (used below and to generate species list):
+  https://www.gbif.org/occurrence/map?has_geospatial_issue=false&geometry=POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))
+  https://www.gbif.org/occurrence/search?country=US&locality=MARTHA%27S%20VINEYARD&advanced=1&has_coordinate=FALSE
   */
   mval: { //Martha's Vineyard Atlas of Life
     atlasPlace: 'Marthas Vineyard',
@@ -205,7 +207,7 @@ const config = {
     speciesFilter: 'datasetKey=298a29ef-a66a-4330-93a1-ea59482e25d9', //this replaces the above in speciesSearch
     publishingOrgKey: false, //MVAL is not a GBIF Publisher. Yet.
     occurrenceDatasetKey: '', //New idea from eButterfly config NOT implemented yet
-    occurrenceFilter: 'geometry=POLYGON((-70.88477 41.33702,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88477 41.33702))',
+    occurrenceFilter: 'geometry=POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))',
     columns: columns,
     columNames: columNames,
     drillRanks: drillRanks,
@@ -258,7 +260,7 @@ const config = {
         ,{
           "type": "within",
           "key": "geometry",
-          "value": "POLYGON((-70.88477 41.33702,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88477 41.33702))"
+          "value": "POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))"
         }
       ]
     }
