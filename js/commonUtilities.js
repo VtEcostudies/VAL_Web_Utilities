@@ -3,6 +3,7 @@
     scientificName into canonicalName.
 */
 export function parseCanonicalFromScientific(occJson, nameKey='scientificName', rankKey='taxonRank') {
+    //console.log('commonUtilities=>parseCanonicalFromScientific', nameKey, rankKey, occJson);
     var toks = occJson[nameKey].split(' ');
     var name = null;
     switch(occJson[rankKey].toUpperCase()) {
