@@ -5,7 +5,9 @@
  * 
  * Inputs:
  *  tableId - text id of html element
- *  orderColumnId - numeric column ID to sort-by, initially
+ *  orderColumnId - numeric column ID to sort-by, initially. Now that value is put into 'orderColumn' format, below.
+ *  orderColumn - how the initial sort-by column must be defined, eg. Pass a 1D array, like [0, 'asc'].
+ *    order: [[0, 'asc']]
  *  excludeColumnIds - array of numeric column IDs to exclude from sort
  *  columnDefs - 'asc' or 'desc' for inital sort-by direction on first click of column by columnId
  *      columnDefs: [
@@ -13,13 +15,13 @@
         { orderSequence: ['desc', 'asc', 'asc'], targets: [2] },
         { orderSequence: ['desc'], targets: [3] }
     ]
- *  example of how excludeColumnIds is used:
+ *  example of excludeColumnIds usage:
       [
         { orderable: false, targets: columnIds['childTaxa'] }, //childTaxa
         { orderable: false, targets: columnIds['iconImage'] }, //iconImage
         { orderable: false, targets: columnIds['images'] }  //images (imageCount)
       ]
-    example of how lengthMenu is configured:
+    example of lengthMenu configuration:
       lengthMenu: [
         [10, 20, 50, 100, 500, -1],
         [10, 20, 50, 100, 500, 'All'],
@@ -61,7 +63,6 @@ export function tableSortHeavy(tableId='species-table', orderColumnId=false, exc
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
 }
 
-  
 export function tableSortHeavyNew(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
 }

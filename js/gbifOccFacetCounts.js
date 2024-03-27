@@ -163,7 +163,6 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
     must remove those taxonNames or Keys when searching for specific taxa because the http API converts
     duplicate AND params to ORs.
 */
-//export async function getAggOccCounts(fileConfig, searchTerm='', objOcc = {}, arrCnts = []) {
 export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey', facetArgs='&facetLimit=1199999') {
     try {
         let xClud = searchTerm ? (searchTerm.includes('taxonKey')  ? 'taxonKey' : false) : false;
@@ -182,7 +181,7 @@ export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey
                 if (objOcc[key]) {objOcc[key] += Number(val);}
                 else {objOcc[key] = Number(val);}
             }
-            console.log(`getAggOccCounts RESULT`, objOcc);
+            console.log(`getAggOccCounts searchTerm=${searchTerm} facet=${facet} RESULT`, objOcc);
         }
         return {total:occTot, objOcc:objOcc, arrQry:arrQry};
     } catch (err) {
@@ -203,15 +202,15 @@ export async function getAggOccCount(dataConfig, filter=dataConfig.occurrenceFil
     let reqRoute = "/occurrence/search";
     let reqFilter = `?limit=0&${filter}`;
     //let reqFacet = facets.map(facet => `&facet=${facet}`); reqFacet += facetArgs;
-    let reqFacet = `&facet=${facet}&${facetArgs}`;
+    let reqFacet = `&facet=${facet}&${facetArgs}`; //wow, OK, taking `${['facetName']}` strips string from array. totally unexpected bug-fix.
     let url = reqHost+reqRoute+reqFilter+reqFacet;
     let enc = encodeURI(url);
 
     try {
         let res = await fetch(enc);
         let json = await res.json();
-        console.log(`getAggOccCount(${filter}) QUERY:`, enc);
-        console.log(`getAggOccCount(${filter}) RESULT:`, json);
+        //console.log(`getAggOccCount(${filter}) QUERY:`, enc);
+        //console.log(`getAggOccCount(${filter}) RESULT:`, json);
         let fCount = json.facets[0] ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
         let aCount = [];
         let oCount = {};

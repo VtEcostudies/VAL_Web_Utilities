@@ -28,15 +28,18 @@ export async function getInatObserverStats(inat_place_id=47, params) {
 
 /*
 https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&facet=recordedBy&facetLimit=1199999&limit=0
+
+NOTE: this query is DEPRECATED in favor of gbifOccFacetCounts.js=>getAggOccCounts(fileConfig, false, 'recordedBy')
 */
 let gbifApi = 'https://api.gbif.org/v1';
 let gbifQry = '/occurrence/search?facet=recordedBy&facetLimit=1199999&limit=0';
 
-export async function getGbifRecordedBy(gadm_gid='USA.46_1', params) {
+export async function getGbifRecordedBy(gadm_gid='USA.46_1', filter=false) {
     let reqHost = gbifApi;
     let reqRoute = gbifQry;
-    let reqValue = `&gadm_gid=${gadm_gid}`;
-    let url = reqHost+reqRoute+reqValue;
+    let reqGadmId = `&gadm_gid=${gadm_gid}`;
+    let reqFilter = filter ? `&${filter}` : '';
+    let url = reqHost+reqRoute+reqGadmId+reqFilter;
     let enc = encodeURI(url);
 
     console.log('getGbifRecordedBy', enc);
