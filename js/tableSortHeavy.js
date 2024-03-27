@@ -59,7 +59,7 @@ function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeCo
   }
   
 export function tableSortHeavy(tableId='species-table', orderColumnId=false, excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
-  let orderColumn = orderColumnId ? 'order': [orderColumnId, 'asc'];
+  let orderColumn = orderColumnId ? [orderColumnId, 'asc'] : [0, 'asc'];
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
 }
 
