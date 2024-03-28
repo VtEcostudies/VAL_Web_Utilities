@@ -21,6 +21,7 @@ const httpSite = thisUrl.searchParams.get('siteName')
 console.log('gbifDataConfig called by http route with siteName', httpSite);
 var siteName = httpSite ? httpSite : metaSite; //http route param 'siteName' overrides file param 'siteName'
 siteName = siteName ? siteName : 'val'; //if none specified, default to VAL
+console.log('gbifDataConfig RESULTANT siteName:', siteName);
 
 const gbifApi = "https://api.gbif.org/v1";
 

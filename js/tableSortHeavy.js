@@ -58,11 +58,11 @@ function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeCo
     return tableSort; //return the dataTable object so the caller can use it
   }
   
-export function tableSortHeavy(tableId='species-table', orderColumnId=false, excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
+export function tableSortHeavy_DEPRECATED(tableId='species-table', orderColumnId=false, excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
   let orderColumn = orderColumnId ? [orderColumnId, 'asc'] : [0, 'asc'];
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
 }
 
-export function tableSortHeavyNew(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
+export function tableSortHeavy(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
 }
