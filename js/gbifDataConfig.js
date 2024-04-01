@@ -870,7 +870,7 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   literatUrl: literatUrl,
   publishUrl: publishUrl,
   gbifPortal: false,
-  inatProject: false,
+  inatProject: 'vermont-atlas-of-life',
   inatPlaceId: 47, //this used to query iNat observers
   gbifApi: gbifApi,
   gadmGid: 'USA.46_1', //leave blank if N/A
