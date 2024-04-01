@@ -847,7 +847,102 @@ const config = {
       }
     ]
     }
+  },
+//VT LadyBeetles: 97297349-0864-4e3a-b6e1-1a80a0594e00
+vtLadyBeetles: { //Checklist of Vermont Lady Beetles
+  atlasPlace: 'Vermont Lady Beetles',
+  atlasName: 'VT Lady Beetles',
+  atlasAbbrev: 'VTLB',
+  atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+  helpDeskUrl: false,
+  backgroundImageUrl: {
+    small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
+    medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
+    large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
+    default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
+    },
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: false,
+  inatPlaceId: 47, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA.46_1', //leave blank if N/A
+  speciesDatasetKey: '97297349-0864-4e3a-b6e1-1a80a0594e00',
+  speciesFilter: 'datasetKey=97297349-0864-4e3a-b6e1-1a80a0594e00',
+  publishingOrgKey: false,
+  literatureFilters: [],
+  occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns,
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 43.858297,
+    lng: -72.446594,
+    zoom: 7.75
+  },
+  rootRank: 'GENUS', //the starting view in the species explorer
+  rootPredicate: {
+    type: 'or', //currently the only supported type
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "gadmGid",
+            "value": "USA.46_1"
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7782" //Coccinelidae
+            ]
+          }
+        ]
+      },
+      {
+      "type": "and",
+      "predicates": [
+        {
+          "type": "equals",
+          "key": "country",
+          "value": "US"
+        },
+        {
+          "type": "in",
+          "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+          "values": [
+            "vermont",
+            "vermont (state)"
+          ]
+        },
+        {
+          "type": "equals",
+          "key": "hasCoordinate",
+          "value": false
+        },
+        {
+          "type": "in",
+          "key": "taxonKey",
+          "values": [
+            "7782" //Coccinelidae
+          ]
+      }
+      ]
+    }
+  ]
   }
+}
 }
 
 export const dataConfig = config[siteName];
