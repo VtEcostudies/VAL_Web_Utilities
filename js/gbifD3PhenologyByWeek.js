@@ -39,6 +39,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     let data = pheno.weekArr;
     let doy = pheno.doyArr;
     let ext = pheno.doyExt;
+    let tot = pheno.total;
 
     //Note that javascript getDate() gets DayOfMonth
     let doyMinDate = new Date(2024, 0, ext.min);
@@ -46,7 +47,24 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     let doyMinText = `${monthNames[doyMinDate.getMonth()]} ${doyMinDate.getDate()}`;
     let doyMaxText = `${monthNames[doyMaxDate.getMonth()]} ${doyMaxDate.getDate()}`;
 
-    let yMax = d3.max(data, d => d.count)
+    let yMax = 0;
+
+    // Fix the data
+    data.forEach(d => {
+        d.week = +d.week;
+        d.month1 = Array.isArray(d.month) ? (2 == d.month.length ? +d.month[1] : 0) : 0; 
+        d.month = Array.isArray(d.month) ? +d.month[0] : +d.month;
+        d.count = +d.count;
+        d.percent = +(d.count/pheno.total)*100;
+        d.percent = +d.percent.toFixed(2);
+        d.display = +d.percent; //this value drives the bar chart's display, below
+        //yMax = d.display > yMax ? d.display : yMax;
+        //console.log('gbifD3PhenologyByWeek=>yMax:', d.count, d.percent, yMax);
+    });
+
+    yMax = d3.max(data, d => +d.display)
+
+    console.log('gbifD3PhenologyByWeek=>fixed-data:', yMax, pheno.total, data);
 
     // Set the dimensions of the canvas
     const margin = { top: 20, right: 20, bottom: 40, left: 30 + (String(yMax).length-3)*7 };
@@ -80,18 +98,10 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     const y = d3.scaleLinear().range([height, 0]);
     const xD = d3.scaleBand().range([0, width]).padding(0.1);
 
-    // Fix the data
-    data.forEach(d => {
-        d.week = +d.week;
-        d.month1 = Array.isArray(d.month) ? (2 == d.month.length ? +d.month[1] : 0) : 0; 
-        d.month = Array.isArray(d.month) ? +d.month[0] : +d.month;
-        d.count = +d.count;
-    });
-
     // Scale the range of the data
     xW.domain(data.map(d => d.week));
     xM.domain(data.map(d => d.month));
-    y.domain([0, d3.max(data, d => d.count)]);
+    y.domain([0, d3.max(data, d => d.display)]);
     //xD.domain(doy.map(d => d.doy));
     
     // Add the weeks X Axis
@@ -135,7 +145,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     svg.append("text")
         .attr("x", width - margin.right - 200) // Adjust the x-coordinate
         .attr("y", height + margin.bottom - 5) // Adjust the y-coordinate
-        .text(`First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`)
+        .text(`Records: ${pheno.total} First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`)
         .style("font-size", "10px")
         .on("mouseover", doyMouseOver)
         .on("mouseout", doyMouseOut)
@@ -147,7 +157,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         console.log("doyMouseover: ", doyMinText, doyMaxText);
 
         tooltip
-            .html(`First DOY: ${ext.min} (${doyMinText})<br>Last DOY: ${ext.max} (${doyMaxText})`)
+            .html(`Records: ${pheno.total}<br>First DOY: ${ext.min} (${doyMinText})<br>Last DOY: ${ext.max} (${doyMaxText})`)
             .style("left", `${event.pageX-200}px`)
             .style("top", `${event.pageY-200}px`)
             .style("display", "block");
@@ -158,7 +168,6 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
             .attr("fill", "black"); // Restore color on mouseout
         tooltip.style("display", "none");
     }
-
 
     // Create Y Axis with only whole number tickmarks
     let yAxis;
@@ -179,8 +188,8 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         .enter().append("rect")
         .attr("x", d => xW(d.week))
         .attr("width", xW.bandwidth())
-        .attr("y", d => y(d.count)/2) // divide by 2 pushes axis center up half way
-        .attr("height", d => d.count ? height - y(d.count) : 0) //minus constant so bars have margin from axes
+        .attr("y", d => y(d.display)/2) // divide by 2 pushes axis center up half way
+        .attr("height", d => d.display ? height - y(d.display) : 0) //minus constant so bars have margin from axes
         .attr("fill", "steelblue")
         .on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut)
@@ -201,7 +210,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         let month = d.month1 ? `${d.month},${d.month1}` : d.month;
 
         tooltip
-            .html(`Week: ${d.week}<br>Month: ${month}<br>Count: ${d.count}`)
+            .html(`Week: ${d.week}<br>Month: ${month}<br>Count: ${d.count}/${pheno.total} (${d.percent}%)`)
             .style("left", (event.pageX-50) + "px")
             .style("top", (event.pageY-50) + "px")
             .style("display", "block");
