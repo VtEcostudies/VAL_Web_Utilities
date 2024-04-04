@@ -35,6 +35,7 @@ export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
 function createChart(htmlId='chart', pheno, searchTerm=0) {
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const nFmt = new Intl.NumberFormat(); //use this to format numbers by locale
 
     let data = pheno.weekArr;
     let doy = pheno.doyArr;
@@ -152,7 +153,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         .text('Week')
         .style("font-size", "10px");
 
-    let doyTxt = `Records: ${pheno.total} First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`;
+    let doyTxt = `Records: ${nFmt.format(pheno.total)} First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`;
     let doyLen = +doyTxt.length*4.8;
     //add Records, Min/Max DOY values as text on the week axis
     svg.append("text")
@@ -170,7 +171,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         console.log("doyMouseover: ", doyMinText, doyMaxText);
 
         tooltip
-            .html(`Records: ${pheno.total}<br>First DOY: ${ext.min} (${doyMinText})<br>Last DOY: ${ext.max} (${doyMaxText})`)
+            .html(`Records: ${nFmt.format(pheno.total)}<br>First DOY: ${ext.min} (${doyMinText})<br>Last DOY: ${ext.max} (${doyMaxText})`)
             .style("left", `${event.pageX-200}px`)
             .style("top", `${event.pageY-200}px`)
             .style("display", "block");
@@ -224,7 +225,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         let month = d.month1 ? `${d.month},${d.month1}` : d.month;
 
         tooltip
-            .html(`Week: ${d.week}<br>Month: ${month}<br>Count: ${d.count}/${pheno.total} (${d.percent}%)`)
+            .html(`Week: ${d.week}<br>Month: ${month}<br>Count: ${nFmt.format(d.count)}/${nFmt.format(pheno.total)} (${d.percent}%)`)
             .style("left", (event.pageX-50) + "px")
             .style("top", (event.pageY-50) + "px")
             .style("display", "block");
