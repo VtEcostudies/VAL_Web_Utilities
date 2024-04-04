@@ -56,7 +56,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         d.month = Array.isArray(d.month) ? +d.month[0] : +d.month;
         d.count = +d.count;
         d.percent = +(d.count/pheno.total)*100;
-        d.percent = +d.percent.toFixed(2);
+        d.percent = +d.percent.toFixed(2); //converts to string!?
         d.display = +d.percent; //this value drives the bar chart's display, below
         //yMax = d.display > yMax ? d.display : yMax;
         //console.log('gbifD3PhenologyByWeek=>yMax:', d.count, d.percent, yMax);
@@ -66,8 +66,10 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
 
     console.log('gbifD3PhenologyByWeek=>fixed-data:', yMax, pheno.total, data);
 
+    let yAxOff = (String(yMax).length-3)*7; //shift the entire chart to the right to handle the string-size of the yAxis labels
+
     // Set the dimensions of the canvas
-    const margin = { top: 20, right: 20, bottom: 40, left: 30 + (String(yMax).length-3)*7 };
+    const margin = { top: 20, right: 20, bottom: 40, left: 30 + yAxOff };
 
     let axisOffset = 5; //push x-axes away from y-axis and tallest bar this amount to show a gap
     let width = document.getElementById(htmlId).offsetWidth - margin.left - margin.right;
@@ -134,18 +136,27 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         .attr("transform", `translate(-${width/90}, 0)`) //shift the month x-axis labels to the left
         .classed("upper-text", true); // Apply custom class so we can style just these tick lines
 
+    //add '%' text label to upper left
+    svg.append("text")
+        .attr("x", -15) // Adjust the x-coordinate
+        .attr("y", -8) // Adjust the y-coordinate
+        .text('%')
+        .style("font-size", "10px");
+
     //add 'Week' text label to lower axis
     svg.append("text")
-        .attr("x", margin.left + 10) //width/2-20) // Adjust the x-coordinate
+        .attr("x", 0) //width/2-20) // Adjust the x-coordinate
         .attr("y", height + margin.bottom - 5) // Adjust the y-coordinate
         .text('Week')
         .style("font-size", "10px");
 
-    //add Min/Max DOY values as text on the week axis
+    let doyTxt = `Records: ${pheno.total} First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`;
+    let doyLen = +doyTxt.length*4.5
+    //add Records, Min/Max DOY values as text on the week axis
     svg.append("text")
-        .attr("x", width - margin.right - 200) // Adjust the x-coordinate
+        .attr("x", width - margin.right - doyLen) // Adjust the x-coordinate
         .attr("y", height + margin.bottom - 5) // Adjust the y-coordinate
-        .text(`Records: ${pheno.total} First DOY: ${ext.min} (${doyMinText}) Last DOY: ${ext.max} (${doyMaxText})`)
+        .text(doyTxt)
         .style("font-size", "10px")
         .on("mouseover", doyMouseOver)
         .on("mouseout", doyMouseOut)
