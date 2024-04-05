@@ -593,7 +593,7 @@ const config = {
       lng: -72.446594,
       zoom: 7.75
     },
-    rootRank: 'CLASS', //the starting view in the species explorer
+    rootRank: 'ORDER', //the starting view in the species explorer
     rootPredicate: {
       type: 'or', //currently the only supported type
       predicates: [

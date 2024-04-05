@@ -116,10 +116,10 @@ function fetchAll(searchTerm, geoSearch) {
             let total = 0, dSum = {}, wSum = {}, mSum = {}, wAgg = {}, dMin = 366, dMax = 0;
             arrj.forEach(json => {
                 //console.log('json', json);
-                total += json.count;
                 if (json.facets[0]) {
                     json.facets[0].counts.map(count => {
-                        let date = new Date(count.name).toUtc();
+                        total += count.count; //only add counts for returned facets
+                        let date = new Date(count.name.split('/')[0]).toUtc(); //for eventDate ranges, use the range-start
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
                         let doy = date.getDOY(); //getDOY is 1-based?
@@ -154,8 +154,8 @@ function fetchAll(searchTerm, geoSearch) {
         })
         .catch(err => {
             console.log(`ERROR fetchAll ERROR:`, err);
-            //return Promise.reject(new Error(err)); //this works too, but not needed
-            return new Error(err);
+            return Promise.reject(new Error(err)); //this allows the caller to use .catch(err) to handle
+            //return new Error(err); //this requires teh caller to wrap the call in try/catch
         })
     console.log(`fetchAll promise.all`, all);
     return all; //this is how it's done. strange errors when not.
