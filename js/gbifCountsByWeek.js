@@ -2,7 +2,7 @@ import { getListSubTaxonKeysByFilter } from "./gbifOccFacetCounts.js";
 import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
-var Storage = false; //window.sessionStorage ? sessionStorage : false;
+var Storage = window.sessionStorage ? window.sessionStorage : false;
 var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the requested geometry/geography:
