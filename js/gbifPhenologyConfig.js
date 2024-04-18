@@ -2,7 +2,7 @@ import {
     gbifPhenologyByDataSetKey,
     gbifPhenologyBySpeciesListName,
     gbifPhenologyByTaxonKeys,
-    gbifPhenologyByTaxonNames,
+    gbifPhenologyByTaxonNames
 } from './gbifPhenologyModule.js';
 
 const objUrlParams = new URLSearchParams(window.location.search);

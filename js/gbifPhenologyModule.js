@@ -288,7 +288,7 @@ function sortColumns(tableId='phenologyTable', objSort={sort:0, responsive:0, pa
                 if (occurrenceColumnId >=0 ) {
                     columnDefs.push({ "orderSequence": [ "desc", "asc" ], "targets": occurrenceColumnId })
                 }
-                tableSortHeavy(tableId, todayWeekColumnId, [], columnDefs, 10, objSort.responsive, objSort.paging, objSort.searching, objSort.sortInfo);
+                tableSortHeavy(tableId, [todayWeekColumnId, 'desc'], [], columnDefs, 10, objSort.responsive, objSort.paging, objSort.searching, objSort.sortInfo);
         });
     }
 }
