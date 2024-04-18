@@ -10,21 +10,38 @@ Define here the views and scope of data available to the
   - as an http query parameter: siteName=val
   - as a meta query parameter: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
 */
+import { getStoredData } from './storedData.js';
 
 //get URL search params from calling http route address
 const thisUrl = new URL(document.URL);
-//get URL search params from calling module file - a cool feature called a metaURL
-const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
-const metaSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
-console.log('gbifDataConfig called by module with siteName', metaSite);
-const httpSite = thisUrl.searchParams.get('siteName')
-console.log('gbifDataConfig called by http route with siteName', httpSite);
-var siteName = httpSite ? httpSite : metaSite; //http route param 'siteName' overrides file param 'siteName'
-siteName = siteName ? siteName : 'val'; //if none specified, default to VAL
-console.log('gbifDataConfig RESULTANT siteName:', siteName);
+
+/*
+  Deal with setting siteName in one place. The order of precedence:
+    siteConfig.js=>siteConfig.siteName (file stored at project level)
+    localStorage value 'siteName' (passed here as 'storSite')
+    meta URL param ('siteName' passed file->file using file query param)
+    http URL param ('siteName' passed document's http URL query param)
+
+    Note that for VAL_Remote_Explorers, localStorage is set in localSiteConfig.js from its own siteConfig.siteName or metaSite siteName.
+    js/localSiteConfig.js is an optional inlclude file, used to override others to force a siteName for a deployment.
+*/
+export async function getSite(httpUrl=thisUrl) {
+  //get URL search params from calling module file - a cool feature called a metaURL
+  const metaUrl = new URL(import.meta.url); //lower case '.url' is a property
+  const metaSite = metaUrl.searchParams.get('siteName'); //calling modules do this: import { dataConfig } from '../VAL_Web_Utilities/js/gbifDataConfig.js?siteName=val'
+  console.log('gbifDataConfig=>getSite called by module with metaURL query param siteName', metaSite);
+  const httpSite = httpUrl.searchParams.get('siteName')
+  console.log('gbifDataConfig=>getSite called with http query param siteName', httpSite);
+  const storSite = await getStoredData('siteName', '', '');
+  console.log('gbifDataConfig=>getSite retrieved localStorage siteName', storSite);
+  var siteName = httpSite ? httpSite : (metaSite ? metaSite : storSite); //http route param 'siteName' overrides file param 'siteName' overrides localStorage siteName
+  siteName = siteName ? siteName : 'val'; //if none specified, default to VAL
+  console.log('gbifDataConfig=>getSite RESULTANT siteName:', siteName);
+  return siteName;
+}
+var siteName = await getSite(thisUrl);
 
 const gbifApi = "https://api.gbif.org/v1";
-
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
 var urlRouts = urlPath.split('/'); //path contains route and file without host

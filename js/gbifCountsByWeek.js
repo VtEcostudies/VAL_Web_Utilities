@@ -13,7 +13,6 @@ Return an object having occurrence sums by week (and month) for a taxon in the r
     weekToday: tdWk, //1-based, numeric weekOfYear for today's date
     weekSum: wSum, //object with sums of occurrence counts by week, 1-based (1=first week, 53=last week): {...,'23':8, '24':25, '25':109, ...}
     monthSum: mSum, //object with sums of occurrence counts by month, 1-based (1=January, 12=December): {'1':2, ...,'5':239, '6':842, ..., '12':3}
-    weekAgg: wAgg //object with sums of occurrence counts by week, plus month: {week:{count: wSum[week], week: week, month: month}}
     weekArr: wArr //array of 53 weekly occurrence counts for d3.js chart: [{count: wSum[week], week: week, month: month}]
 }
 
@@ -130,7 +129,6 @@ function fetchAll(searchTerm, geoSearch) {
                             dSum[doy] = dSum[doy] ? dSum[doy] + count.count : count.count;
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
-                            //wAgg[week] = {count: wSum[week], week: week, month: weekToMonth(week)}; //a week's month is now an array
                             if (doy < dMin) dMin = doy;
                             if (doy > dMax) dMax = doy;
                         }
@@ -149,7 +147,6 @@ function fetchAll(searchTerm, geoSearch) {
             for (var i=1;i<367;i++) { //convert sparse object to complete array (for d3.js charts)
                 dArr.push({count:dSum[i]?dSum[i]:0, doy:i});
             }
-            //return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekAgg:wAgg, weekArr:wArr, doyArr:dArr};
             return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekArr:wArr, doyArr:dArr, doyExt:{min:dMin,max:dMax}};
         })
         .catch(err => {
