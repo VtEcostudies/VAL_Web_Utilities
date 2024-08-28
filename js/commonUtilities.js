@@ -106,3 +106,60 @@ export async function fetchImgFile(filePath, fileType='tiff') {
         return new Error(err)
     }
 }
+//create a download element on the fly, then execute the download
+export function createHtmlDownloadData(dataStr, expName) {
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", expName);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+//convert json array of objects to csv
+export function jsonToCsv(json) {
+    const replacer = (key, value) => value === null ? '' : value; // specify how you want to handle null values here
+    const header = Object.keys(json[0]);  // the first row defines the header
+    const csv = [
+      header.join(','), // header row first
+      ...json.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(',')) //iterate over header keys, extract row data by key
+    ].join('\r\n');
+  
+    return csv;
+  }
+//example function to assemble data and execute a download
+function wrapDataDownload(type=0) {
+    let jsonArray = [{field11:'value11',field12:'value12'},{field21:'value21',field22:'value22'}];
+    if (type) { //json-download
+      var data = {name: jsonArray}; console.log('JSON Download:', data);
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+      createHtmlDownloadData(dataStr, "datafilename.json") ;
+    } else { //csv-download
+      var data = jsonToCsv(jsonArray);
+      var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(data);
+      createHtmlDownloadData(dataStr, "datafilename.csv") ;
+    }
+  }
+//return string date
+export function dateNow() {
+    var dateUtc = new Date();
+    var offset = dateUtc.getTimezoneOffset() * 60000;
+    var dateLoc = new Date(dateUtc.getTime() - offset);
+    var nowDate = dateLoc.toISOString().substring(0,10);
+    console.log('dateNow()', nowDate);
+    return nowDate;
+}
+//return string time
+export function timeNow(addHours=0) {
+    var dateUtc = new Date();
+    var offset = dateUtc.getTimezoneOffset() * 60000;
+    var dateLoc = new Date(dateUtc.getTime() - offset + addHours*60*60*1000);
+    var nowTime = dateLoc.toISOString().substring(11,16);
+    console.log('timeNow()', nowTime);
+    return nowTime;
+}
+//return string timeStamp
+export function timeStamp() {
+    let timeStamp = new Date(Date.now()).toISOString(); //.replace('T',' ').replace('Z','');
+    console.log('timeStamp()', timeStamp);
+    return timeStamp;
+}
