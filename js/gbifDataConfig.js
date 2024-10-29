@@ -23,7 +23,7 @@ const thisUrl = new URL(document.URL);
     http URL param ('siteName' passed document's http URL query param)
 
     Note that for VAL_Remote_Explorers, localStorage is set in localSiteConfig.js from its own siteConfig.siteName or metaSite siteName.
-    js/localSiteConfig.js is an optional inlclude file, used to override others to force a siteName for a deployment.
+    js/localSiteConfig.js is an optional include file, used to override others to force a siteName for a deployment.
 */
 export async function getSite(httpUrl=thisUrl) {
   //get URL search params from calling module file - a cool feature called a metaURL
@@ -45,7 +45,7 @@ const gbifApi = "https://api.gbif.org/v1";
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
 var urlRouts = urlPath.split('/'); //path contains route and file without host
-console.log('gbif_data_config.js | urlRouts', urlRouts);
+console.log('gbifDataConfig=>urlRouts', urlRouts);
 //WordPress use routes to pages, defined by the user. See eg. page-species-explorer-2022.php. etc.
 var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages within WordPress.
 var homeEnd = '';
@@ -71,14 +71,14 @@ const resultsUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${resultsEnd}`;
 const profileUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${profileEnd}`;
 const literatUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${literatEnd}`;
 const publishUrl = `${thisUrl.protocol}//${hostUrl}${baseRoute}${publishEnd}`;
-console.log('gbif_data_config.js | hostUrl', hostUrl);
-console.log('gbif_data_config.js | urlPath', urlPath);
-console.log('gbif_data_config.js | baseRoute', baseRoute);
-console.log('gbif_data_config.js | exploreUrl', exploreUrl);
-console.log('gbif_data_config.js | resultsUrl', resultsUrl);
-console.log('gbif_data_config.js | profileUrl', profileUrl);
-console.log('gbif_data_config.js | literatUrl', literatUrl);
-console.log('gbif_data_config.js | publishUrl', publishUrl);
+console.log('gbifDataConfig=>hostUrl', hostUrl);
+console.log('gbifDataConfig=>urlPath', urlPath);
+console.log('gbifDataConfig=>baseRoute', baseRoute);
+console.log('gbifDataConfig=>exploreUrl', exploreUrl);
+console.log('gbifDataConfig=>resultsUrl', resultsUrl);
+console.log('gbifDataConfig=>profileUrl', profileUrl);
+console.log('gbifDataConfig=>literatUrl', literatUrl);
+console.log('gbifDataConfig=>publishUrl', publishUrl);
 //const allColumns = ['key','nubKey','canonicalName','scientificName','vernacularName','rank','taxonomicStatus','synonym','parentKey','parent','occurrences','images','childTaxa','iconImage'];
 const columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','childTaxa','parentTaxa','iconImage','occurrences']; //these are the columns that will be shown
 const columNames = {
@@ -863,6 +863,102 @@ const config = {
         ]
       }
     ]
+    }
+  },
+  //https://www.gbif.org/occurrence/download?gadm_gid=USA&taxon_key=7901&taxon_key=4334&taxon_key=7905&taxon_key=7908&taxon_key=7911&taxon_key=4345&taxon_key=7916&occurrence_status=present
+  //https://www.gbif.org/occurrence/download?country=US&has_coordinate=false&taxon_key=7901&taxon_key=4334&taxon_key=7905&taxon_key=7908&taxon_key=7911&taxon_key=4345&taxon_key=7916&occurrence_status=present
+  usBees: { //Checklist of United States Bees
+    atlasPlace: 'United States Bees',
+    atlasName: 'US Bees',
+    atlasAbbrev: 'USB',
+    atlasAdmin: 'US', //the administrative governing region that sets regional species listing
+    helpDeskUrl: false,
+    backgroundImageUrl: {
+      },
+    thisUrl: thisUrl,
+    hostUrl: hostUrl,
+    homeUrl: homeUrl,
+    exploreUrl: exploreUrl,
+    resultsUrl: resultsUrl,
+    profileUrl: profileUrl,
+    literatUrl: literatUrl,
+    publishUrl: publishUrl,
+    gbifPortal: false,
+    inatProject: false,
+    inatPlaceId: 47, //this used to query iNat observers
+    gbifApi: gbifApi,
+    gadmGid: 'USA', //leave blank if N/A
+    speciesDatasetKey: '', //can be left blank if speciesFilter is valid
+    speciesFilter: 'higherTaxonKey=220770051', //Hymenoptera
+    publishingOrgKey: false,
+    literatureFilters: ['Andrenidae','Apidae','Colletidae','Halictidae','Megachilidae','Melittidae','Stenotritidae'],
+    occurrenceFilter: 'gadm_gid=USA', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+    columns: columns,
+    columNames: columNames,
+    drillRanks: drillRanks,
+    downloadOccurrenceCounts: 1,
+    conservationStatusName: 'IUCN',
+    mapSettings: {
+      lat: 43.858297,
+      lng: -72.446594,
+      zoom: 7.75
+    },
+    rootRank: 'FAMILY', //the starting view in the species explorer
+    rootPredicate: {
+      type: 'or', //currently the only supported type
+      predicates: [
+        {
+          "type": "and",
+          "predicates": [
+            {
+              "type": "equals",
+              "key": "gadmGid",
+              "value": "USA"
+            },
+            {
+              "type": "in",
+              "key": "taxonKey",
+              "values": [
+                "7901", //Andrenidae
+                "4334", //Apidae
+                "7905", //Colletidae
+                "7908", //Halictidae
+                "7911", //Megachilidae
+                "4345", //Melittidae
+                "7916"  //Stenotritidae
+              ]
+            }
+          ]
+        },
+        {
+          "type": "and",
+          "predicates": [
+            {
+              "type": "equals",
+              "key": "country",
+              "value": "US"
+            },
+            {
+              "type": "equals",
+              "key": "hasCoordinate",
+              "value": false
+            },
+            {
+              "type": "in",
+              "key": "taxonKey",
+              "values": [
+                "7901", //Andrenidae
+                "4334", //Apidae
+                "7905", //Colletidae
+                "7908", //Halictidae
+                "7911", //Megachilidae
+                "4345", //Melittidae
+                "7916"  //Stenotritidae
+              ]
+            }
+          ]
+        }
+      ]
     }
   },
 //VT LadyBeetles: 97297349-0864-4e3a-b6e1-1a80a0594e00
