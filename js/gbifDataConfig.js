@@ -283,7 +283,7 @@ const config = {
       ]
     }
   },
-
+/*
   fieldMuseum: { //Chicago Field Museum
     atlasPlace: 'Field Museum',
     atlasName: 'Field Museum Atlas',
@@ -437,39 +437,39 @@ const config = {
     rootPredicate: {
       type: 'or', //currently the only supported type
       predicates: [
-        /* include data for taxonKeys in superFamily Papilionoidea, which can't be used on its own,
-         so include all families:
-          Hesperiidae: https://www.gbif.org/species/6953
-          Lycaenidae: https://www.gbif.org/species/5473
-          Nymphalidae: https://www.gbif.org/species/7017
-          Papilionidae: https://www.gbif.org/species/9417
-          Pieridae: https://www.gbif.org/species/5481
-          Riodinidae: https://www.gbif.org/species/1933999
-       */
+        // include data for taxonKeys in superFamily Papilionoidea, which can't be used on its own,
+        // so include all families:
+        //  Hesperiidae: https://www.gbif.org/species/6953
+        //  Lycaenidae: https://www.gbif.org/species/5473
+        //  Nymphalidae: https://www.gbif.org/species/7017
+        //  Papilionidae: https://www.gbif.org/species/9417
+        //  Pieridae: https://www.gbif.org/species/5481
+        //  Riodinidae: https://www.gbif.org/species/1933999
+        //
         {"type":"equals", "key":"taxonKey", "value":"6953"},
         {"type":"equals", "key":"taxonKey", "value":"5473"},
         {"type":"equals", "key":"taxonKey", "value":"7017"},
         {"type":"equals", "key":"taxonKey", "value":"9417"},
         {"type":"equals", "key":"taxonKey", "value":"5481"},
         {"type":"equals", "key":"taxonKey", "value":"1933999"}
-      /*
-        {
-          "type": "in",
-          "key": "taxonKey",
-          "values": [
-            "6953",
-            "5473",
-            "7017",
-            "9417",
-            "5481",
-            "1933999"
-          ]
-        }
-      */
+      //
+      //  {
+      //    "type": "in",
+      //    "key": "taxonKey",
+      //    "values": [
+      //      "6953",
+      //      "5473",
+      //      "7017",
+      //      "9417",
+      //      "5481",
+      //      "1933999"
+      //    ]
+      //  }
+      //
       ]
     }
   },
-
+*/
   vtButterflies: { //VT Checklist of Butterflies
     atlasPlace: 'Vermont Butterfly',
     atlasName: 'VT Checklist of Butterflies',
@@ -664,9 +664,12 @@ const config = {
     ]
     }
   },
+  //https://www.gbif.org/occurrence/search?country=US&has_coordinate=false&taxon_key=17&taxon_key=18&taxon_key=34&taxon_key=73&taxon_key=94&taxon_key=95&taxon_key=96&taxon_key=7501587&state_province=vermont&advanced=1
+  //https://www.gbif.org/occurrence/search?gadm_gid=USA.46_1&taxon_key=17&taxon_key=18&taxon_key=34&taxon_key=73&taxon_key=94&taxon_key=95&taxon_key=96&taxon_key=7501587
+  //Neocallimastigomycota Glomeromycota Basidiomycota Blastocladiomycota Chytridiomycota Ascomycota Zygomycota Microsporidia 
   vtFungi: { //Checklist of Vermont Macro Fungi
-    atlasPlace: 'Vermont Macro Fungi',
-    atlasName: 'VT Macro Fungi',
+    atlasPlace: 'Vermont Fungi',
+    atlasName: 'VT Fungi',
     atlasAbbrev: 'VTF',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
@@ -689,10 +692,10 @@ const config = {
     inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
-    speciesDatasetKey: '', //Species Dataset Key
-    speciesFilter: 'higherTaxonKey=160776583&higherTaxonKey=160780279',
+    speciesDatasetKey: '440956b7-3d27-4b6c-89a0-426aa9524ef3', //Species Dataset Key
+    speciesFilter: 'datasetKey=440956b7-3d27-4b6c-89a0-426aa9524ef3', //'higherTaxonKey=160776583&higherTaxonKey=160780279',
     publishingOrgKey: false,
-    literatureFilters: ['Fungi','Ascomycota','Basidiomycota'],
+    literatureFilters: ['Neocallimastigomycota', 'Glomeromycota', 'Basidiomycota', 'Blastocladiomycota', 'Chytridiomycota', 'Ascomycota', 'Zygomycota', 'Microsporidia'],
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
     columns: columns,
     columNames: columNames,
@@ -704,7 +707,7 @@ const config = {
       lng: -72.446594,
       zoom: 7.75
     },
-    rootRank: 'CLASS', //the starting view in the species explorer
+    rootRank: 'PHYLUM', //the starting view in the species explorer
     rootPredicate: {
       type: 'or', //currently the only supported type
       predicates: [
@@ -720,8 +723,14 @@ const config = {
               "type": "in",
               "key": "taxonKey",
               "values": [
+                "17",
+                "18",
                 "34",
+                "73",
+                "94",
                 "95",
+                "96",
+                "7501587"
               ]
             }
           ]
@@ -751,9 +760,15 @@ const config = {
             "type": "in",
             "key": "taxonKey",
             "values": [
+              "17",
+              "18",
               "34",
+              "73",
+              "94",
               "95",
-          ]
+              "96",
+              "7501587"
+            ]
           }
         ]
       }
@@ -888,8 +903,8 @@ const config = {
     inatPlaceId: 47, //this used to query iNat observers
     gbifApi: gbifApi,
     gadmGid: 'USA', //leave blank if N/A
-    speciesDatasetKey: '', //can be left blank if speciesFilter is valid
-    speciesFilter: 'higherTaxonKey=220770051', //Hymenoptera
+    speciesDatasetKey: 'a5abc760-57e0-42ce-a6f3-c28960a7167b', //can be left blank if speciesFilter is valid
+    speciesFilter: 'datasetKey=a5abc760-57e0-42ce-a6f3-c28960a7167b', //'higherTaxonKey=220770051', //Hymenoptera
     publishingOrgKey: false,
     literatureFilters: ['Andrenidae','Apidae','Colletidae','Halictidae','Megachilidae','Melittidae','Stenotritidae'],
     occurrenceFilter: 'gadm_gid=USA', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
@@ -899,9 +914,9 @@ const config = {
     downloadOccurrenceCounts: 1,
     conservationStatusName: 'IUCN',
     mapSettings: {
-      lat: 43.858297,
-      lng: -72.446594,
-      zoom: 7.75
+      lat: 40.75,
+      lng: -100.0,
+      zoom: 3.75
     },
     rootRank: 'FAMILY', //the starting view in the species explorer
     rootPredicate: {
