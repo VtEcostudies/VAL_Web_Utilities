@@ -35,7 +35,7 @@ export async function getWikiPage(searchTerm=false) {
     } catch (err) {
         err.query = enc;
         console.log(`getWikiPage(${searchTerm}) ERROR:`, err);
-        throw new Error(err)
+        throw err
     }
 }
 
@@ -67,6 +67,6 @@ export async function getWikiHtmlPage(searchTerm=false) {
     } catch (err) {
         err.query = enc;
         console.log(`getWikiHtmlPage(${searchTerm}) ERROR:`, err);
-        throw new Error(err) //this triggers promise.catch(err)
+        throw err //this triggers promise.catch(err)
     }
 }

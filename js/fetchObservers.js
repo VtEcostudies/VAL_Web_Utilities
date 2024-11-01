@@ -21,8 +21,9 @@ export async function getInatObserverStats(inat_place_id=47, params) {
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getInatObserverStats(${inat_place_id},${params}) ERROR:`, err, enc);
-        return Promise.reject(err);
+        console.error(`getInatObserverStats(${inat_place_id},${params}) ERROR:`, err, enc);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 
@@ -57,8 +58,9 @@ export async function getGbifRecordedBy(gadm_gid='USA.46_1', filter=false) {
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getGbifRecordedBy(${gadm_gid},${params}) ERROR:`, err, enc);
-        return Promise.reject(err);
+        console.error(`getGbifRecordedBy(${gadm_gid},${params}) ERROR:`, err, enc);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 

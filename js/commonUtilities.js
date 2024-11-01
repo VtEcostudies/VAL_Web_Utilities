@@ -52,8 +52,9 @@ export async function fetchJsonFile(filePath) {
         console.log(`fetchJsonFile(${filePath}) JSON:`, json);
         return json;
     } catch (err) {
-        console.log(`fetchJsonFile(${filePath}) ERROR:`, err);
-        return new Error(err)
+        console.error(`fetchJsonFile(${filePath}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -77,8 +78,9 @@ export async function fetchCsvFile(filePath) {
         console.log(`fetchCsvFile(${filePath}) RESULT:`, text);
         return text;
     } catch (err) {
-        console.log(`fetchCsvFile(${filePath}) ERROR:`, err);
-        return new Error(err)
+        console.error(`fetchCsvFile(${filePath}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -102,8 +104,9 @@ export async function fetchImgFile(filePath, fileType='tiff') {
         console.log(`fetchImgFile(${filePath}) RESULT:`, text);
         return text;
     } catch (err) {
-        console.log(`fetchImgFile(${filePath}) ERROR:`, err);
-        return new Error(err)
+        console.error(`fetchImgFile(${filePath}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 //create a download element on the fly, then execute the download

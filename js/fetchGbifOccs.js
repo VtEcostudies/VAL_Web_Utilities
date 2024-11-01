@@ -34,21 +34,21 @@ https://api.gbif.org/v1/occurrence/search
     &geometry=POLYGON((-73.0%2044.0,%20-72.75%2044.0,%20-72.75%2044.2,%20-73.0%2044.2,%20-73.0%2044.0))
 */
 export async function getOccsByFilters(offset=0, limit=300, dataset=false, geomWKT=false, gadmGid=false, taxonKeys=false, yearRange=false, province=false, hasCoord=undefined, sciName=false) {
-let reqHost = gbifApi;
-let reqRoute = "/occurrence/search?advanced=1";
-let reqDset = dataset && datasetKeys[dataset] ? `&datasetKey=${datasetKeys[dataset]}` : '';
-let reqGeom = geomWKT ? `&geometry=${geomWKT}` : '';
-let reqGadm = gadmGid ? `&gadmGid=${gadmGid}` : '';
-let reqProv = province ? `&state_province=${province}` : '';
-let reqCord = (typeof hasCoord != 'undefined') ? `&has_coordinate=${hasCoord}` : '';
-let reqTaxa = taxonKeys ? `&${taxonKeys}` : '';
-let reqName = sciName ? `&scientific_name=${sciName}` : '';
-let reqYears = yearRange ? `&year=${yearRange}` : '';
-let reqLimits = `&offset=${offset}&limit=${limit}`;
-let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqProv+reqCord+reqTaxa+reqName+reqYears+reqLimits;
-let enc = encodeURI(url);
+    let reqHost = gbifApi;
+    let reqRoute = "/occurrence/search?advanced=1";
+    let reqDset = dataset && datasetKeys[dataset] ? `&datasetKey=${datasetKeys[dataset]}` : '';
+    let reqGeom = geomWKT ? `&geometry=${geomWKT}` : '';
+    let reqGadm = gadmGid ? `&gadmGid=${gadmGid}` : '';
+    let reqProv = province ? `&state_province=${province}` : '';
+    let reqCord = (typeof hasCoord != 'undefined') ? `&has_coordinate=${hasCoord}` : '';
+    let reqTaxa = taxonKeys ? `&${taxonKeys}` : '';
+    let reqName = sciName ? `&scientific_name=${sciName}` : '';
+    let reqYears = yearRange ? `&year=${yearRange}` : '';
+    let reqLimits = `&offset=${offset}&limit=${limit}`;
+    let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqProv+reqCord+reqTaxa+reqName+reqYears+reqLimits;
+    let enc = encodeURI(url);
 
-console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
+    console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
 
     try {
         let res = await fetch(enc);
@@ -59,8 +59,9 @@ console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gad
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) ERROR:`, err);
-        return new Error(err)
+        console.error(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 

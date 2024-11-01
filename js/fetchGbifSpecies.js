@@ -2,8 +2,17 @@ let gbifApi = "https://api.gbif.org/v1";
 export const datasetKeys = {
     "chkVtb1":"73eb16f0-4b06-4347-8069-459bc2d96ddb" //this is actually the 'live' checklist of butterflies, not from VBA1
 };
+/*
 export var checklistVtButterflies;
 export var checklistVernacularNames;
+checklistVtButterflies = await getGbifSpeciesByDataset(); //load file-scope dataset
+checklistVernacularNames = await checklistToVernaculars(checklistVtButterflies.results); //fill file-scope vernacular list object
+*/
+export async function getChecklistVernaculars(dataSetKey=datasetKeys["chkVtb1"]) {
+    let checklist = await getGbifSpeciesByDataset(dataSetKey);
+    let vernaculars = await checklistToVernaculars(checklist.results);
+    return vernaculars;
+}
 
 /*
     https://api.gbif.org/v1/species/search?dataset_key=73eb16f0-4b06-4347-8069-459bc2d96ddb&limit=300
@@ -24,9 +33,9 @@ export async function getGbifSpeciesByDataset(datasetKey=datasetKeys['chkVtb1'],
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getGbifSpeciesByDataset(${datasetKey}) ERROR:`, err);
-        return Promise.reject(err);
-        //return new Error(err)
+        console.error(`getGbifSpeciesByDataset(${datasetKey}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 
@@ -47,8 +56,9 @@ export async function DEPRECATED_getGbifSpeciesByTaxonKey(taxonKey) {
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`getGbifSpeciesByTaxonKey(${taxonKey}) ERROR:`, err);
-        return new Error(err)
+        console.error(`getGbifSpeciesByTaxonKey(${taxonKey}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 export async function getGbifVernacularsFromKey(taxonKey) {
@@ -64,8 +74,9 @@ export async function getGbifVernacularsFromKey(taxonKey) {
         console.log(`getGbifVernacularsFromKey(${enc}) JSON RESULT:`, json);
         return json.results;
     } catch (err) {
-        console.log(`getGbifVernacularsFromKey(${enc}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`getGbifVernacularsFromKey(${enc}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 export async function getGbifSynonymsFromKey(taxonKey) {
@@ -81,8 +92,9 @@ export async function getGbifSynonymsFromKey(taxonKey) {
         console.log(`getGbifSynonymsFromKey(${enc}) JSON RESULT:`, json);
         return json.results;
     } catch (err) {
-        console.log(`getGbifSynonymsFromKey(${enc}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`getGbifSynonymsFromKey(${enc}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 export async function getGbifParentsFromKey(taxonKey) {
@@ -98,8 +110,9 @@ export async function getGbifParentsFromKey(taxonKey) {
         console.log(`getGbifParentFromKey(${enc}) JSON RESULT:`, json);
         return json.results;
     } catch (err) {
-        console.log(`getGbifParentFromKey(${enc}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`getGbifParentFromKey(${enc}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 
@@ -132,8 +145,9 @@ export async function getGbifSynonymsByHigherTaxonKey(higherTaxonKey, rank=0, fi
         return {'synonyms':arr, 'query':enc};
     } catch (err) {
         err.query = enc;
-        console.log(`getGbifSynonymsByHigherTaxonKey(${speciesFilter}, ${higherTaxonKey}) ERROR:`, err);
-        return new Error(err)
+        console.error(`getGbifSynonymsByHigherTaxonKey(${speciesFilter}, ${higherTaxonKey}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -164,7 +178,8 @@ export async function findListTaxonByNameAndRank(fileConfig, taxonName, taxonRan
             return Promise.reject(new Error(`speciesDatasetKey is not defined for '${fileConfig.dataConfig.atlasName}'`))
         }
     } catch (err) {
-        return Promise.reject(err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 
@@ -173,12 +188,8 @@ NOTE: This fails to find a valid match for some common taxa (eg. Sterna).
 Everywhere possible we use taxonKey to search, not taxonName.
 */
 export async function getGbifTaxonKeyFromName(taxonName, taxonRank='UNKNOWN') {
-    try {
-        let json = await getGbifTaxonFromName(taxonName, taxonRank);
-        return json.usageKey;
-    } catch (err) {
-        return new Error(err);
-    }
+    let json = await getGbifTaxonFromName(taxonName, taxonRank);
+    return json.usageKey;
 }
 
 /* 
@@ -201,15 +212,18 @@ export async function getGbifTaxonFromName(taxonName, taxonRank='UNKNOWN') {
         console.log(`getGbifTaxonKeyFromName(${enc}) JSON RESULT:`, json);
         if (json.usageKey && ('UNKNOWN' == taxonRank || taxonRank.toUpperCase() == json.rank.toUpperCase())) {
             //console.log('getGbifTaxonFromName MATCHED');
-            return Promise.resolve(json);
+            //return Promise.resolve(json);
+            return json;
          } else {
             let err = {message:`Not found. ${taxonRank} ${taxonName} matched GBIF ${json.rank} ${json.canonicalName} with usageKey ${json.usageKey}`, status: 404};
-            console.log(`getGbifTaxonFromName(${enc}) ERROR`, err);
-            return Promise.reject(err);
+            console.error(`getGbifTaxonFromName(${enc}) ERROR`, err);
+            //return Promise.reject(err);
+            throw err;
          }
     } catch (err) {
-        console.log(`getGbifTaxonKeyFromName(${enc}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`getGbifTaxonKeyFromName(${enc}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 
@@ -228,12 +242,14 @@ export async function getGbifTaxonFromKey(taxonKey) {
             return Promise.resolve(json);
          } else {
             let err = {message:`Not found: ${taxonKey}`, status: 404};
-            console.log(`getGbifTaxonFromKey(${enc}) ERROR`, err);
-            return Promise.reject(err);
+            console.error(`getGbifTaxonFromKey(${enc}) ERROR`, err);
+            //return Promise.reject(err);
+            throw err;
          }
     } catch (err) {
-        console.log(`getGbifTaxonFromKey(${enc}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`getGbifTaxonFromKey(${enc}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 const ranks = ['KINGDOM','PHYLUM','CLASS','ORDER','FAMILY','GENUS','SPECIES','SUBSPECIES'];
@@ -263,7 +279,7 @@ export function parseNameToRank(name) {
 /*
     Convert GBIF checklist API json.results to object keyed by taxonId having array of vernacularNames.
 */
-async function checklistToVernaculars(list=[]) {
+export async function checklistToVernaculars(list=[]) {
     //console.log(`checklistToVernaculars incoming list:`, list);
     let vern = {};
     list.forEach(spc => {
@@ -288,7 +304,3 @@ async function checklistToVernaculars(list=[]) {
     //console.log(`checklistToVernaculars outgoing list:`, vern);
     return vern;
 }
-
-checklistVtButterflies = await getGbifSpeciesByDataset(); //load file-scope dataset
-checklistVernacularNames = await checklistToVernaculars(checklistVtButterflies.results); //fill file-scope vernacular list object
-

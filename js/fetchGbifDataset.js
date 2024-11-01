@@ -33,7 +33,8 @@ export async function fetchGbifDatasetInfo(datasetKey) {
         return json;
     } catch (err) {
         err.query = enc;
-        console.log(`fetchGbifDatasetInfo(${datasetKey}) ERROR:`, err);
-        return new Error(err)
+        console.error(`fetchGbifDatasetInfo(${datasetKey}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err(err);
     }
 }

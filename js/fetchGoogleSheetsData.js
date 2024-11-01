@@ -59,9 +59,9 @@ export async function fetchGoogleSheetData(spreadsheetId=defaultSheetIds.vbaSign
         //console.log(`Sheet-${sheetNumber} row data:`, data);
         return {'properties':prop, 'head':head, 'rows':data};
     } catch (err) {
-        console.log(`fetchGoogleSheetData(${spreadsheetId}) ERROR:`, err);
-        //return new Error(err)
-        return Promise.reject(err);
+        console.error(`fetchGoogleSheetData(${spreadsheetId}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /* 
@@ -88,9 +88,9 @@ export async function getSheetSignups(sheetNumber=0) {
     console.log('getSheetSignups 2D ARRAY', sign);
     return sign;
     } catch(err) {
-        console.log(`getSheetSignups(${sheetNumber}) ERROR:`, err);
-        //return new Error(err)
-        return Promise.reject(err);
+        console.error(`getSheetSignups(${sheetNumber}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -133,9 +133,9 @@ export async function getSheetVernaculars(sheetNumber=0) {
         //console.log('getSheetVernaculars 2D ARRAY', name);
         return name;
     } catch(err) {
-        console.log(`getSheetVernaculars(${sheetNumber}) ERROR:`, err);
-        //return new Error(err)
-        return Promise.reject(err);
+        console.error(`getSheetVernaculars(${sheetNumber}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -173,9 +173,9 @@ export async function getSheetSranks(sheetNumber=0) {
         //console.log('getSheetSranks Nested Object', name);
         return name;
     } catch(err) {
-        console.log(`getSheetSranks(${sheetNumber}) ERROR:`, err);
-        //return new Error(err)
-        return Promise.reject(err);
+        console.error(`getSheetSranks(${sheetNumber}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }
 /*
@@ -214,8 +214,8 @@ export async function getSheetConservationStatus(sheetName=false, sheetNumber=0)
         //console.log('getSheetConservationStatus Compiled Object', name);
         return name;
     } catch(err) {
-        console.log(`getSheetConservationStatus(${sheetNumber}) ERROR:`, err);
-        //return new Error(err)
-        return Promise.reject(err);
+        console.error(`getSheetConservationStatus(${sheetNumber}) ERROR:`, err);
+        //return Promise.reject(err);
+        throw err;
     }
 }

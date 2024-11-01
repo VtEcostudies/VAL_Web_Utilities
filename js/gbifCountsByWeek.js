@@ -4,6 +4,7 @@ import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
 var Storage = window.sessionStorage ? window.sessionStorage : false;
 var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
+var verbose = 0;
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the requested geometry/geography:
 {
@@ -35,25 +36,26 @@ https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=ve
 export async function getStoredPhenology(searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
-    console.log(`gbifCountsByWeek::getStoredPhenology | session storage name: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    console.log(`gbifCountsByWeek.js=>getStoredPhenology=>session storeName: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
     let phenology = Storage ? Storage.getItem(storeName) : false;
     if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));
-        console.log(`Storage.getItem(${storeName}) returned`, phenology);
+        console.log(`gbifCountsByWeek.js=>getStoredPhenology=>Storage.getItem(${storeName}) returned`, phenology);
+        return phenology;//returning a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
     } else {
-        phenology = fetchAll(searchTerm, geoSearch); //returns a promise. handle that downstream with occs.then(occs => {}).
-        console.log(`fetchAll(${searchTerm}) returned`, phenology); //this returns 'Promise { <state>: "pending" }'
-        phenology.then(pheno => { //convert promise to data object...
+        let phenoProm = fetchAll(searchTerm, geoSearch); //returns a promise. handle that downstream with .then(occs => {}).
+        phenoProm.then(pheno => { //convert promise to data object...
+            console.log(`gbifCountsByWeek.js=>getStoredPhenology=>fetchAll(${searchTerm}) returned`, pheno);
             if (Storage) {Storage.setItem(storeName, JSON.stringify(pheno));}
         });
+        return await phenoProm; //returning a promise from async function wraps a promise in a promise. does this work? Hm. Yes it does. Odd.
     }
-    return phenology; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
 }
 export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
     let speciesFilter = fileConfig.dataConfig.speciesFilter;
     let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
     let drillRanks = fileConfig.dataConfig.drillRanks;
-    return gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks);
+    return await gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks);
 }
 export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
     let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
@@ -106,7 +108,7 @@ function fetchAll(searchTerm, geoSearch) {
             //Convert each response to json object
             return Promise.all(responses.map(async res => {
                 let json = await res.json();
-                console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) JSON RESULT FOR URL:`, res.url, json);
+                if (verbose) {console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) JSON RESULT FOR URL:`, res.url, json);}
                 return json;
             }));
         })
@@ -123,7 +125,7 @@ function fetchAll(searchTerm, geoSearch) {
                         let week = date.getWeek()+1; //convert week to 1-based here
                         let doy = date.getDOY(); //getDOY is 1-based?
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
-                            console.log('NOT Adding to Sums by Week and removing', count.count, 'from total for:', searchTerm, date, week, mnth);
+                            if (verbose) {console.log('NOT Adding to Sums by Week and removing', count.count, 'from total for:', searchTerm, date, week, mnth);}
                             total -= count.count; //don't include these in totals either
                         } else {
                             dSum[doy] = dSum[doy] ? dSum[doy] + count.count : count.count;
@@ -134,7 +136,7 @@ function fetchAll(searchTerm, geoSearch) {
                         }
                     });
                 } else {
-                    console.log(`gbifCountsByWeek::fetchAll NO Facets Returned`, json.facets);
+                    if (verbose) {console.log(`gbifCountsByWeek::fetchAll NO Facets Returned`, json.facets);}
                 }
             });
             let tday = new Date().toUtc(); //today's date shifted to UTC
@@ -150,12 +152,11 @@ function fetchAll(searchTerm, geoSearch) {
             return {search:searchTerm, total:total, weekToday:tdWk, weekSum:wSum, monthSum:mSum, weekArr:wArr, doyArr:dArr, doyExt:{min:dMin,max:dMax}};
         })
         .catch(err => {
-            console.log(`ERROR fetchAll ERROR:`, err);
-            return Promise.reject(new Error(err)); //this allows the caller to use .catch(err) to handle
-            //return new Error(err); //this requires teh caller to wrap the call in try/catch
+            console.error(`gbifCountsByWeek.js=>fetchAll`, err);
+            return Promise.reject(new Error(err)); //must return a promise-based value. this allows the caller to use .catch(err) to handle.
         })
-    console.log(`fetchAll promise.all`, all);
-    return all; //this is how it's done. strange errors when not.
+    //console.log(`gbifCountsByWeek.js=>fetchAll promise.all`, all);
+    return all; //this returns the promise.all, above, which is a single promise distilled from an array of promises.
 }
 
 function weekToMonth(weekNumber, year=2023) {

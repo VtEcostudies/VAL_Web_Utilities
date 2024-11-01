@@ -121,7 +121,7 @@ export async function getBoneSubTaxonKeys(higherTaxonKey) {
 NOTE: higherTaxonKey must be from species-list overlay (NOT nubKey) but occCounts is indexed by nubKey.
 This means several things...
 - getListSubTaxonKeys returns subTaxon nubKeys to be used in our stored backbone indexes
-- getBoneSubTaxonKeys returns subTaxon nubKeys to remove from the above list (becuase GBIF already counts them by default)
+- getBoneSubTaxonKeys returns subTaxon nubKeys to remove from the above list (because GBIF already counts them by default)
 */
 export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nubKey=0) {
     try {
@@ -159,7 +159,7 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
     of occurrence-counts and present the union, ordered by those counts. This seems impossible
     unless we find a way to retrieve all results for any query all the time.
 
-    NOTE: Here the xClu flag is critical. When an explorer site's scope is defined by taxonomy, we
+    NOTE: Here the xClud flag is critical. When an explorer site's scope is defined by taxonomy, we
     must remove those taxonNames or Keys when searching for specific taxa because the http API converts
     duplicate AND params to ORs.
 */
@@ -189,7 +189,6 @@ export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey
         return Promise.reject(err);
     }
 }
-  
 /*
     Get occurrence-counts aggregated by facet (taxonKey, mediaType, etc.) for a filter query.
     Return an object like {taxonKey:count, taxonKey:count, ...}

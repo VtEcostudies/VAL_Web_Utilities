@@ -22,8 +22,8 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
         parentRank = getParentRank(taxonRank);
     }
     if (!taxonName || !taxonRank) {
-        console.log(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); 
-        return Promise.reject({error:'Missing taxonName or taxonRank'});
+        console.error(`getInatSpecies(${taxonName}, ${taxonRank}). taxonName or taxonRank is empty.`); 
+        throw({message:'Missing taxonName or taxonRank'});
     }
 
     let reqQuery = `?q=${taxonName}`;
@@ -67,18 +67,18 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                 }
                 if (match.id) {return match;}
                 else {
-                    console.log(`getInatSpecies: No match found for ${taxonRank} ${taxonName}`);
-                    return Promise.reject({'message':`No match found for ${taxonRank} ${taxonName}`});
+                    console.error(`inatSpeciesData=>getInatSpecies: No match found for ${taxonRank} ${taxonName}`);
+                    throw {message:`inatSpeciesData=>getInatSpecies: No match found for ${taxonRank} ${taxonName}`};
                 }
             }
         } else {
-            console.log(`getInatSpecies(${taxonName}) BAD RESULT:`, res.status);
-            return Promise.reject(res);
+            console.error(`inatSpeciesData=>getInatSpecies(${taxonName}) BAD RESULT:`, res.status);
+            throw res;
         }
     } catch (err) {
         err.query = enc;
-        console.log(`getInatSpecies(${taxonName}) ERROR:`, err);
-        return Promise.reject(err);
+        console.error(`inatSpeciesData=>getInatSpecies(${taxonName})`, err);
+        throw err;
     }
 }
 
@@ -114,15 +114,15 @@ export async function getInatSpeciesByKey(key) {
             //return Promise.resolve(json);
             return json.results[0]; //we're looking up by a unique key, here. one entry iNat. please.
         } else {
-            console.log(`getInatSpeciesByKey(${key}) BAD RESULT:`, res.status);
-            //return Promise.reject(res);
-            return res;
+            console.error(`inatSpeciesData.js=>getInatSpeciesByKey(${key}) BAD RESULT:`, res.status);
+            //return res;
+            throw(res);
         }
     } catch (err) {
         err.query = enc;
-        console.log(`getInatSpeciesByKey(${key}) ERROR:`, err);
-        //return Promise.reject(err);
-        return err;
+        console.error(`inatSpeciesData.js=>getInatSpeciesByKey(${key}) ERROR:`, err);
+        //return err;
+        throw(err);
     }
 }
 
