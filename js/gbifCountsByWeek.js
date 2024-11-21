@@ -36,19 +36,17 @@ https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=ve
 export async function getStoredPhenology(searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
-    console.log(`gbifCountsByWeek.js=>getStoredPhenology=>session storeName: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
+    console.log(`gbifCountsByWeek.js=>getStoredPhenology=>storeName: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
     let phenology = Storage ? Storage.getItem(storeName) : false;
     if (phenology && '{}' != phenology) {
         phenology = JSON.parse(Storage.getItem(storeName));
         console.log(`gbifCountsByWeek.js=>getStoredPhenology=>Storage.getItem(${storeName}) returned`, phenology);
         return phenology;//returning a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
     } else {
-        let phenoProm = fetchAll(searchTerm, geoSearch); //returns a promise. handle that downstream with .then(occs => {}).
-        phenoProm.then(pheno => { //convert promise to data object...
-            console.log(`gbifCountsByWeek.js=>getStoredPhenology=>fetchAll(${searchTerm}) returned`, pheno);
-            if (Storage) {Storage.setItem(storeName, JSON.stringify(pheno));}
-        });
-        return await phenoProm; //returning a promise from async function wraps a promise in a promise. does this work? Hm. Yes it does. Odd.
+        phenology = await fetchAll(searchTerm, geoSearch);
+        if (Storage) {Storage.setItem(storeName, JSON.stringify(phenology));}
+        console.log(`gbifCountsByWeek.js=>getStoredPhenology=>fetchAll(${searchTerm}) returned`, phenology);
+        return phenology;
     }
 }
 export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
@@ -60,7 +58,7 @@ export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
 export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
     let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
     let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
-    let subs = {keys:[]};
+    let subs = {keys:[], names:[]};
     if (drillRanks.includes(self.rank)) { //only drill-down lower ranks
         subs = await getListSubTaxonKeysByFilter(speciesFilter, taxonKey); //get sub-nubKeys of species-list key
         for (const key of subs.keys) {
@@ -92,7 +90,7 @@ async function fetchAllByName(taxonName, geoSearch) {
     return await getStoredPhenology(`scientificName=${taxonName}`, geoSearch)
 }
 //function fetchAll(searchTerm, taxonName, geoSearch) {
-function fetchAll(searchTerm, geoSearch) {
+async function fetchAll(searchTerm, geoSearch) {
     geoSearch = geoSearch.length ? geoSearch : vtGeo;
     console.log(`gbifCountsByWeek=>fetchAll | searchTerm`, searchTerm, `geoSearch`, geoSearch);
     //let trailing = 'facet=eventDate&facetLimit=1200000&limit=0';
@@ -114,7 +112,7 @@ function fetchAll(searchTerm, geoSearch) {
         })
         .then(arrj => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) ALL JSON RESULT:`, arrj);
-            let total = 0, dSum = {}, wSum = {}, mSum = {}, wAgg = {}, dMin = 366, dMax = 0;
+            let total = 0, dSum = {}, wSum = {}, mSum = {}, dMin = 366, dMax = 0;
             arrj.forEach(json => {
                 //console.log('json', json);
                 if (json.facets[0]) {
@@ -153,10 +151,10 @@ function fetchAll(searchTerm, geoSearch) {
         })
         .catch(err => {
             console.error(`gbifCountsByWeek.js=>fetchAll`, err);
-            return Promise.reject(new Error(err)); //must return a promise-based value. this allows the caller to use .catch(err) to handle.
+            //return Promise.reject(new Error(err)); //must return a promise-based value. this allows the caller to use .catch(err) to handle.
+            throw err;
         })
-    //console.log(`gbifCountsByWeek.js=>fetchAll promise.all`, all);
-    return all; //this returns the promise.all, above, which is a single promise distilled from an array of promises.
+    return await all; //this returns the promise.all, above, which is a single promise distilled from an array of promises.
 }
 
 function weekToMonth(weekNumber, year=2023) {

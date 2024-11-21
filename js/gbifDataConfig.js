@@ -264,21 +264,18 @@ const config = {
             }
           ]
         }
-        // Include data having coordinates within an administrative area. Duke's County, MA includes
-        // the Vineyard and the Elizabethans.
-  /*
         ,{
-          "type": "equals",
-          "key": "gadmGid",
-          "value": "USA.22.4_1"
-        }
-  */
-        // Include data having coordinates within a bounding box. Here we drew a rough box around the
-        // Vineyard out to about 1 mile of surrounding salt water.
-        ,{
-          "type": "within",
-          "key": "geometry",
-          "value": "POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))"
+          "type": "and",
+          "predicates": [
+            {
+              "type": "within"
+              //GBIF data-widgets use "key", "value"
+              ,"key": "geometry"
+              ,"value": "POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))"
+              //GBIF v1 API uses just "geometry", but don't add it here - it crashes the gbif-data-widget. Handled in 
+              //,"geometry": "POLYGON((-70.88803 41.35236,-70.82729 41.20741,-70.69115 41.31884,-70.4219 41.3302,-70.41887 41.41874,-70.59434 41.51395,-70.88803 41.35236))"
+            }
+          ]
         }
       ]
     }
@@ -1039,37 +1036,38 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
         ]
       },
       {
-      "type": "and",
-      "predicates": [
-        {
-          "type": "equals",
-          "key": "country",
-          "value": "US"
-        },
-        {
-          "type": "in",
-          "key": "stateProvince", // state province is a free text field, but this is a good start I would think
-          "values": [
-            "vermont",
-            "vermont (state)"
-          ]
-        },
-        {
-          "type": "equals",
-          "key": "hasCoordinate",
-          "value": false
-        },
-        {
-          "type": "in",
-          "key": "taxonKey",
-          "values": [
-            "7782" //Coccinelidae
-          ]
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7782" //Coccinelidae
+            ]
+          }
+        ]
       }
-      ]
-    }
-  ]
+    ]
   }
+
 }
 }
 

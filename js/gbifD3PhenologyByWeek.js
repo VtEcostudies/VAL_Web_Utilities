@@ -1,5 +1,6 @@
 import { gbifCountsByWeekByTaxonName, gbifCountsByWeekByListTaxonKey } from './gbifCountsByWeek.js';
 let exploreUrl;
+let target = '_self'; //window.open setting, see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
 
 export async function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig) {
     
@@ -31,6 +32,11 @@ export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
     
         createChart(htmlId, pheno, pheno.search);
     })
+}
+//pheno data must return object from gbifCountsByWeek.js=>gbifCountsByWeekByListTaxonKey
+//search must be pheno.search from gbifCountsByWeek.js=>gbifCountsByWeekByListTaxonKey, which must be taxonKey-based search
+export async function gbifD3PhenologyByPhenoData(htmlId, pheno, search=false) {
+    createChart(htmlId, pheno, search);
 }
 function createChart(htmlId='chart', pheno, searchTerm=0) {
 
@@ -243,7 +249,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
         if (exploreUrl && searchTerm) {
             let url = `${exploreUrl}?${searchTerm}&${monthFilter}&view=TABLE`;
             console.log('gbifD3PhenologyByWeek.js=>handleClick | url:', url);
-            window.open(url);
+            window.open(url, target); //see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
         } else {
             alert('Phenology links to GBIF Occurrences only available for queries by taxonKey.')
         }

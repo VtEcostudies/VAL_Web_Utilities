@@ -1,4 +1,6 @@
 import { getInatSpecies } from './inatSpeciesData.js';
+let target = '_blank'; //window.open setting, see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
+
 /*
 To-do:
 - allow for other ways to scope the view of iNat data, other than by project
@@ -269,13 +271,13 @@ function makeDonut(inat, htmlId) {
         //console.log(data);
         if (d.data) {
           data = d.data;
-          //location.assign(data.url, "_blank");
-          window.open(data.url, "_blank");
+          //location.assign(data.url, target);
+          window.open(data.url, target);
         } else {
           data = d;
-          //location.assign(data.api, "_blank");
-          //window.open(data.api, "_blank");
-          window.open(data.url, "_blank");
+          //location.assign(data.api, target);
+          //window.open(data.api, target);
+          window.open(data.url, target);
         }
     }
 }
