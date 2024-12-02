@@ -2,7 +2,8 @@ import { gbifCountsByWeekByTaxonName, gbifCountsByWeekByListTaxonKey } from './g
 let exploreUrl;
 let target = '_self'; //window.open setting, see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
 
-export async function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig) {
+//To-Do: deprecate this function. Pheno search needs to be generalized to any Atlas predicate and this is not.
+export function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig, siteName) {
     
     let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
     exploreUrl = fileConfig.dataConfig.exploreUrl;
@@ -15,10 +16,10 @@ export async function gbifD3PhenologyByTaxonName(taxonName, htmlId, fileConfig) 
     
         console.log('Phenology data for', taxonName, data);
     
-        createChart(htmlId, pheno); //we don't allow drill-down search for taxonName view of data!?!
+        createChart(htmlId, pheno, 0, siteName); //we don't allow drill-down search for taxonName view of data!?!
     })
 }
-export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
+export function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig, siteName) {
     
     exploreUrl = fileConfig.dataConfig.exploreUrl;
 
@@ -30,15 +31,16 @@ export async function gbifD3PhenologyByTaxonKey(taxonKey, htmlId, fileConfig) {
     
         console.log('Phenology data for', taxonKey, data);
     
-        createChart(htmlId, pheno, pheno.search);
+        createChart(htmlId, pheno, pheno.search, siteName);
     })
 }
 //pheno data must return object from gbifCountsByWeek.js=>gbifCountsByWeekByListTaxonKey
 //search must be pheno.search from gbifCountsByWeek.js=>gbifCountsByWeekByListTaxonKey, which must be taxonKey-based search
-export async function gbifD3PhenologyByPhenoData(htmlId, pheno, search=false) {
+//To-Do: figure out if this is used. If not, remove it.
+export function gbifD3PhenologyByPhenoData(htmlId, pheno, search=false) {
     createChart(htmlId, pheno, search);
 }
-function createChart(htmlId='chart', pheno, searchTerm=0) {
+function createChart(htmlId='chart', pheno, searchTerm=0, siteName=false) {
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const nFmt = new Intl.NumberFormat(); //use this to format numbers by locale
@@ -247,7 +249,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0) {
     function handleClick(event, d) {
         let monthFilter = d.month1 ? `month=${d.month}&month=${d.month1}` : `month=${d.month}`;
         if (exploreUrl && searchTerm) {
-            let url = `${exploreUrl}?${searchTerm}&${monthFilter}&view=TABLE`;
+            let url = `${exploreUrl}?siteName=${siteName}&${searchTerm}&${monthFilter}&view=TABLE`;
             console.log('gbifD3PhenologyByWeek.js=>handleClick | url:', url);
             window.open(url, target); //see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
         } else {

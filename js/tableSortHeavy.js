@@ -32,7 +32,7 @@ function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeCo
     console.log('setDataTable | orderColumn:', orderColumn);
     console.log(`setDataTable | excludeColumnIds`, excludeColumnIds);
     for (const idx of excludeColumnIds) {
-        columnDefs.push({ orderable: false, targets: excludeColumnIds[idx] });
+        columnDefs.push({ orderable: false, targets: idx });
     }
     console.log('setDataTable | columnDefs:', columnDefs);
     responsive = ('true' == String(responsive).toLowerCase() || Number(responsive) > 0);

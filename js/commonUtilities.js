@@ -166,3 +166,13 @@ export function timeStamp() {
     console.log('timeStamp()', timeStamp);
     return timeStamp;
 }
+
+export function capitalize(string) {
+    return string.split(' ').map(token => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase()).join(' ');
+}
+
+//remove punctuation without removing accented letters in words like those in the test value
+export function alphaNumeric(string) {
+    let test = `Swainson'S brackén-"thrüsh"`;
+    return string.replace(/[.,\/#!$%\^&*;:{}=\-_`~()\?'"]/g, "").replace(/\s+/g, " ");
+}
