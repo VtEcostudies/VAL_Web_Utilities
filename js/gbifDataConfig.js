@@ -98,7 +98,7 @@ const columNames = {
   'occurrences':'Occurrences',
   'images':'Images'
 };
-const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
+const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
 
 const config = {
   val: { //Vermont Atlas of Life
