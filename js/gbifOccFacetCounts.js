@@ -263,7 +263,7 @@ export async function getAggImgCount(dataConfig, filter = dataConfig.occurrenceF
 
 /*
 Get an image count from the occurrence API by taxonKey and occurrenceFilter
-https://api.gbif.org/v1/occurrence/search?gadm_gid=USA.46_1&taxonKey=9510564&limit=0&facet=mediaType
+https://api.gbif.org/v1/occurrence/search?gadm_gid=USA.46_1&taxonKey=1&limit=0&facet=mediaType
 results are like
 {
     offset: 0,

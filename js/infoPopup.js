@@ -37,7 +37,7 @@ export function addInfoIcon(pTag, html, addIconClass=[]) {
 
 function showInfo(e, html=false, button=false) {
   //console.log('showInfo content:', html);
-  console.log('showInfo', e);
+  //console.log('showInfo', e);
   let xOffset = 10; let yOffset = 30;
   let iconElem = e.toElement ? e.toElement : e.srcElement;
   let iconRect = iconElem.getBoundingClientRect();
