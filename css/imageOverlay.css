@@ -38,7 +38,7 @@
 }
     
 /* Add Animation - Zoom in the Modal */
-.modal-content, #capMocal {
+.modal-content, #capModal {
     animation-name: zoom;
     animation-duration: 0.6s;
 }
