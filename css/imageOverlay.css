@@ -3,7 +3,7 @@
 .modal-image-div {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 99999; /* Sit on top */
+    z-index: 999999; /* Sit on top of everything, including system header */
     padding-top: 10px; /* Location of the box */
     left: 0;
     top: 0;

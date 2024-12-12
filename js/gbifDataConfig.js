@@ -39,7 +39,7 @@ export async function getSite(httpUrl=thisUrl) {
   console.log('gbifDataConfig=>getSite RESULTANT siteName:', siteName);
   return siteName;
 }
-var siteName = await getSite(thisUrl);
+export var siteName = await getSite(thisUrl);
 
 const gbifApi = "https://api.gbif.org/v1";
 const hostUrl = thisUrl.host;
@@ -107,6 +107,7 @@ const config = {
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpWidgetId: 62000000631,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -205,6 +206,7 @@ const config = {
     atlasAbbrev: 'MVAL',
     atlasAdmin: 'MA', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    helpWidgetId: false,
     backgroundImageUrl: {
       default: 'https://mval.biodiversityworksmv.org/wp-content/uploads/2021/09/RTHU-at-Cardinal-Flower_PGilmore_1600x700_acf_cropped-1600x700.jpg'
       },
@@ -287,6 +289,7 @@ const config = {
     atlasAbbrev: 'FMA',
     atlasAdmin: 'IL', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    helpWidgetId: false,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -341,6 +344,7 @@ const config = {
     atlasAbbrev: 'eBA',
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    helpWidgetId: false,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -389,13 +393,14 @@ const config = {
       ]
     }
   },
-
-  wwButterfly: { //eButterfly Worldwide demo - contrained by 6 butterfly families and no geographic bounding-box
+*/
+  wwButterfly: { //eButterfly Worldwide demo - constrained by 6 butterfly families and no geographic bounding-box
     atlasPlace: 'eButterfly World',
     atlasName: 'eButterfly Atlas World Wide',
     atlasAbbrev: 'eBW',
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    helpWidgetId: false,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -415,8 +420,10 @@ const config = {
     inatPlaceId: false,
     gbifApi: gbifApi,
     gadmGid: false, //leave blank if worldwide
-    speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
-    speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
+    //speciesDatasetKey: 'f9d29a0f-b64f-40ee-8061-471a3c15a0fc', //Species Dataset Key
+    //speciesFilter: 'datasetKey=f9d29a0f-b64f-40ee-8061-471a3c15a0fc',
+    speciesDatasetKey: false,
+    speciesFilter: 'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999', //Filter to use if not speciesDatasetKey
     publishingOrgKey: false, //leave blank if N/A
     occurrenceDatasetKey: '', //New idea NOT implemented yet
     occurrenceFilter: '', //'taxonKey=6953&taxonKey=5473&taxonKey=7017&taxonKey=9417&taxonKey=5481&taxonKey=1933999', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
@@ -466,13 +473,14 @@ const config = {
       ]
     }
   },
-*/
+
   vtButterflies: { //VT Checklist of Butterflies
     atlasPlace: 'Vermont Butterfly',
     atlasName: 'VT Checklist of Butterflies',
     atlasAbbrev: 'VTB',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: false,
+    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpWidgetId: 62000000631,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -573,7 +581,8 @@ const config = {
     atlasName: 'VT Checklist of Mammals',
     atlasAbbrev: 'VTM',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: false,
+    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpWidgetId: 62000000631,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -669,7 +678,8 @@ const config = {
     atlasName: 'VT Fungi',
     atlasAbbrev: 'VTF',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: false,
+    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpWidgetId: 62000000631,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -778,7 +788,8 @@ const config = {
     atlasName: 'VT Bees',
     atlasAbbrev: 'VTB',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: false,
+    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpWidgetId: 62000000631,
     backgroundImageUrl: {
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
@@ -885,6 +896,7 @@ const config = {
     atlasAbbrev: 'USB',
     atlasAdmin: 'US', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
+    helpWidgetId: false,
     backgroundImageUrl: {
       },
     thisUrl: thisUrl,
@@ -979,7 +991,8 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   atlasName: 'VT Lady Beetles',
   atlasAbbrev: 'VTLB',
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: false,
+  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpWidgetId: 62000000631,
   backgroundImageUrl: {
     small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
     medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
