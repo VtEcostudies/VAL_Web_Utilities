@@ -1080,7 +1080,96 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
       }
     ]
   }
-
+},
+vtPlants: {
+  atlasPlace: 'Vermont Plants',
+  atlasName: 'VT Plants',
+  atlasAbbrev: 'VTP',
+  atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpWidgetId: 62000000631,
+  backgroundImageUrl: {},
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: 'vermont-atlas-of-life',
+  inatPlaceId: 47, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA.46_1', //leave blank if N/A
+  speciesDatasetKey: 'cdfc1cef-177b-45a0-8ba6-c686cadae556',
+  speciesFilter: 'datasetKey=cdfc1cef-177b-45a0-8ba6-c686cadae556',
+  publishingOrgKey: false,
+  literatureFilters: [],
+  occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns,
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 43.858297,
+    lng: -72.446594,
+    zoom: 7.75
+  },
+  rootRank: 'PHYLUM', //the starting view in the species explorer
+  rootPredicate: {
+    type: 'or',
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "gadmGid",
+            "value": "USA.46_1"
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              6
+            ]
+          }
+        ]
+      },
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince",
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              6
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
 }
 
