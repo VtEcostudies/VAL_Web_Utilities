@@ -1164,7 +1164,7 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
     lng: -72.446594,
     zoom: 7.75
   },
-  rootRank: 'ORDER', //the starting view in the species explorer
+  rootRank: 'FAMILY', //the starting view in the species explorer
   rootPredicate: { //constrains views of occurrences in GBIF data widget
     type: 'or', //currently the only supported type
     predicates: [
