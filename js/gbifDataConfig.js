@@ -108,7 +108,7 @@ const config = {
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {
+    backgroundImageUrl: { //This idea was a failure. This web design is done within WP by Dadra.
       small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
       medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
       large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
@@ -123,7 +123,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: 'https://hp-vtatlasoflife.gbif.org',
-    inatProject: 'vermont-atlas-of-life',
+    inatProject: 'inaturalist-vermont',
     inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //'Vermont' GADM administrative bounding region
@@ -207,9 +207,7 @@ const config = {
     atlasAdmin: 'MA', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {
-      default: 'https://mval.biodiversityworksmv.org/wp-content/uploads/2021/09/RTHU-at-Cardinal-Flower_PGilmore_1600x700_acf_cropped-1600x700.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -290,12 +288,7 @@ const config = {
     atlasAdmin: 'IL', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -345,12 +338,7 @@ const config = {
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -401,12 +389,7 @@ const config = {
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -481,12 +464,7 @@ const config = {
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -496,7 +474,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
-    inatProject: 'vermont-atlas-of-life',
+    inatProject: 'inaturalist-vermont',
     inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
@@ -583,12 +561,7 @@ const config = {
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -598,7 +571,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
-    inatProject: 'vermont-atlas-of-life',
+    inatProject: 'inaturalist-vermont',
     inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
@@ -680,12 +653,7 @@ const config = {
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -695,7 +663,7 @@ const config = {
     literatUrl: literatUrl,
     publishUrl: publishUrl,
     gbifPortal: false,
-    inatProject: 'vermont-atlas-of-life',
+    inatProject: 'inaturalist-vermont',
     inatPlaceId: 47,
     gbifApi: gbifApi,
     gadmGid: 'USA.46_1', //leave blank if N/A
@@ -790,12 +758,7 @@ const config = {
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -897,8 +860,7 @@ const config = {
     atlasAdmin: 'US', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {
-      },
+    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -993,12 +955,7 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
   helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {
-    small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-    medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-    large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-    default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-    },
+  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1008,7 +965,7 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   literatUrl: literatUrl,
   publishUrl: publishUrl,
   gbifPortal: false,
-  inatProject: 'vermont-atlas-of-life',
+  inatProject: 'inaturalist-vermont',
   inatPlaceId: 47, //this used to query iNat observers
   gbifApi: gbifApi,
   gadmGid: 'USA.46_1', //leave blank if N/A
@@ -1098,7 +1055,7 @@ vtPlants: {
   literatUrl: literatUrl,
   publishUrl: publishUrl,
   gbifPortal: false,
-  inatProject: 'vermont-atlas-of-life',
+  inatProject: 'inaturalist-vermont',
   inatPlaceId: 47, //this used to query iNat observers
   gbifApi: gbifApi,
   gadmGid: 'USA.46_1', //leave blank if N/A
@@ -1170,7 +1127,98 @@ vtPlants: {
       }
     ]
   }
+},
+vtOrthoptera: { //Checklist of Vermont Orthoptera
+  atlasPlace: 'Vermont Orthoptera',
+  atlasName: 'VT Orthoptera',
+  atlasAbbrev: 'VTO', //very short abbreviation for eg. stats above phenology charts
+  atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpWidgetId: 62000000631,
+  backgroundImageUrl: {},
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: 'inaturalist-vermont',
+  inatPlaceId: 47, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA.46_1', //leave blank if N/A
+  speciesDatasetKey: '92d38ab4-155e-4efc-977f-f5a64af82c32',
+  speciesFilter: 'datasetKey=92d38ab4-155e-4efc-977f-f5a64af82c32',
+  publishingOrgKey: false,
+  literatureFilters: [],
+  occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns,
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 43.858297,
+    lng: -72.446594,
+    zoom: 7.75
+  },
+  rootRank: 'ORDER', //the starting view in the species explorer
+  rootPredicate: { //constrains views of occurrences in GBIF data widget
+    type: 'or', //currently the only supported type
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "gadmGid",
+            "value": "USA.46_1"
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "1458" //Orthoptera
+            ]
+          }
+        ]
+      },
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "vermont",
+              "vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "1458" //Orthoptera
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
+
 }
 
 export const dataConfig = config[siteName];
