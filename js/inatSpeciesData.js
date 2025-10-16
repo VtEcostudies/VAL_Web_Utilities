@@ -67,7 +67,7 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
                 }
                 if (match.id) {return match;}
                 else {
-                    console.error(`inatSpeciesData=>getInatSpecies: No match found for ${taxonRank} ${taxonName}`);
+                    console.log(`inatSpeciesData=>getInatSpecies: No match found for ${taxonRank} ${taxonName}`);
                     throw {message:`inatSpeciesData=>getInatSpecies: No match found for ${taxonRank} ${taxonName}`};
                 }
             }
@@ -78,7 +78,7 @@ export async function getInatSpecies(taxonName=false, taxonRank=false, parentNam
     } catch (err) {
         err.query = enc;
         console.error(`inatSpeciesData=>getInatSpecies(${taxonName})`, err);
-        throw err;
+        throw err; //NOTE: you must throw error from async function - effects promise rejection
     }
 }
 

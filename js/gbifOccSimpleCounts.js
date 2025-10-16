@@ -4,7 +4,7 @@ const gbifApi = "https://api.gbif.org/v1";
 
 export async function fetchOccSimpleCountByKey(taxonKey, fileConfig) {
     let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
-    let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
+    let srch = `taxonKey=${self.nubKey ?? taxonKey}`;
     let subs = {keys:[], names:[]}; //getListSubTaxonKeys fills this object with arrays of values
     if (fileConfig.dataConfig.drillRanks.includes(self.rank)) { //only drill-down lower ranks
         subs = await getListSubTaxonKeys(fileConfig, taxonKey); //get sub-nubKeys of species-list key
@@ -14,12 +14,14 @@ export async function fetchOccSimpleCountByKey(taxonKey, fileConfig) {
     }
     console.log(`gbifOccSimpleCount=>fetchOccCountByKey(${taxonKey})=> self-nubKey:`, self.nubKey, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
     
-    let res = {total: 0};
-    //let res = await multiFetchOccSimpleCount(srch, fileConfig);
     if (self.nubKey) {subs.keys.push(self.nubKey);} //IMPORTANT FOR predicateFetch: add self nubKey to array of keys for species-list key
+/*
+    let res = {total: 0};
     if (subs.keys.length) {
         res = await predicateFetchOccSimpleCount(fileConfig.dataConfig.rootPredicate, subs.keys);
     }
+*/
+    let res = await multiFetchOccSimpleCount(srch, fileConfig);
     res.nubKey = self.nubKey;
     res.keys = subs.keys;//.push(self.nubKey); //add self nubKey to array of keys for species-list key
     res.names = subs.names;
@@ -45,7 +47,8 @@ async function multiFetchOccSimpleCount(searchTerm, fileConfig) {
         return {total:occTot, arrQry:arrQry};
     } catch (err) {
         console.error(`gbifOccSimpleCounts=>multiFetchOccSimpleCount ERROR`, err);
-        throw err;
+        //throw err;
+        return {total: -1, arrQry:arrQry}
     }
 }
 async function fetchOccSimpleCount(filter) {
@@ -72,7 +75,7 @@ export async function predicateFetchOccSimpleCount(predicate=false, keys=[]) {
     console.log('predicateFetchOccSimpleCount predicate:', predicate, 'keys:', keys);
     try {
         let reqHost = gbifApi;
-        let reqRoute = "/occurrence/search/predicate";
+        let reqRoute = `/occurrence/search/predicate?timestamp=${Date.now()}`;
         let url = reqHost+reqRoute;
         let enc = encodeURI(url);
         if (keys.length) {
@@ -93,12 +96,17 @@ export async function predicateFetchOccSimpleCount(predicate=false, keys=[]) {
         );
         console.log('gbifOccSimpleCounts=>predicateFetchOccSimpleCount res:', res);
         let json = await res.json();
-        console.log('gbifOccSimpleCounts=>predicateFetchOccSimpleCount res.json:', json);
-        return {total: json.count};
+        if (res.ok) {
+          console.log('gbifOccSimpleCounts=>predicateFetchOccSimpleCount res.json:', json);
+          return {total: json.count};
+        } else {
+          return {total: -1}
+        }
     } catch(err) {
         console.error('gbifOccSimpleCounts=>predicateFetchOccSimpleCount', err);
         console.error(predicate);
-        throw {error: err.message, predicate: predicate};
+        //throw {error: err.message, predicate: predicate};
+        return {total: -1}
     };
 }
 

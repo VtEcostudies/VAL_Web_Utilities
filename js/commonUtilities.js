@@ -171,6 +171,12 @@ export function capitalize(string) {
     return string.split(' ').map(token => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase()).join(' ');
 }
 
+//smash a string into just its lowercase letters. used to eg. avoid duplicate vernacularNames.
+export function normalize(string) {
+  string = alphaNumeric(string);
+  return string.replaceAll(' ', '').toLowerCase()
+}
+
 //remove punctuation without removing accented letters in words like those in the test value
 export function alphaNumeric(string) {
     let test = `Swainson'S brackén-"thrüsh"`;

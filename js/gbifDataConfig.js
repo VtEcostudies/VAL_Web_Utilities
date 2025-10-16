@@ -460,7 +460,7 @@ const config = {
   vtButterflies: { //VT Checklist of Butterflies
     atlasPlace: 'Vermont Butterfly',
     atlasName: 'VT Checklist of Butterflies',
-    atlasAbbrev: 'VTB',
+    atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
@@ -557,7 +557,7 @@ const config = {
   vtMammals: { //Checklist of Vermont Mammals
     atlasPlace: 'Vermont Mammal',
     atlasName: 'VT Checklist of Mammals',
-    atlasAbbrev: 'VTM',
+    atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
@@ -649,7 +649,7 @@ const config = {
   vtFungi: { //Checklist of Vermont Macro Fungi
     atlasPlace: 'Vermont Fungi',
     atlasName: 'VT Fungi',
-    atlasAbbrev: 'VTF',
+    atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
@@ -754,7 +754,7 @@ const config = {
   vtBees: { //Checklist of Vermont Bees
     atlasPlace: 'Vermont Bees',
     atlasName: 'VT Bees',
-    atlasAbbrev: 'VTB',
+    atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
     helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
     helpWidgetId: 62000000631,
@@ -777,7 +777,7 @@ const config = {
     publishingOrgKey: false,
     literatureFilters: ['Apoidea','Anthophila','Andrenidae','Apidae','Colletidae','Halictidae','Megachilidae','Melittidae'],
     occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
-    columns: columns,
+    columns: columns, 
     columNames: columNames,
     drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
@@ -951,7 +951,7 @@ const config = {
 vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   atlasPlace: 'Vermont Lady Beetles',
   atlasName: 'VT Lady Beetles',
-  atlasAbbrev: 'VTLB',
+  atlasAbbrev: 'VAL',
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
   helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
   helpWidgetId: 62000000631,
@@ -1041,7 +1041,7 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
 vtPlants: {
   atlasPlace: 'Vermont Plants',
   atlasName: 'VT Plants',
-  atlasAbbrev: 'VTP',
+  atlasAbbrev: 'VAL',
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
   helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
   helpWidgetId: 62000000631,
@@ -1131,7 +1131,7 @@ vtPlants: {
 vtOrthoptera: { //Checklist of Vermont Orthoptera
   atlasPlace: 'Vermont Orthoptera',
   atlasName: 'VT Orthoptera',
-  atlasAbbrev: 'VTO', //very short abbreviation for eg. stats above phenology charts
+  atlasAbbrev: 'VAL', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
   helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
   helpWidgetId: 62000000631,
@@ -1221,7 +1221,13 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
 
 }
 
-export const dataConfig = config[siteName];
+export let dataConfig = config[siteName];
+
+if ('vtBees_list'==siteName) {
+  dataConfig = config['vtBees'];
+  dataConfig.columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','iconImage'];
+  dataConfig.rootRank = ['SPECIES', 'SUBSPECIES'];
+}
 
 /*
   Parse rootPredicate into an array of http query parameters for combined and iterative calls to API here
