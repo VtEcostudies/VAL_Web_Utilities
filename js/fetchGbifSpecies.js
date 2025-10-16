@@ -237,9 +237,9 @@ export async function getGbifTaxonFromKey(taxonKey) {
         let res = await fetch(url);
         //console.log(`getGbifTaxonFromKey(${enc}) RAW RESULT:`, res);
         let json = await res.json();
-        console.log(`getGbifTaxonFromKey(${enc}) JSON RESULT:`, json);
+        //console.log(`getGbifTaxonFromKey(${enc}) JSON RESULT:`, json);
         if (json.key) {
-            return Promise.resolve(json);
+            return json;
          } else {
             let err = {message:`Not found: ${taxonKey}`, status: 404};
             console.error(`getGbifTaxonFromKey(${enc}) ERROR`, err);

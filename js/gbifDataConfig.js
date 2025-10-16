@@ -89,6 +89,7 @@ const columNames = {
   'canonicalName':'Taxon',
   'childTaxa': 'Child Taxa',
   'vernacularNames':'Common Names',
+  'vernacularName':'Common Name',
   'rank':'Rank',
   'taxonomicStatus':'Status',
   'parent':'Parent Taxon',
@@ -96,7 +97,14 @@ const columNames = {
   'higherClassificationMap':'Parent Taxa',
   'iconImage': 'Image',
   'occurrences':'Occurrences',
-  'images':'Images'
+  'images':'Images',
+  'family':'Family',
+  'genus':'Genus',
+  'species':'Species',
+  'grank':'Global Rank',
+  'srank':'State Rank',
+  'sgcn':'SGCN',
+  'iucn':'IUCN'
 };
 const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
 
@@ -1223,10 +1231,13 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
 
 export let dataConfig = config[siteName];
 
-if ('vtBees_list'==siteName) {
+if ('vtBees_list' == siteName) {
   dataConfig = config['vtBees'];
-  dataConfig.columns = ['canonicalName','vernacularNames','rank','taxonomicStatus','iconImage'];
-  dataConfig.rootRank = ['SPECIES', 'SUBSPECIES'];
+  dataConfig.columns = ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'];
+  dataConfig.rootRank = ['SPECIES'];
+  dataConfig.taxonomicStatus = ['ACCEPTED']; //TO-do: impleent this in species-list 
+  dataConfig.vernacularSource = 'GBIF';
+  dataConfig.limit=500;
 }
 
 /*
