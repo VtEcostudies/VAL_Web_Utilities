@@ -1227,17 +1227,17 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
   }
 }
 
-}
+} //end of config
 
 export let dataConfig = config[siteName];
-
-if ('vtBees_list' == siteName) {
-  dataConfig = config['vtBees'];
-  dataConfig.columns = ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'];
-  dataConfig.rootRank = ['SPECIES'];
-  dataConfig.taxonomicStatus = ['ACCEPTED']; //TO-do: impleent this in species-list 
-  dataConfig.vernacularSource = 'GBIF';
-  dataConfig.limit=500;
+export let embedConfig = {
+  columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
+  rootRank: ['SPECIES'],
+  taxonomicStatus: ['ACCEPTED'],
+  limit: 500,
+  columNames: {
+    canonicalName: 'Scientific Name'
+  }
 }
 
 /*
