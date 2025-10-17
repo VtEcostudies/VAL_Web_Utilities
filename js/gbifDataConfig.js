@@ -21,9 +21,9 @@ console.log('Parent URL:', parentUrl);
 
 // Extract domain from referrer
 if (parentUrl) {
-    var url = new URL(parentUrl);
-    console.log('Parent hostname:', url.hostname);
-    console.log('Parent pathname:', url.pathname);
+    parentUrl = new URL(parentUrl);
+    console.log('Parent hostname:', parentUrl.hostname);
+    console.log('Parent pathname:', parentUrl.pathname);
 }
 
 /*
@@ -1241,9 +1241,17 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
 } //end of config
 
 export let dataConfig = config[siteName];
-dataConfig.ranksPage = ranksPage;
+dataConfig.ranksPage = ranksPage; //help reference page for conservation ranks
 export let hostConfig = {
-  parentUrl: parentUrl
+  parentUrl: parentUrl,
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl
 }
 export let embedConfig = {
   columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
