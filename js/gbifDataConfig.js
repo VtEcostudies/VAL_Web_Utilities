@@ -22,8 +22,8 @@ console.log('Parent URL:', parentUrl);
 // Extract domain from referrer
 if (parentUrl) {
     var url = new URL(parentUrl);
-    var parentDomain = url.hostname;
-    console.log('Parent domain:', parentDomain);
+    console.log('Parent hostname:', url.hostname);
+    console.log('Parent pathname:', url.pathname);
 }
 
 /*
