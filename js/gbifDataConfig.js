@@ -1251,7 +1251,10 @@ export let hostConfig = {
   resultsUrl: resultsUrl,
   profileUrl: profileUrl,
   literatUrl: literatUrl,
-  publishUrl: publishUrl
+  publishUrl: publishUrl,
+  explorePath: `${baseRoute}${exploreEnd}`,
+  resultsPath: `${baseRoute}${resultsEnd}`,
+  profilePath: `${baseRoute}${profileEnd}`
 }
 export let embedConfig = {
   columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
