@@ -232,23 +232,21 @@ export async function getGbifTaxonFromKey(taxonKey) {
     //console.log(`getGbifTaxonFromKey ${taxonKey}`);
 
     let url = `${gbifApi}/species/${taxonKey}`;
-    let enc = encodeURI(url);
     try {
         let res = await fetch(url);
         //console.log(`getGbifTaxonFromKey(${enc}) RAW RESULT:`, res);
         let json = await res.json();
         //console.log(`getGbifTaxonFromKey(${enc}) JSON RESULT:`, json);
         if (json.key) {
+            json.query = url;
             return json;
          } else {
             let err = {message:`Not found: ${taxonKey}`, status: 404};
-            console.error(`getGbifTaxonFromKey(${enc}) ERROR`, err);
-            //return Promise.reject(err);
+            console.error(`getGbifTaxonFromKey(${url}) ERROR`, err);
             throw err;
          }
     } catch (err) {
-        console.error(`getGbifTaxonFromKey(${enc}) ERROR:`, err);
-        //return Promise.reject(err);
+        console.error(`getGbifTaxonFromKey(${url}) ERROR:`, err);
         throw err;
     }
 }

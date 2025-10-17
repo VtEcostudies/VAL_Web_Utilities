@@ -15,6 +15,17 @@ import { getStoredData } from './storedData.js';
 //get URL search params from calling http route address
 const thisUrl = new URL(document.URL);
 
+// Get the URL that loaded us, if we're in an iframe
+var parentUrl = document.referrer;
+console.log('Parent URL:', parentUrl);
+
+// Extract domain from referrer
+if (parentUrl) {
+    var url = new URL(parentUrl);
+    var parentDomain = url.hostname;
+    console.log('Parent domain:', parentDomain);
+}
+
 /*
   Deal with setting siteName in one place. The order of precedence:
     siteConfig.js=>siteConfig.siteName (file stored at project level)
@@ -107,7 +118,7 @@ const columNames = {
   'iucn':'IUCN'
 };
 const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
-
+const ranksPage = 'https://help.natureserve.org/biotics/content/record_management/Element_Files/Element_Tracking/ETRACK_Definitions_of_Heritage_Conservation_Status_Ranks.htm';
 const config = {
   val: { //Vermont Atlas of Life
     atlasPlace: 'Vermont',
@@ -1230,6 +1241,10 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
 } //end of config
 
 export let dataConfig = config[siteName];
+dataConfig.ranksPage = ranksPage;
+export let hostConfig = {
+  parentUrl: parentUrl
+}
 export let embedConfig = {
   columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
   rootRank: ['SPECIES'],
