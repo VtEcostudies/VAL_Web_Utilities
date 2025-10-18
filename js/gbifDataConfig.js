@@ -60,19 +60,35 @@ console.log('gbifDataConfig=>urlRouts', urlRouts);
 //WordPress use routes to pages, defined by the user. See eg. page-species-explorer-2022.php. etc.
 var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages within WordPress.
 var homeEnd = '';
-var exploreEnd = 'gbif-explorer'; //occurrences
-var resultsEnd = 'gbif-species-explorer';
-var profileEnd = 'species-profile';
-var literatEnd = 'gbif-literature';
-var publishEnd = 'gbif-publishers';
+let wpRoute = { //WordPress routes to VAL data explorer endpoints
+  dashboard:'',
+  occurrences:'gbif-explorer',
+  speciesList:'gbif-species-explorer',
+  speciesProfile:'species-profile',
+  literature:'gbif-literature',
+  publishers:'gbif-publisher'
+}
+let htRoute = {
+  dashboard:'_index.html',
+  occurrences:'_occurrences.html',
+  speciesList:'_species.html',
+  speciesProfile:'_profile.html',
+  literature:'_literature.html',
+  publishers:'_publishers.html'
+}
+var exploreEnd = wpRoute.occurrences
+var resultsEnd = wpRoute.speciesList
+var profileEnd = wpRoute.speciesProfile
+var literatEnd = wpRoute.literature
+var publishEnd = wpRoute.publishers
 if (hostUrl.includes('vtatlasoflife.org') || hostUrl.includes('localhost')) { //test sites use html for endpoints and has site-specific routing
   baseRoute = urlRouts.splice(0, urlRouts.length-1).join('/'); //remove the html file from the route and use what's left to build URLs for page links in code
-  homeEnd = '_index.html';
-  exploreEnd = '_occurrences.html';
-  resultsEnd = '_species.html';
-  profileEnd = '_profile.html';
-  literatEnd = '_literature.html';
-  publishEnd = '_publishers.html';
+  homeEnd = htRoute.dashboard;
+  exploreEnd = htRoute.occurrences
+  resultsEnd = htRoute.speciesList
+  profileEnd = htRoute.speciesProfile
+  literatEnd = htRoute.literature
+  publishEnd = htRoute.publishers
 }
 baseRoute = baseRoute.replace('VAL_Species_Page', ''); //Sp Page includes this file to get paths. Remove it from baseRoute to allow link to find VAL_Data_Explorers
 if (!baseRoute.endsWith('/')) {baseRoute += '/';}
@@ -1252,11 +1268,12 @@ export let hostConfig = {
   profileUrl: profileUrl,
   literatUrl: literatUrl,
   publishUrl: publishUrl,
-  explorePath: `${baseRoute}${exploreEnd}`,
-  resultsPath: `${baseRoute}${resultsEnd}`,
-  profilePath: `${baseRoute}${profileEnd}`
+  baseRoute: baseRoute,
+  wpRoute: wpRoute,
+  htRoute: htRoute
 }
-export let embedConfig = {
+//configuration overrides for embedded species-list
+export let mbedConfig = {
   columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
   rootRank: ['SPECIES'],
   taxonomicStatus: ['ACCEPTED'],
