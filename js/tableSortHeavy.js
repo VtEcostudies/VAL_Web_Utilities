@@ -26,9 +26,20 @@
         [10, 20, 50, 100, 500, -1],
         [10, 20, 50, 100, 500, 'All'],
       ],
-      pageLength: limit
+      pageLength: pageLength
  */
-function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeColumnIds=[], columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
+function setDataTable(
+  tableId='species-table', 
+  orderColumn=[0, 'asc'], 
+  excludeColumnIds=[], 
+  columnDefs=[], 
+  pageLength=10, 
+  responsive=false, 
+  paging=false, 
+  searching=false, 
+  info=false,
+  fixedHeader=false
+) {
     console.log('setDataTable | orderColumn:', orderColumn);
     console.log(`setDataTable | excludeColumnIds`, excludeColumnIds);
     for (const idx of excludeColumnIds) {
@@ -42,14 +53,14 @@ function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeCo
     console.log('setDataTable flags | responsive:', responsive, '| paging:', paging, '| searching:', searching, '| info:', info);
     let tableSort = $(`#${tableId}`).DataTable({
       autoWidth: false, // <<-- IMPORTANT setting this flag to false is what allows the table to resize to the container
+      fixedHeader: fixedHeader, //sticky header - on scroll, table column headers visible
       responsive: responsive,
-      //order: orderColumnId ? [orderColumnId] : [], //sets the initial sort-by column
       order: orderColumn && orderColumn.length ? [orderColumn] : [], //sets the initial sort-by column and direction
       paging: paging, //hides the pagination logic
       searching: searching, //hides the search box
       info: info, //hides the 1 to 20 of 20
       columnDefs: columnDefs,
-      pageLength: limit, //initial records per page
+      pageLength: pageLength, //initial records per page
       lengthMenu: [
         [10, 25, 50, 100, 500, -1],
         [10, 25, 50, 100, 500, 'All'],
@@ -58,11 +69,11 @@ function setDataTable(tableId='species-table', orderColumn=[0, 'asc'], excludeCo
     return tableSort; //return the dataTable object so the caller can use it
   }
   
-export function tableSortHeavy_DEPRECATED(tableId='species-table', orderColumnId=false, excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
+export function tableSortHeavy_DEPRECATED(tableId='species-table', orderColumnId=false, excludeColumnIds=[],  columnDefs=[], pageLength=10, responsive=false, paging=false, searching=false, info=false) {
   let orderColumn = orderColumnId ? [orderColumnId, 'asc'] : [0, 'asc'];
-  return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
+  return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, pageLength, responsive, paging, searching, info);
 }
 
-export function tableSortHeavy(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], limit=10, responsive=false, paging=false, searching=false, info=false) {
-  return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, limit, responsive, paging, searching, info);
+export function tableSortHeavy(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], pageLength=10, paging=false, searching=false, info=false, fixedHeader=true, responsive=false) {
+  return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, pageLength, responsive, paging, searching, info, fixedHeader);
 }

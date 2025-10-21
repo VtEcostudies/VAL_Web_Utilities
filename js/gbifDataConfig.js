@@ -1257,7 +1257,7 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
 } //end of config
 
 export let dataConfig = config[siteName];
-dataConfig.ranksPage = ranksPage; //help reference page for conservation ranks
+if (dataConfig) {dataConfig.ranksPage = ranksPage;} //help reference page for conservation ranks
 export let hostConfig = {
   parentUrl: parentUrl,
   thisUrl: thisUrl,
