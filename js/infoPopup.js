@@ -33,11 +33,17 @@ export function addInfoIcon(pTag, html, addIconClass=[], link=null) {
   iTag.addEventListener("mouseout", e => hideInfo(html));
   iTag.addEventListener("click", e => {
     e.stopImmediatePropagation(); 
-    if (link) {
-      location.href=link;
-    }
+    //if (link) {location.href=link;}
   })
-  pTag.appendChild(iTag);
+  if (link) {
+    const aTag = document.createElement("a");
+    aTag.href = link;
+    aTag.target = '_parent';
+    pTag.appendChild(aTag);
+    aTag.appendChild(iTag)
+  } else {
+    pTag.appendChild(iTag);
+  }
 }
 
 function showInfo(e, html=false, button=false) {
