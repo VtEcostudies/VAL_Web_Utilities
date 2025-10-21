@@ -74,6 +74,6 @@ export function tableSortHeavy_DEPRECATED(tableId='species-table', orderColumnId
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, pageLength, responsive, paging, searching, info);
 }
 
-export function tableSortHeavy(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], pageLength=10, paging=false, searching=false, info=false, fixedHeader=true, responsive=false) {
+export function tableSortHeavy(tableId='species-table', orderColumn=[], excludeColumnIds=[],  columnDefs=[], pageLength=10, responsive=false, paging=false, searching=false, info=false, fixedHeader=true) {
   return setDataTable(tableId, orderColumn, excludeColumnIds, columnDefs, pageLength, responsive, paging, searching, info, fixedHeader);
 }
