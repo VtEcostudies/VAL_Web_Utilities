@@ -25,13 +25,18 @@ if (eleInf) {
     //eleInf.classList.add("bubble-below");
 }
 
-export function addInfoIcon(pTag, html, addIconClass=[]) {
+export function addInfoIcon(pTag, html, addIconClass=[], link=null) {
   const iTag = document.createElement("i");
   iTag.classList.add("fa", "fa-info-circle", "info-icon");
   if (addIconClass.length) {addIconClass.forEach(iClass => iTag.classList.add(iClass))}
   iTag.addEventListener("mouseover", e => showInfo(e, html));
   iTag.addEventListener("mouseout", e => hideInfo(html));
-  iTag.addEventListener("click", e => {e.stopImmediatePropagation();})
+  iTag.addEventListener("click", e => {
+    e.stopImmediatePropagation(); 
+    if (link) {
+      location.href=link;
+    }
+  })
   pTag.appendChild(iTag);
 }
 
