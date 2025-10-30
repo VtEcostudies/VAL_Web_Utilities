@@ -1342,6 +1342,111 @@ vtOdonata: { //Checklist of Vermont Odonata
       }
     ]
   }
+},
+cSWGBees: { //Checklist of cSWG SGCN Bees
+  atlasPlace: 'cSWG SGCN Bees',
+  atlasName: 'cSWG Bees',
+  atlasAbbrev: 'cSWG',
+  atlasAdmin: ['CA','WA','TX','VT'], //the administrative governing region(s) that set regional species listing
+  helpDeskUrl: false,
+  helpWidgetId: 62000000631,
+  backgroundImageUrl: {},
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: false,
+  inatPlaceId: false, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA', //leave blank if N/A
+  speciesDatasetKey: '596684d0-83c7-4935-b8b8-97f21b3645bf',
+  speciesFilter: 'datasetKey=596684d0-83c7-4935-b8b8-97f21b3645bf',
+  publishingOrgKey: false,
+  literatureFilters: ['Apoidea','Anthophila','Andrenidae','Apidae','Colletidae','Halictidae','Megachilidae','Melittidae'],
+  occurrenceFilter: 'gadm_gid=USA', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns, 
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 39.8283,
+    lng: -98.5795,
+    zoom: 4.5
+  },
+  rootRank: 'FAMILY', //the starting view in the species explorer
+  rootPredicate: {
+    type: 'or', //currently the only supported type
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "in",
+            "key": "gadmGid",
+            "values": [
+              "USA.46_1", //Vermont
+              "USA.44_1", //Texas
+              "USA.48_1", //Washington
+              "USA.5_1"   //California            
+              ]
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7901", //Andrenidae
+              "4334", //Apidae
+              "7905", //Colletidae
+              "7908", //Halictidae
+              "7911", //Megachilidae
+              "4345" //Melittidae
+            ]
+          }
+        ]
+      },
+      {
+      "type": "and",
+      "predicates": [
+        {
+          "type": "equals",
+          "key": "country",
+          "value": "US"
+        },
+        {
+          "type": "in",
+          "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+          "values": [
+            "vermont",
+            "vermont (state)"
+          ]
+        },
+        {
+          "type": "equals",
+          "key": "hasCoordinate",
+          "value": false
+        },
+        {
+          "type": "in",
+          "key": "taxonKey",
+          "values": [
+            "7901", //Andrenidae
+            "4334", //Apidae
+            "7905", //Colletidae
+            "7908", //Halictidae
+            "7911", //Megachilidae
+            "4345" //Melittidae
+          ]
+      }
+      ]
+    }
+  ]
+  }
 }
 
 } //end of config
