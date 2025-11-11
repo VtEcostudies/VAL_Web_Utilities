@@ -194,8 +194,9 @@ const config = {
               "type": "in",
               "key": "stateProvince", // state province is a free text field, but this is a good start I would think
               "values": [
+                "Vermont",
                 "vermont",
-                "vermont (state)"
+                "Vermont (state)"
               ]
             },
             {
@@ -564,8 +565,9 @@ const config = {
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -657,8 +659,9 @@ const config = {
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -757,8 +760,9 @@ const config = {
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -860,8 +864,9 @@ const config = {
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -1052,8 +1057,9 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -1142,8 +1148,9 @@ vtPlants: {
             "type": "in",
             "key": "stateProvince",
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -1232,8 +1239,9 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -1322,8 +1330,9 @@ vtOdonata: { //Checklist of Vermont Odonata
             "type": "in",
             "key": "stateProvince", // state province is a free text field, but this is a good start I would think
             "values": [
+              "Vermont",
               "vermont",
-              "vermont (state)"
+              "Vermont (state)"
             ]
           },
           {
@@ -1422,8 +1431,9 @@ cSWGBees: { //Checklist of cSWG SGCN Bees
           "type": "in",
           "key": "stateProvince", // state province is a free text field, but this is a good start I would think
           "values": [
+            "Vermont",
             "vermont",
-            "vermont (state)"
+            "Vermont (state)"
           ]
         },
         {

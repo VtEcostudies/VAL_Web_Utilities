@@ -48,10 +48,16 @@ export async function getOccsByFilters(offset=0, limit=300, dataset=false, geomW
     let url = reqHost+reqRoute+reqDset+reqGeom+reqGadm+reqProv+reqCord+reqTaxa+reqName+reqYears+reqLimits;
     let enc = encodeURI(url);
 
-    console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
+    //console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}, ${taxonKeys}, ${yearRange}, ${province}, ${hasCoord}, ${sciName}) QUERY:`, enc);
 
     try {
         let res = await fetch(enc);
+        if (!res.ok) {
+          //429 == Too Many Requests
+          let json = await res.json();
+          console.error(`GBIF API request failed`, json, res);
+          throw new Error(res.status);
+        }
         //console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) RAW RESULT:`, res);
         let json = await res.json();
         //console.log(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) JSON RESULT:`, json);
@@ -60,7 +66,6 @@ export async function getOccsByFilters(offset=0, limit=300, dataset=false, geomW
     } catch (err) {
         err.query = enc;
         console.error(`getOccsByFilters(${offset}, ${limit}, ${dataset}, ${geomWKT}, ${gadmGid}) ERROR:`, err);
-        //return Promise.reject(err);
         throw err;
     }
 }
