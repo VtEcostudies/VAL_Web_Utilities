@@ -172,6 +172,9 @@ const config = {
     drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
     conservationStatusName: 'taxonSrank',
+    natureServeSubnation: 'VT',
+    tneListPath: 'data/tne_vt.csv',
+    sgcnListPath: 'data/sgcn_vt.csv',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
@@ -267,6 +270,7 @@ const config = {
     drillRanks: drillRanks,
     downloadOccurrenceCounts: 1,
     conservationStatusName: 'statusMVAL',
+    natureServeSubnation: 'MA',
     mapSettings: {
       lat: 41.4,
       lng: -70.6,

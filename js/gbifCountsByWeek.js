@@ -3,7 +3,7 @@ import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
 var Storage = window.sessionStorage ? window.sessionStorage : false;
-var vtGeo = ['gadmGid=USA.46_1','stateProvince=vermont&stateProvince=vermont (State)'];
+var vtGeo = ['gadmGid=USA.46_1','stateProvince=Vermont&stateProvince=Vermont (State)']; //NOTE: stateProvince is case-sensitive
 var verbose = 0;
 /*
 Return an object having occurrence sums by week (and month) for a taxon in the requested geometry/geography:
@@ -22,8 +22,8 @@ in order to get all the data we must query by all the distinct ways they're stor
 of this module, that means querying thrice, by 
 
     gadmGid=USA.46_1
-    stateProvince=vermont
-    stateProvince=vermont (State)
+    stateProvince=Vermont
+    stateProvince=Vermont (State)
 
 But the last two can be combined into one query because http converts those into an effective OR condition, and GBIF
 handles it that way.
@@ -117,15 +117,19 @@ async function fetchAll(searchTerm, geoSearch) {
                 //console.log('json', json);
                 if (json.facets[0]) {
                     json.facets[0].counts.map(count => {
-                        total += count.count; //only add counts for returned facets
+                        //total += count.count; //only add counts for returned facets
+                        //To-do: handle date ranges for phenology properly here.
+                        //It seems that date ranges spanning more than one day should be discarded,
+                        //While those that fall within a single day can be treated as that day.
                         let date = new Date(count.name.split('/')[0]).toUtc(); //for eventDate ranges, use the range-start
                         let mnth = date.getMonth()+1; //convert month to 1-based here
                         let week = date.getWeek()+1; //convert week to 1-based here
                         let doy = date.getDOY(); //getDOY is 1-based?
                         if (1==week && 0==date.getHours() && 0==date.getMinutes() && 0==date.getSeconds()) {
                             if (verbose) {console.log('NOT Adding to Sums by Week and removing', count.count, 'from total for:', searchTerm, date, week, mnth);}
-                            total -= count.count; //don't include these in totals either
+                            //total -= count.count; //don't include these in totals either
                         } else {
+                            total += count.count; //only total counts for returned facets with valid dates
                             dSum[doy] = dSum[doy] ? dSum[doy] + count.count : count.count;
                             wSum[week] = wSum[week] ? wSum[week] + count.count : count.count;
                             mSum[mnth] = mSum[mnth] ? mSum[mnth] + count.count : count.count;
