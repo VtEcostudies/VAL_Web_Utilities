@@ -173,8 +173,12 @@ const config = {
     downloadOccurrenceCounts: 1,
     conservationStatusName: 'taxonSrank',
     natureServeSubnation: 'VT',
-    tneListPath: 'data/tne_vt.csv',
-    sgcnListPath: 'data/sgcn_vt.csv',
+    // NOTE: absolute URL is required so that WordPress deployments (val.vtecostudies.org)
+    // can fetch these CSVs hosted alongside VAL_Data_Explorers on vtatlasoflife.org.
+    // Relative paths resolve against the current document URL, which breaks on WP page routes.
+    // Until config.js can derive the host per environment (prod vs staging), this is hard-coded.
+    tneListPath: 'https://vtatlasoflife.org/VAL_Data_Explorers/data/tne_vt.csv',
+    sgcnListPath: 'https://vtatlasoflife.org/VAL_Data_Explorers/data/sgcn_vt.csv',
     mapSettings: {
       lat: 43.858297,
       lng: -72.446594,
