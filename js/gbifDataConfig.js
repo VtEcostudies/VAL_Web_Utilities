@@ -1412,7 +1412,9 @@ vtBryophytes: { //Checklist of Vermont Bryophytes
             "type": "in",
             "key": "taxonKey",
             "values": [
-              "789" //Odonata
+              "35", //Phylum~Bryophyta~Mosses
+              "13", //Phylum~Anthocerotophyta~Hornworts
+              "9"   //Phylum~Marchantiophyta~Liverworts
             ]
           }
         ]
