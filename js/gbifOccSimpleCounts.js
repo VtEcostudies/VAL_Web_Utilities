@@ -1,11 +1,52 @@
-import { getListSubTaxonKeys, getNubKey } from "../../VAL_Web_Utilities/js/gbifOccFacetCounts.js";
+import { getListSubTaxonKeys, getNubKey, getStoredOccCnts } from "../../VAL_Web_Utilities/js/gbifOccFacetCounts.js";
 import { gbifFetchJson } from "./gbifFetch.js";
 import { cacheThrough } from "./gbifCache.js";
 import { getGbifTaxonKeyFromName, getGbifTaxonFromKey, getParentRank } from "../../VAL_Web_Utilities/js/fetchGbifSpecies.js";
 const gbifApi = "https://api.gbif.org/v1";
 
 /*
-    The species explorer's hot path: one call per row, each costing a species lookup, a nubKey
+    Occurrence count for one species-list row.
+
+    Reads the page-wide facet map, which costs ~3 requests for the whole page instead of ~3 per row.
+    GBIF's taxonKey facet is hierarchical, so the taxon's own key already carries every descendant -
+    no sub-taxon summing, which is exactly what used to double-count. See getStoredOccCnts.
+
+    Falls back to a per-taxon query in the two cases the map cannot answer: a taxon GBIF cannot match
+    at all (no nubKey to look up), and a map built from requests GBIF refused, where a lookup would
+    silently undercount instead of admitting it does not know.
+*/
+export async function occCountForListTaxon(taxon, fileConfig) {
+    const nub = await getNubKey(taxon);
+    if (nub) {
+        const agg = await getStoredOccCnts(fileConfig);
+        if (agg && agg.objOcc && Number.isFinite(agg.total)) {
+            const total = agg.objOcc[nub] ? agg.objOcc[nub] : 0;
+            /*
+                A zero is the one answer this map can get wrong, so it is the one answer we check.
+
+                A non-zero count is the taxon's own hierarchical count and already contains every
+                descendant - nothing can improve on it. A zero can also mean our classification and
+                GBIF's disagree about where this taxon lives, so we looked up the wrong branch.
+                Genus Paulinella is the worked example: our checklist calls it Protozoa, so the
+                matcher returns the Protozoa homonym (8634019, no Vermont records), while the
+                species underneath it sit in the backbone under Chromista/Cercozoa (3212296), which
+                has the records. The per-taxon path finds them because it sums the children.
+
+                Measured at 8-11% of rows on the val checklist, so verifying every zero is cheap.
+            */
+            if (total) {
+                return {total:total, nubKey:nub, keys:[nub], names:[], search:`taxonKey=${nub}`, arrQry:agg.arrQry};
+            }
+            console.log(`occCountForListTaxon(${taxon.key}): facet map says zero, confirming per-taxon`);
+        } else {
+            console.log(`occCountForListTaxon(${taxon.key}): facet map unavailable, querying this taxon directly`);
+        }
+    }
+    return fetchOccSimpleCountByKey(taxon.key, fileConfig);
+}
+
+/*
+    The per-taxon path: one call per row, each costing a species lookup, a nubKey
     resolution and one occurrence query per root predicate - about 300 requests for a 100-row page.
     Cached per taxon per atlas, a return visit within the day costs none of them. See gbifCache.js
     for the daily expiry and the reload-means-refresh rule.

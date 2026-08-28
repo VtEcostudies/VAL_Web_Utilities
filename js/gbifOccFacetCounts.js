@@ -6,25 +6,41 @@ is cleared when the page session ends. Whenever a document is loaded in a partic
 created and assigned to that particular tab.
 */
 import { gbifFetchJson } from "./gbifFetch.js";
+import { cacheThrough } from "./gbifCache.js";
 
 const gbifApi = "https://api.gbif.org/v1";
-const Storage = sessionStorage; //localStorage;
 
-//wrap retrieval of occ counts in this async function to return a promise, which elsewhere waits for data
+/*
+    Occurrence counts for every taxon at once, as {taxonKey:count}, cached for the day.
+
+    This is what got disabled in 2024-11 (VAL_Data_Explorers 5eb8ccc) with the note "must restrict
+    to accepted species & subspecies for now - it double-counts some sub-taxa for genus and above".
+    That restriction was narrow enough that per-taxon queries won instead, and the explorer has paid
+    ~300 requests a page ever since.
+
+    The double-count was never in the facet. It was in what we did with the facet. GBIF's taxonKey
+    facet is HIERARCHICAL: an occurrence is counted under every key in its lineage, so the same 1131
+    Vermont Amanita records appear under Fungi, Basidiomycota, Agaricomycetes, Agaricales,
+    Amanitaceae AND Amanita, each reading 1131. A parent's count already contains its children.
+    sumSubTaxonOccs then added the children on top - hence the doubling, and hence the rank
+    restriction that made it not worth using.
+
+    So there is nothing to sum. occCounts[nubKey] is the entire answer for any taxon GBIF recognises,
+    at any rank: verified equal to a direct per-taxon occurrence query for 26 of 26 taxa across
+    SPECIES, GENUS, FAMILY, ORDER and CLASS in four kingdoms. Only a taxon GBIF cannot match at all
+    still needs a per-taxon query, and getNubKey now resolves nearly all of those.
+
+    Cost: one request per root-predicate query for a whole page (~3, about 0.5MB of counts) against
+    roughly 300 for a 100-row page done per taxon. See occCountForListTaxon in gbifOccSimpleCounts.js.
+*/
 export async function getStoredOccCnts(fileConfig, searchTerm='') {
-    let sOccCnts; let storeName = `occCnts-${fileConfig.dataConfig.atlasAbbrev}`;
-    if (searchTerm) {storeName += `-${searchTerm}`;}
-    if (Storage.getItem(storeName)) {
-        sOccCnts = JSON.parse(Storage.getItem(storeName));
-        console.log(`Storage.getItem(${storeName}) returned`, sOccCnts);
-    } else {
-        sOccCnts = getAggOccCounts(fileConfig, searchTerm); //returns a promise. handle that downstream with occs.then(occs => {}).
-        console.log(`getAggOccCounts returned`, sOccCnts); //this returns 'Promise { <state>: "pending" }'
-        sOccCnts.then(occCnts => { //convert promise to data object...
-            Storage.setItem(storeName, JSON.stringify(occCnts));
-        });
-    }
-    return sOccCnts; //return a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
+    let storeName = `occCnts.${fileConfig.dataConfig.atlasAbbrev}`;
+    if (searchTerm) {storeName += `.${searchTerm}`;}
+    return cacheThrough(
+        storeName,
+        () => getAggOccCounts(fileConfig, searchTerm),
+        res => res && Number.isFinite(res.total) //never cache a map built from refused requests
+    );
 }
 
 /*
