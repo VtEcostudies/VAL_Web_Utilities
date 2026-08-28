@@ -1,6 +1,6 @@
 import { getListSubTaxonKeys, getNubKey, getStoredOccCnts } from "../../VAL_Web_Utilities/js/gbifOccFacetCounts.js";
-import { gbifFetchJson } from "./gbifFetch.js";
 import { cacheThrough } from "./gbifCache.js";
+import { occQuery } from "./gbifOccQuery.js";
 import { getGbifTaxonKeyFromName, getGbifTaxonFromKey, getParentRank } from "../../VAL_Web_Utilities/js/fetchGbifSpecies.js";
 const gbifApi = "https://api.gbif.org/v1";
 
@@ -81,55 +81,13 @@ async function fetchOccSimpleCountByKeyFromGbif(taxonKey, fileConfig) {
         res = await predicateFetchOccSimpleCount(fileConfig.dataConfig.rootPredicate, subs.keys);
     }
 */
-    let res = await multiFetchOccSimpleCount(srch, fileConfig);
+    const agg = await occQuery(fileConfig, {search: srch}); //no facet: we only want the total
+    const res = {total: agg.total, arrQry: agg.queries, missed: agg.missed};
     res.nubKey = nub;
     res.keys = subs.keys;//.push(self.nubKey); //add self nubKey to array of keys for species-list key
     res.names = subs.names;
     res.search = srch; //return our enhanced searchTerm for caller to use
     return res;
-}
-
-async function multiFetchOccSimpleCount(searchTerm, fileConfig) {
-    let arrQry = []; //declared out here on purpose: a let inside the try is not in scope in the catch below
-    try {
-        let xClud = searchTerm ? (searchTerm.includes('taxonKey')  ? 'taxonKey' : false) : false;
-        xClud += searchTerm ? (searchTerm.includes('scientificName')  ? 'scientificName' : false) : false;
-        let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClud);
-        let occTot = 0;
-        let missed = 0;
-        for (var i=0; i<qrys.length; i++) { //necessary: wait for a synchronous loop
-            let qry = qrys[i];
-            qry += searchTerm ? `&${searchTerm}` : '';
-            let res = await fetchOccSimpleCount(qry);
-            arrQry.push(res.query);
-            //A missing count must never reach the sum. `occTot += undefined` is what put NaN in the species list.
-            if (Number.isFinite(res.count)) {occTot += res.count;} else {missed++;}
-            console.log(`gbifOccSimpleCounts=>multiFetchOccSimpleCount searchTerm=${searchTerm} RESULT`, res);
-        }
-        //A partial sum is a wrong number wearing the clothes of a right one. Say unavailable instead.
-        return {total: missed ? null : occTot, arrQry:arrQry, missed:missed};
-    } catch (err) {
-        console.error(`gbifOccSimpleCounts=>multiFetchOccSimpleCount ERROR`, err);
-        //throw err;
-        return {total: null, arrQry:arrQry, missed:-1}
-    }
-}
-async function fetchOccSimpleCount(filter) {
-    let reqHost = gbifApi;
-    let reqRoute = "/occurrence/search";
-    let reqFilter = `?limit=0&${filter}`;
-    let url = reqHost+reqRoute+reqFilter;
-    let enc = encodeURI(url);
-
-    try {
-        //gbifFetchJson queues behind a concurrency limit and retries 429s, and throws rather than
-        //handing back a rate-limit body. So json.count here is real, or we are in the catch.
-        let json = await gbifFetchJson(enc);
-        return {count:Number(json.count), query:enc};
-    } catch (err) {
-        console.error('gbifOccSimpleCounts=>fetchOccSimpleCount ERROR', err);
-        return {count:null, query:enc}; //null, NOT 0 - a refused request must never read as "no occurrences"
-    }
 }
 
 //fetch a simple count of occurrences without results or facet results

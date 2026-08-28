@@ -5,8 +5,7 @@ sessionStorage is similar to localStorage; the difference is that while data in 
 is cleared when the page session ends. Whenever a document is loaded in a particular tab in the browser, a unique page session gets 
 created and assigned to that particular tab.
 */
-import { gbifFetchJson } from "./gbifFetch.js";
-import { cacheThrough } from "./gbifCache.js";
+import { occQuery } from "./gbifOccQuery.js";
 
 const gbifApi = "https://api.gbif.org/v1";
 
@@ -34,13 +33,7 @@ const gbifApi = "https://api.gbif.org/v1";
     roughly 300 for a 100-row page done per taxon. See occCountForListTaxon in gbifOccSimpleCounts.js.
 */
 export async function getStoredOccCnts(fileConfig, searchTerm='') {
-    let storeName = `occCnts.${fileConfig.dataConfig.atlasAbbrev}`;
-    if (searchTerm) {storeName += `.${searchTerm}`;}
-    return cacheThrough(
-        storeName,
-        () => getAggOccCounts(fileConfig, searchTerm),
-        res => res && Number.isFinite(res.total) //never cache a map built from refused requests
-    );
+    return getAggOccCounts(fileConfig, searchTerm, 'taxonKey');
 }
 
 /*
@@ -240,72 +233,13 @@ export async function sumSubTaxonOccs(fileConfig, occCounts, higherTaxonKey, nub
     must remove those taxonNames or Keys when searching for specific taxa because the http API converts
     duplicate AND params to ORs.
 */
-export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey', facetArgs='&facetLimit=1199999') {
-    try {
-        let xClud = searchTerm ? (searchTerm.includes('taxonKey')  ? 'taxonKey' : false) : false;
-        xClud += searchTerm ? (searchTerm.includes('scientificName')  ? 'scientificName' : false) : false;
-        let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClud);
-        let objOcc = {};
-        let occTot = 0;
-        let missed = 0;
-        let arrQry = [];
-        for (var i=0; i<qrys.length; i++) { //necessary: wait for a synchronous loop
-            let qry = qrys[i];
-            qry += searchTerm ? `&${searchTerm}` : '';
-            let aoc = await getAggOccCount(fileConfig.dataConfig, qry, facet, facetArgs);
-            //getAggOccCount returns an Error object on failure, whose .total is undefined.
-            //`occTot += undefined` is NaN, and NaN is what reached the stats panel.
-            if (Number.isFinite(aoc.total)) {occTot += aoc.total;} else {missed++; console.log('getAggOccCounts: no total for', qry);}
-            arrQry.push(aoc.query);
-            for await (const [key,val] of Object.entries(aoc.obj)) {
-                if (objOcc[key]) {objOcc[key] += Number(val);}
-                else {objOcc[key] = Number(val);}
-            }
-            console.log(`getAggOccCounts searchTerm=${searchTerm} facet=${facet} RESULT`, objOcc);
-        }
-        //A partial sum is a wrong number wearing the clothes of a right one. Say unavailable instead.
-        return {total: missed ? null : occTot, objOcc:objOcc, arrQry:arrQry, missed:missed};
-    } catch (err) {
-        console.log(`getAggOccCounts ERROR`, err);
-        return Promise.reject(err);
-    }
-}
-/*
-    Get occurrence-counts aggregated by facet (taxonKey, mediaType, etc.) for a filter query.
-    Return an object like {taxonKey:count, taxonKey:count, ...}
-    https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&limit=0&taxonKey=5&facet=taxonKey&facetLimit=100000
-    https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&limit=0&taxonKey=5&facet=taxonKey&facetLimit=100000
-    IMPORTANT NOTE: It appears that this approach returns occurrence counts for nubKeys. Everywhere that uses these must do the same.
-*/
-export async function getAggOccCount(dataConfig, filter=dataConfig.occurrenceFilter, facet='taxonKey', facetArgs='&facetLimit=1199999') {
-    let reqHost = gbifApi;
-    let reqRoute = "/occurrence/search";
-    let reqFilter = `?limit=0&${filter}`;
-    //let reqFacet = facets.map(facet => `&facet=${facet}`); reqFacet += facetArgs;
-    let reqFacet = `&facet=${facet}&${facetArgs}`; //wow, OK, taking `${['facetName']}` strips string from array. totally unexpected bug-fix.
-    let url = reqHost+reqRoute+reqFilter+reqFacet;
-    let enc = encodeURI(url);
-
-    try {
-        //gbifFetchJson queues behind the shared limiter and retries GBIF's 429s. Reading a
-        //rate-limit body as data is what turned these totals into NaN.
-        let json = await gbifFetchJson(enc);
-        //console.log(`getAggOccCount(${filter}) QUERY:`, enc);
-        //console.log(`getAggOccCount(${filter}) RESULT:`, json);
-        let fCount = (json.facets && json.facets[0]) ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
-        let aCount = [];
-        let oCount = {};
-        for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
-            oCount[fCount[i].name]=Number(fCount[i].count);
-            aCount[i] = {'taxonKey':fCount[i].name, 'occurrences':Number(fCount[i].count)};
-        }
-        let retObj =  {'obj':oCount, 'arr':aCount, 'total':Number(json.count), 'query':enc};
-        return retObj;
-    } catch (err) {
-        err.query = enc;
-        console.log(`getAggOccCount(${filter}) ERROR:`, err);
-        return new Error(err)
-    }
+export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey', facetArgs='facetLimit=1199999') {
+    const res = await occQuery(fileConfig, {
+        search: searchTerm ? searchTerm : '',   //callers pass '' and false alike
+        facet: facet,                           //'taxonKey' or ['taxonKey'] - both are in use
+        facetArgs: facetArgs
+    });
+    return {total:res.total, objOcc:res.counts, arrQry:res.queries, missed:res.missed};
 }
 
 /*
@@ -315,77 +249,19 @@ export async function getAggOccCount(dataConfig, filter=dataConfig.occurrenceFil
     https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&hasCoordinate=false&limit=0&taxonKey=5&facet=mediaType&facetLimit=100000
     IMPORTANT NOTE: It appears that this approach returns occurrence counts for nubKeys. Everywhere that uses these must do the same.
 */
-export async function getAggImgCount(dataConfig, filter = dataConfig.occurrenceFilter) {
-    let reqHost = gbifApi;
-    let reqRoute = "/occurrence/search";
-    let reqFilter = `?limit=0&${filter}`;
-    let reqFacet = `&facet=mediaType&facetLimit=1199999`;
-    let url = reqHost+reqRoute+reqFilter+reqFacet;
-    let enc = encodeURI(url);
-
-    try {
-        //gbifFetchJson queues behind the shared limiter and retries GBIF's 429s. Reading a
-        //rate-limit body as data is what turned these totals into NaN.
-        let json = await gbifFetchJson(enc);
-        //console.log(`getAggImgCount(${filter}) QUERY:`, enc);
-        console.log(`getAggImgCount(${filter}) RESULT:`, json);
-        let fCount = (json.facets && json.facets[0]) ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
-        let oCount = {};
-        for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
-            oCount[fCount[i].name]=Number(fCount[i].count);
-        }
-        oCount.query = enc;
-        return oCount;
-    } catch (err) {
-        err.query = enc;
-        console.log(`getAggImgCount(${filter}) ERROR:`, err);
-        return new Error(err)
-    }
+export async function getAggImgCount(fileConfig, filter=false) {
+    const res = await occQuery(fileConfig, {facet:'mediaType', scope: filter ? [filter] : null});
+    const counts = Object.assign({}, res.counts);
+    counts.query = res.queries[0]; //kept: callers read .query off the returned object
+    return counts;
 }
 
 /*
-Get an image count from the occurrence API by taxonKey and occurrenceFilter
-https://api.gbif.org/v1/occurrence/search?gadm_gid=USA.46_1&taxonKey=1&limit=0&facet=mediaType
-results are like
-{
-    offset: 0,
-    limit: 0,
-    endOfRecords: false,
-    count: 217526.
-    results: [],
-    facets [
-    field: "MEDIA_TYPE",
-    counts [
-        counts[0].name:"StillImage"
-        counts[0].count:2837
-        counts[1].name:"Sound"
-        counts[1].count:149
-        counts[2].name:"MovingImage"
-        counts[2].count:149
-    ]
-    ]
-}
+    Image count for one taxon. Was returning facets[0].counts[0] - "whichever bucket GBIF happened
+    to sort first" - which is StillImage only because it is usually the commonest. Now says so.
+    No callers in this workspace at the time of writing.
 */
-export async function getImgCount(dataConfig, key) {
-    let reqHost = gbifApi;
-    let reqRoute = "/occurrence/search";
-    let reqFilter = `?advanced=1&limit=0&${dataConfig.occurrenceFilter}&taxon_key=${key}`
-    let reqFacet = `&facet=mediaType`;
-    let reqLimit = `&limit=0`;
-    let url = reqHost+reqRoute+reqFilter+reqLimit+reqFacet;
-    let enc = encodeURI(url);
-
-    try {
-        let res = await fetch(enc);
-        let json = await res.json();
-        console.log(`getImgCount(${key}) QUERY:`, enc);
-        console.log(`getImgCount(${key}) RESULT:`, json);
-        let jret = json.facets[0].counts[0];
-        jret = typeof jret === 'object' ? jret : {count:0};
-        return jret;
-    } catch (err) {
-        err.query = enc;
-        console.log(`getImgCount(${key}) ERROR:`, err);
-        return new Error(err)
-    }
+export async function getImgCount(fileConfig, key) {
+    const res = await occQuery(fileConfig, {search:`taxon_key=${key}`, facet:'mediaType'});
+    return {name:'StillImage', count: res.counts.StillImage ? res.counts.StillImage : 0};
 }
