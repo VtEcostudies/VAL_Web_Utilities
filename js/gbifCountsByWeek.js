@@ -1,4 +1,6 @@
-import { getListSubTaxonKeysByFilter } from "./gbifOccFacetCounts.js";
+import { getListSubTaxonKeysByFilter, getNubKey } from "./gbifOccFacetCounts.js";
+import { gbifFetchJson } from "./gbifFetch.js";
+import { cacheThrough } from "./gbifCache.js";
 import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies.js";
 import './extendDate.js'; //import getWeek() and toUtc()
 const facetQuery = '&facet=eventDate&facetLimit=1200000&limit=0';
@@ -33,21 +35,20 @@ https://api.gbif.org/v1/occurrence/search?gadmGid=USA.46_1&scientificName=Danaus
 https://api.gbif.org/v1/occurrence/search?stateProvince=vermont&stateProvince=vermont (State)&hasCoordinate=false&scientificName=Danaus%20plexippus&facet=eventDate&facetLimit=1200000&limit=0
 */
 //wrap retrieval of phenology in this async function to return a promise, which elsewhere waits for data
+/*
+    Was sessionStorage with no expiry, which meant it could never go stale within a tab and was
+    always cold in a new one - no amount of waiting refreshed it and no amount of returning reused
+    it. gbifCache gives it both: kept across visits, refetched daily or on reload.
+    A phenology with no total is a failed fetch; do not store it.
+*/
 export async function getStoredPhenology(searchTerm, geoSearch) {
     let storeName = searchTerm;
     if (geoSearch) {storeName = storeName + JSON.stringify(geoSearch);}
-    console.log(`gbifCountsByWeek.js=>getStoredPhenology=>storeName: ${storeName} | searchTerm: ${searchTerm} | geoSearch: ${geoSearch}`);
-    let phenology = Storage ? Storage.getItem(storeName) : false;
-    if (phenology && '{}' != phenology) {
-        phenology = JSON.parse(Storage.getItem(storeName));
-        console.log(`gbifCountsByWeek.js=>getStoredPhenology=>Storage.getItem(${storeName}) returned`, phenology);
-        return phenology;//returning a JSON data object from async function wraps the object in a promise. the caller should await or .then() it.
-    } else {
-        phenology = await fetchAll(searchTerm, geoSearch);
-        if (Storage) {Storage.setItem(storeName, JSON.stringify(phenology));}
-        console.log(`gbifCountsByWeek.js=>getStoredPhenology=>fetchAll(${searchTerm}) returned`, phenology);
-        return phenology;
-    }
+    return cacheThrough(
+        `phenology.${storeName}`,
+        () => fetchAll(searchTerm, geoSearch),
+        pheno => pheno && Number.isFinite(pheno.total)
+    );
 }
 export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
     let speciesFilter = fileConfig.dataConfig.speciesFilter;
@@ -57,7 +58,8 @@ export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
 }
 export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
     let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
-    let srch = `taxonKey=${self.nubKey ? self.nubKey : taxonKey}`;
+    let nub = await getNubKey(self); //WORKAROUND: self.nubKey is null for most kingdoms since the COL XR republication. See gbifOccFacetCounts.js.
+    let srch = `taxonKey=${nub ? nub : taxonKey}`;
     let subs = {keys:[], names:[]};
     if (drillRanks.includes(self.rank)) { //only drill-down lower ranks
         subs = await getListSubTaxonKeysByFilter(speciesFilter, taxonKey); //get sub-nubKeys of species-list key
@@ -65,12 +67,12 @@ export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter
             srch += `&taxonKey=${key}`; //add sub-nubKeys to searchTerm to be used by fetchAll
         }
     }
-    console.log(`gbifCountsByWeekByListKeyByFilters(${taxonKey}) | self-nubKey:`, self.nubKey, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
+    console.log(`gbifCountsByWeekByListKeyByFilters(${taxonKey}) | self-nubKey:`, nub, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
     
     //let res = await fetchAll(srch, geoSearchA);
     let res = await getStoredPhenology(srch, geoSearchA);
-    res.nubKey = self.nubKey;
-    res.keys = subs.keys.push(self.nubKey); //add self nubKey to array of keys for species-list key
+    res.nubKey = nub;
+    res.keys = subs.keys.push(nub); //add self nubKey to array of keys for species-list key
     res.names = subs.names;
     res.search = srch; //return our enhanced searchTerm for caller to use
     return res;
@@ -100,22 +102,15 @@ async function fetchAll(searchTerm, geoSearch) {
         uris.push(uri);
     }
     console.log(`gbifCountsByWeek=>fetchAll | URIs`, uris);
-    let all = Promise.all(uris.map(uri => fetch(uri)))
-        .then(responses => {
-            //console.log(`gbifCountsByWeek=>fetchAll(${searchTerm}) RAW RESULT:`, responses);
-            //Convert each response to json object
-            return Promise.all(responses.map(async res => {
-                let json = await res.json();
-                if (verbose) {console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) JSON RESULT FOR URL:`, res.url, json);}
-                return json;
-            }));
-        })
+    //gbifFetchJson queues behind the shared limiter and retries GBIF's 429s, handing back parsed
+    //JSON only for a genuinely OK response. Reading a rate-limit body as data is what produced NaN.
+    let all = Promise.all(uris.map(uri => gbifFetchJson(uri)))
         .then(arrj => {
             //console.log(`gbifCountsByWeek::fetchAll(${searchTerm}) ALL JSON RESULT:`, arrj);
             let total = 0, dSum = {}, wSum = {}, mSum = {}, dMin = 366, dMax = 0;
             arrj.forEach(json => {
                 //console.log('json', json);
-                if (json.facets[0]) {
+                if (json.facets && json.facets[0]) {
                     json.facets[0].counts.map(count => {
                         //total += count.count; //only add counts for returned facets
                         //To-do: handle date ranges for phenology properly here.

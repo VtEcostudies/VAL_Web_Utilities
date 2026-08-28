@@ -5,6 +5,8 @@ sessionStorage is similar to localStorage; the difference is that while data in 
 is cleared when the page session ends. Whenever a document is loaded in a particular tab in the browser, a unique page session gets 
 created and assigned to that particular tab.
 */
+import { gbifFetchJson } from "./gbifFetch.js";
+
 const gbifApi = "https://api.gbif.org/v1";
 const Storage = sessionStorage; //localStorage;
 
@@ -41,6 +43,58 @@ export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
     let speciesFilter = fileConfig.dataConfig.speciesFilter;
     return getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey);
 }
+/*
+    ---------------------------------------------------------------------------
+    GBIF nubKey workaround. DELETE THIS BLOCK, and its one call in
+    getListSubTaxonKeysByFilter below, when GBIF populates nubKey again.
+
+    Since vt_species was republished from COL XR on 2026-08-26, GBIF indexes our
+    checklist usages with issues:["BACKBONE_MATCH_NONE"] and no nubKey, while
+    GBIF's own matcher resolves the very same names EXACT at confidence 97-100.
+    It hits Fungi/Plantae/Protozoa/Chromista in dataset 0b1735ff-6a66-454b-8686-cae1cbc732a2.
+    No nubKeys means nothing to facet on, which means every occurrence count is zero.
+
+    To check whether this is still needed - if these results carry nubKeys, delete all of it:
+    https://api.gbif.org/v1/species/search?datasetKey=0b1735ff-6a66-454b-8686-cae1cbc732a2&q=Amanita&limit=3
+
+    See VAL_Taxonomy_Manager/docs/GBIF_NUBKEY_WORKAROUND.md.
+    ---------------------------------------------------------------------------
+*/
+const nubKeyByListKey = new Map(); //memo of species-list usage key => backbone key (or null). Lives for the page session.
+
+/*
+    The backbone key for a species-list usage: whatever GBIF indexed, or - since it stopped
+    indexing them - whatever GBIF's own matcher says. Callers that resolve a FOCAL taxon
+    (gbifOccSimpleCounts, gbifCountsByWeek/Year/Date/Month) must use this instead of reading
+    res.nubKey directly, or their counts are zero for every unmatched kingdom.
+    When GBIF is fixed, this collapses back to `res.nubKey` and can be deleted with the rest.
+*/
+export async function getNubKey(res) {
+    return res.nubKey ? res.nubKey : await matchNubKey(res);
+}
+
+async function matchNubKey(res) {
+    if (nubKeyByListKey.has(res.key)) {return nubKeyByListKey.get(res.key);}
+    let nub = null;
+    try {
+        let prm = new URLSearchParams({'name': res.scientificName ? res.scientificName : res.canonicalName});
+        if (res.rank) {prm.set('rank', res.rank);}
+        if (res.kingdom) {prm.set('kingdom', res.kingdom);} //a COL-only kingdom name only lowers confidence, it does not break the match
+        let mch = await (await fetch(`${gbifApi}/species/match?${prm}`)).json();
+        /*
+            Two matches we MUST refuse, both verified against the live api:
+            - usageKey 0 is 'incertae sedis'. It matches EXACT at confidence 98 but is not a backbone taxon.
+            - HIGHERRANK hands back the GENUS key for a species it could not match, so one unmatched
+              species would count the whole genus - and count it again for every unmatched sibling.
+        */
+        if (mch.usageKey && mch.matchType != 'NONE' && mch.matchType != 'HIGHERRANK') {nub = mch.usageKey;}
+        console.log(`gbifOccFacetCounts=>matchNubKey(${res.key})`, res.scientificName, '| matchType:', mch.matchType, '| confidence:', mch.confidence, '=> nubKey:', nub);
+        nubKeyByListKey.set(res.key, nub); //only memoize an answer GBIF actually gave us, never a failed request
+    } catch (err) {
+        console.log(`gbifOccFacetCounts=>matchNubKey(${res.key}) ERROR:`, res.scientificName, err);
+    }
+    return nub;
+}
 /* 
     Again here as with elsewhere, if an Atlas speciesFilter is defined by higherTaxonKeys, then our search for 
     subKeys by a specific higherTaxonKey fails because duplicate http query params are treated as ORs.
@@ -66,13 +120,20 @@ export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey)
         //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) RESULT:`, json);
         let nubs = [];
         let name = [];
-        for (const idx in json.results) { //returns array indexes of array of objects
-            //console.log(`element of array:`, idx);
-            if (json.results[idx].nubKey) {
-                nubs.push(json.results[idx].nubKey);
-                name.push(json.results[idx].canonicalName);
+        let rslt = json.results ? json.results : [];
+        /*
+            WORKAROUND: fall back to GBIF's own matcher for any usage GBIF indexed without a nubKey.
+            Resolved in parallel because this function passes no limit, so json.results is GBIF's
+            default page of 20 - at most ~20 extra requests, dispatched at once rather than in series.
+            Delete matchNubKey (not the loop) when GBIF populates nubKey again.
+        */
+        let bone = await Promise.all(rslt.map(res => getNubKey(res)));
+        rslt.forEach((res, idx) => {
+            if (bone[idx]) {
+                nubs.push(bone[idx]);
+                name.push(res.canonicalName);
             }
-        }
+        });
         console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs, name);
         return {'keys':nubs, 'names':name, 'query':enc};
     } catch (err) {
@@ -170,12 +231,15 @@ export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey
         let qrys = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, xClud);
         let objOcc = {};
         let occTot = 0;
+        let missed = 0;
         let arrQry = [];
         for (var i=0; i<qrys.length; i++) { //necessary: wait for a synchronous loop
             let qry = qrys[i];
             qry += searchTerm ? `&${searchTerm}` : '';
             let aoc = await getAggOccCount(fileConfig.dataConfig, qry, facet, facetArgs);
-            occTot += aoc.total;
+            //getAggOccCount returns an Error object on failure, whose .total is undefined.
+            //`occTot += undefined` is NaN, and NaN is what reached the stats panel.
+            if (Number.isFinite(aoc.total)) {occTot += aoc.total;} else {missed++; console.log('getAggOccCounts: no total for', qry);}
             arrQry.push(aoc.query);
             for await (const [key,val] of Object.entries(aoc.obj)) {
                 if (objOcc[key]) {objOcc[key] += Number(val);}
@@ -183,7 +247,8 @@ export async function getAggOccCounts(fileConfig, searchTerm='', facet='taxonKey
             }
             console.log(`getAggOccCounts searchTerm=${searchTerm} facet=${facet} RESULT`, objOcc);
         }
-        return {total:occTot, objOcc:objOcc, arrQry:arrQry};
+        //A partial sum is a wrong number wearing the clothes of a right one. Say unavailable instead.
+        return {total: missed ? null : occTot, objOcc:objOcc, arrQry:arrQry, missed:missed};
     } catch (err) {
         console.log(`getAggOccCounts ERROR`, err);
         return Promise.reject(err);
@@ -206,18 +271,19 @@ export async function getAggOccCount(dataConfig, filter=dataConfig.occurrenceFil
     let enc = encodeURI(url);
 
     try {
-        let res = await fetch(enc);
-        let json = await res.json();
+        //gbifFetchJson queues behind the shared limiter and retries GBIF's 429s. Reading a
+        //rate-limit body as data is what turned these totals into NaN.
+        let json = await gbifFetchJson(enc);
         //console.log(`getAggOccCount(${filter}) QUERY:`, enc);
         //console.log(`getAggOccCount(${filter}) RESULT:`, json);
-        let fCount = json.facets[0] ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
+        let fCount = (json.facets && json.facets[0]) ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
         let aCount = [];
         let oCount = {};
         for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
             oCount[fCount[i].name]=Number(fCount[i].count);
             aCount[i] = {'taxonKey':fCount[i].name, 'occurrences':Number(fCount[i].count)};
         }
-        let retObj =  {'obj':oCount, 'arr':aCount, 'total':json.count, 'query':enc};
+        let retObj =  {'obj':oCount, 'arr':aCount, 'total':Number(json.count), 'query':enc};
         return retObj;
     } catch (err) {
         err.query = enc;
@@ -242,12 +308,12 @@ export async function getAggImgCount(dataConfig, filter = dataConfig.occurrenceF
     let enc = encodeURI(url);
 
     try {
-        let res = await fetch(enc);
-        console.log(`getAggImgCount(${filter}) RAW RESULT:`, res);
-        let json = await res.json();
+        //gbifFetchJson queues behind the shared limiter and retries GBIF's 429s. Reading a
+        //rate-limit body as data is what turned these totals into NaN.
+        let json = await gbifFetchJson(enc);
         //console.log(`getAggImgCount(${filter}) QUERY:`, enc);
         console.log(`getAggImgCount(${filter}) RESULT:`, json);
-        let fCount = json.facets[0].counts; //array of occurrence-counts by taxonKey
+        let fCount = (json.facets && json.facets[0]) ? json.facets[0].counts : []; //array of occurrence-counts by taxonKey
         let oCount = {};
         for (var i=0; i<fCount.length; i++) { //put array into object like {taxonKey:count, taxonKey:count, ...}
             oCount[fCount[i].name]=Number(fCount[i].count);
