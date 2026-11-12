@@ -1455,6 +1455,97 @@ vtBryophytes: { //Checklist of Vermont Bryophytes
     ]
   }
 },
+vtVascularPlants: { //Checklist of Vermont Vascular Plants
+  atlasPlace: 'Vermont Vascular Plants',
+  atlasName: 'VT Vascular Plants',
+  atlasAbbrev: 'VVP', //very short abbreviation for eg. stats above phenology charts
+  atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpWidgetId: 62000000631,
+  backgroundImageUrl: {},
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: 'inaturalist-vermont',
+  inatPlaceId: 47, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA.46_1', //leave blank if N/A
+  speciesDatasetKey: 'aec49038-a557-4ba3-9142-6670c5fd2af3',
+  speciesFilter: 'datasetKey=aec49038-a557-4ba3-9142-6670c5fd2af3',
+  publishingOrgKey: false,
+  literatureFilters: [],
+  occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns,
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 43.858297,
+    lng: -72.446594,
+    zoom: 7.75
+  },
+  rootRank: 'CLASS', //the starting view in the species explorer
+  rootPredicate: { //constrains views of occurrences in GBIF data widget
+    type: 'or', //currently the only supported type
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "gadmGid",
+            "value": "USA.46_1"
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7707728" //Phylum~tracheophytes
+            ]
+          }
+        ]
+      },
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "Vermont",
+              "vermont",
+              "Vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "7707728" //Phylum~tracheophytes
+            ]
+          }
+        ]
+      }
+    ]
+  }
+},
 cSWGBees: { //Checklist of cSWG SGCN Bees
   atlasPlace: 'cSWG SGCN Bees',
   atlasName: 'cSWG Bees',
