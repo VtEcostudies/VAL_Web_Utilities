@@ -28,7 +28,7 @@ if (parentUrl) {
 
 /*
   Deal with setting siteName in one place. The order of precedence:
-    siteConfig.js=>siteConfig.siteName (file stored at project level)
+    siteConfig.js=>siteConfig.siteName (file storc8274cca-b3db-4a5f-88ff-c0e184bc681eed at project level)
     localStorage value 'siteName' (passed here as 'storSite')
     meta URL param ('siteName' passed file->file using file query param)
     http URL param ('siteName' passed document's http URL query param)
@@ -56,7 +56,7 @@ const gbifApi = "https://api.gbif.org/v1";
 const hostUrl = thisUrl.host;
 const urlPath = thisUrl.pathname;
 var urlRouts = urlPath.split('/'); //path contains route and file without host
-console.log('gbifDataConfig=>urlRouts', urlRouts);
+console.log('gbifDataConfig=>urlRouts', urlRouts)
 //WordPress use routes to pages, defined by the user. See eg. page-species-explorer-2022.php. etc.
 var baseRoute = '/'; //Default. VAL WordPress has no baseRoute beyond host. Endpoints are routes mapped to pages within WordPress.
 var homeEnd = '';
@@ -130,25 +130,22 @@ const columNames = {
   'species':'Species',
   'grank':'Global Rank',
   'srank':'State Rank',
+  'slist':'State List',
+  'flist':'Federal List',
   'sgcn':'SGCN',
   'iucn':'IUCN'
 };
 const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
 const ranksPage = 'https://help.natureserve.org/biotics/content/record_management/Element_Files/Element_Tracking/ETRACK_Definitions_of_Heritage_Conservation_Status_Ranks.htm';
+const helpDeskUrl = 'https://val.vtecostudies.org/help/';
 const config = {
   val: { //Vermont Atlas of Life
     atlasPlace: 'Vermont',
     atlasName: 'Vermont Atlas of Life',
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpDeskUrl: helpDeskUrl,
     helpWidgetId: 62000000631,
-    backgroundImageUrl: { //This idea was a failure. This web design is done within WP by Dadra.
-      small: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-small.jpg',
-      medium: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-medium.jpg',
-      large: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg',
-      default: 'https://val.vtecostudies.org/wp-content/themes/val/images/vermont-panorama-large.jpg'
-      },
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -250,7 +247,6 @@ const config = {
     atlasAdmin: 'MA', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -332,7 +328,6 @@ const config = {
     atlasAdmin: 'IL', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -382,7 +377,6 @@ const config = {
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -433,7 +427,6 @@ const config = {
     atlasAdmin: false, //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -506,9 +499,8 @@ const config = {
     atlasName: 'VT Checklist of Butterflies',
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpDeskUrl: helpDeskUrl,
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -604,9 +596,8 @@ const config = {
     atlasName: 'VT Checklist of Mammals',
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpDeskUrl: helpDeskUrl,
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -697,9 +688,8 @@ const config = {
     atlasName: 'VT Fungi',
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpDeskUrl: helpDeskUrl,
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -803,9 +793,8 @@ const config = {
     atlasName: 'VT Bees',
     atlasAbbrev: 'VAL',
     atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-    helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+    helpDeskUrl: helpDeskUrl,
     helpWidgetId: 62000000631,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -908,7 +897,6 @@ const config = {
     atlasAdmin: 'US', //the administrative governing region that sets regional species listing
     helpDeskUrl: false,
     helpWidgetId: false,
-    backgroundImageUrl: {},
     thisUrl: thisUrl,
     hostUrl: hostUrl,
     homeUrl: homeUrl,
@@ -1001,9 +989,8 @@ vtLadyBeetles: { //Checklist of Vermont Lady Beetles
   atlasName: 'VT Lady Beetles',
   atlasAbbrev: 'VAL',
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1092,9 +1079,8 @@ vtPlants: {
   atlasName: 'VT Plants',
   atlasAbbrev: 'VAL',
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1183,9 +1169,8 @@ vtOrthoptera: { //Checklist of Vermont Orthoptera
   atlasName: 'VT Orthoptera',
   atlasAbbrev: 'VAL', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1274,9 +1259,8 @@ vtOdonata: { //Checklist of Vermont Odonata
   atlasName: 'VT Odonata',
   atlasAbbrev: 'VAL', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1365,9 +1349,8 @@ vtBryophytes: { //Checklist of Vermont Bryophytes
   atlasName: 'VT Broyophytes',
   atlasAbbrev: 'VAL', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1460,9 +1443,8 @@ vtVascularPlants: { //Checklist of Vermont Vascular Plants
   atlasName: 'VT Vascular Plants',
   atlasAbbrev: 'VVP', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1551,9 +1533,8 @@ vtBirds: { //Checklist of Vermont Birds
   atlasName: 'VT Birds',
   atlasAbbrev: 'VB', //very short abbreviation for eg. stats above phenology charts
   atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
-  helpDeskUrl: 'https://vtatlasoflife.freshdesk.com/support/tickets/new',
+  helpDeskUrl: helpDeskUrl,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1644,7 +1625,6 @@ cSWGBees: { //Checklist of cSWG SGCN Bees
   atlasAdmin: ['CA','WA','TX','VT'], //the administrative governing region(s) that set regional species listing
   helpDeskUrl: false,
   helpWidgetId: 62000000631,
-  backgroundImageUrl: {},
   thisUrl: thisUrl,
   hostUrl: hostUrl,
   homeUrl: homeUrl,
@@ -1764,7 +1744,7 @@ export let hostConfig = {
 }
 //configuration overrides for embedded species-list
 export let mbedConfig = {
-  columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','iucn'],
+  columns: ['family', 'canonicalName','vernacularName','grank','srank','sgcn','slist','flist'],
   rootRank: ['SPECIES'],
   taxonomicStatus: ['ACCEPTED'],
   limit: 500,
