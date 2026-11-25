@@ -23,11 +23,18 @@
     daily or vanish on reload. A reload that forgot the visitor's chosen atlas would be a bug, not
     a refresh.
 */
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;         //2: drill-down results changed meaning (2026-11), and counts cached by the old drill-down could be wrong
 const TTL_HOURS = 24;             //"daily" - a visitor returning tomorrow refetches, today does not
 const NAMESPACE = 'valCache.';
 const KEY_PREFIX = `${NAMESPACE}${CACHE_VERSION}.`;
 const TTL_MS = TTL_HOURS * 60 * 60 * 1000;
+/*
+    The largest entry worth keeping. localStorage holds ~5M characters for the whole origin, and a
+    failed write prunes half the cache to make room - so one oversized entry (the Aves eventDate facet
+    is ~3.2M characters) would evict everything else, the explorers' taxon count map (~0.6M) included,
+    and then still not fit. Anything bigger than this is fetched fresh each time instead.
+*/
+const MAX_ENTRY_CHARS = 1500000;
 
 //localStorage throws outright in some private windows and when site data is blocked. Degrade to
 //memory rather than letting a cache failure take the page down with it.
@@ -80,6 +87,10 @@ export function cacheGet(name) {
 
 export function cacheSet(name, data) {
     const rec = JSON.stringify({t: Date.now(), d: data});
+    if (rec.length > MAX_ENTRY_CHARS) {
+        console.log(`gbifCache: not storing ${name.slice(0, 120)} - ${rec.length} characters exceeds ${MAX_ENTRY_CHARS}`);
+        return;
+    }
     try {
         store.setItem(KEY_PREFIX + name, rec);
     } catch (err) { //in practice always QuotaExceededError - localStorage is ~5MB

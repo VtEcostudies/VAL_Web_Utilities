@@ -7,6 +7,7 @@ created and assigned to that particular tab.
 */
 import { occQuery } from "./gbifOccQuery.js";
 import { gbifFetchJson } from "./gbifFetch.js";
+import { cacheThrough } from "./gbifCache.js";
 
 const gbifApi = "https://api.gbif.org/v1";
 
@@ -173,7 +174,21 @@ async function inBatches(items, fn, size=20) { //run fn over items 20 at a time,
     }
     return out;
 }
+/*
+    Cached for the day, per list filter and taxon. The species-page charts look up their cached queries by
+    URL, and the URL holds these keys - so without this, every visit re-walks the subtree (hundreds of
+    requests for Carex or Actinopterygii) just to find out which cached chart to read.
+    A walk that failed throws, and is never stored; one that hit DRILL_MAX_TAXA is stored, since it is
+    the right answer until the list changes.
+*/
 export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
+    return cacheThrough(
+        `drill.${speciesFilter}.${higherTaxonKey}`,
+        () => walkListSubTaxonKeys(speciesFilter, higherTaxonKey),
+        res => res && Array.isArray(res.keys)
+    );
+}
+async function walkListSubTaxonKeys(speciesFilter, higherTaxonKey) {
     const nubs = [];
     const name = [];
     let enc = '';
