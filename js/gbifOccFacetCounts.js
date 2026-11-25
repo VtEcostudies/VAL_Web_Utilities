@@ -104,45 +104,86 @@ async function matchNubKey(res) {
     }
     return nub;
 }
-/* 
-    Again here as with elsewhere, if an Atlas speciesFilter is defined by higherTaxonKeys, then our search for 
-    subKeys by a specific higherTaxonKey fails because duplicate http query params are treated as ORs.
-    Same as elsewhere, if speciesFilter contains higherTaxonKeys, we remove those and just find subKeys for
-    the search item itself, since it constrains the taxonomic scope.
+/*
+    Drill down one rank at a time, and only as far as GBIF's backbone needs.
+
+    Take the species-list taxon's direct children. Each child GBIF can match contributes its backbone
+    key, and that key's occurrence count is already hierarchical, so nothing below it is needed.
+    Only the children GBIF cannot match are drilled into, one more rank down, and so on.
+    At every taxon visited, its synonyms' backbone keys are added too: a name we list as a synonym is
+    often the name GBIF files the records under (Micropterus nigricans has 0 under its own name,
+    293 in Vermont under its synonym M. salmoides).
+
+    The old approach returned every descendant at every rank. For vtFishes Actinopterygii (no class
+    in GBIF's backbone) that was 219 taxonKeys in one occurrence query, which GBIF rejects. One rank
+    down it is 18 orders, all matched, with the same 14,340 Vermont occurrences.
+
+    Limitation: a child that matches the backbone is trusted. If our classification and GBIF's place it
+    differently (a homonym, say), its count is GBIF's for that key, and we do not look beneath it.
+
+    One species search returns the whole subtree. Accepted usages link to their parent by parentKey,
+    synonyms to their accepted name by acceptedKey (a synonym's parentKey is not reliable), and the
+    walk is done in memory.
+
+    If an Atlas speciesFilter is defined by higherTaxonKeys, those are removed from the search, because
+    duplicate http query params are treated as ORs. The search item itself constrains the taxonomic scope.
 */
 export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
+    const nubs = [];
+    const name = [];
+    const add = (nub, res) => {if (!nubs.includes(nub)) {nubs.push(nub); name.push(res.canonicalName);}}; //a synonym often resolves to a key we already hold
+    let enc = '';
     try {
-        let fixedFilter = speciesFilter.split('&').map(ele => {
-            console.log(`getListSubTaxonKeys=>speciesFilter element:`, ele, 'includes higherTaxonKey:', ele.includes('higherTaxonKey'));
-            return !ele.includes('higherTaxonKey') ? ele : null;
-            }).join('&');
-        console.log('gbifOccFacetCounts=>getListSubTaxonKeys | speciesFilter:', speciesFilter, 'fixedFilter',fixedFilter);
-        let reqHost = gbifApi;
-        let reqRoute = "/species/search";
-        let reqFilter = `?${fixedFilter}&higherTaxonKey=${higherTaxonKey}`;
-        let url = reqHost+reqRoute+reqFilter;
-        let enc = encodeURI(url);
-
-        let res = await fetch(enc);
-        let json = await res.json();
-        //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) QUERY:`, enc);
-        //console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey}) RESULT:`, json);
-        let nubs = [];
-        let name = [];
-        let rslt = json.results ? json.results : [];
+        let fixedFilter = speciesFilter.split('&').filter(ele => !ele.includes('higherTaxonKey')).join('&');
+        let rslt = [];
+        for (let offset = 0, end = false; !end; offset += 1000) {
+            enc = encodeURI(`${gbifApi}/species/search?${fixedFilter}&higherTaxonKey=${higherTaxonKey}&limit=1000&offset=${offset}`);
+            const json = await (await fetch(enc)).json();
+            rslt = rslt.concat(json.results ? json.results : []);
+            end = json.endOfRecords !== false;
+        }
+        const kidsOf = new Map(); //accepted usage key => its accepted children
+        const synsOf = new Map(); //accepted usage key => its synonyms
+        for (const res of rslt) {
+            const [map, key] = res.acceptedKey ? [synsOf, res.acceptedKey] : [kidsOf, res.parentKey];
+            if (!map.has(key)) {map.set(key, []);}
+            map.get(key).push(res);
+        }
         /*
             WORKAROUND: fall back to GBIF's own matcher for any usage GBIF indexed without a nubKey.
-            Resolved in parallel because this function passes no limit, so json.results is GBIF's
-            default page of 20 - at most ~20 extra requests, dispatched at once rather than in series.
+            Resolved 20 at a time so a large unmatched rank does not invite GBIF 429s.
             Delete matchNubKey (not the loop) when GBIF populates nubKey again.
         */
-        let bone = await Promise.all(rslt.map(res => getNubKey(res)));
-        rslt.forEach((res, idx) => {
-            if (bone[idx]) {
-                nubs.push(bone[idx]);
-                name.push(res.canonicalName);
+        const resolve = async (usages) => {
+            let bone = [];
+            for (let i = 0; i < usages.length; i += 20) {
+                bone.push(...await Promise.all(usages.slice(i, i + 20).map(res => getNubKey(res))));
             }
-        });
+            return bone;
+        };
+        const addSynonyms = async (key) => {
+            const syns = synsOf.get(key) || [];
+            const bone = await resolve(syns);
+            syns.forEach((res, idx) => {if (bone[idx]) {add(bone[idx], res);}});
+        };
+        let level = [higherTaxonKey];
+        while (level.length) {
+            const unmatched = [];
+            for (const key of level) {
+                await addSynonyms(key);
+                const kids = kidsOf.get(key) || [];
+                const bone = await resolve(kids);
+                for (const [idx, res] of kids.entries()) {
+                    if (bone[idx]) {
+                        add(bone[idx], res);
+                        await addSynonyms(res.key);
+                    } else {
+                        unmatched.push(res.key); //GBIF has no backbone taxon for this one: drill beneath it
+                    }
+                }
+            }
+            level = unmatched;
+        }
         console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs, name);
         return {'keys':nubs, 'names':name, 'query':enc};
     } catch (err) {

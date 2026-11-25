@@ -1645,7 +1645,7 @@ vtFishes: { //Checklist of Vermont Fishes
   occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
   columns: columns,
   columNames: columNames,
-  drillRanks: drillRanks,
+  drillRanks: ['CLASS', ...drillRanks], //GBIF backbone has no Actinopterygii, so its count must be summed from the checklist's own sub-taxa
   downloadOccurrenceCounts: 1,
   conservationStatusName: 'taxonSrank',
   mapSettings: {
