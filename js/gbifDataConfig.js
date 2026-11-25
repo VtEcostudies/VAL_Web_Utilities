@@ -135,7 +135,7 @@ const columNames = {
   'sgcn':'SGCN',
   'iucn':'IUCN'
 };
-const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that allow occurrence search drill-downs for non-GBIF backbone taxa
+const drillRanks = ['GENUS','SPECIES','SUBSPECIES','VARIETY','FORM']; //ranks that always drill down for occurrence counts. Any rank also drills when GBIF has no match or no records for it - see getDrillSubTaxonKeys in gbifOccFacetCounts.js
 const ranksPage = 'https://help.natureserve.org/biotics/content/record_management/Element_Files/Element_Tracking/ETRACK_Definitions_of_Heritage_Conservation_Status_Ranks.htm';
 const helpDeskUrl = 'https://val.vtecostudies.org/help/';
 const config = {
@@ -1645,7 +1645,7 @@ vtFishes: { //Checklist of Vermont Fishes
   occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
   columns: columns,
   columNames: columNames,
-  drillRanks: ['CLASS', ...drillRanks], //GBIF backbone has no Actinopterygii, so its count must be summed from the checklist's own sub-taxa
+  drillRanks: drillRanks,
   downloadOccurrenceCounts: 1,
   conservationStatusName: 'taxonSrank',
   mapSettings: {

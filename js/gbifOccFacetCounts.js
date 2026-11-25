@@ -53,6 +53,33 @@ export async function getListSubTaxonKeys(fileConfig, higherTaxonKey) {
     return getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey);
 }
 /*
+    The one decision every occurrence-count path makes before drilling into a species-list taxon's sub-taxa.
+
+    Drill when:
+    - the taxon's rank is in the atlas's drillRanks (the low ranks, where drilling is cheap), or
+    - GBIF's backbone has no match for it (vtFishes Actinopterygii, VAL Teleostei, Capparales), or
+    - its backbone key has no records in the atlas (VAL Reptilia: an empty backbone stub).
+    Otherwise GBIF's own hierarchical count for the taxon stands, and we do not look beneath it.
+    That is what keeps a taxon like Plantae - matched, with records - from walking its whole subtree.
+
+    The zero check is one small count query for the taxon's own backbone key, cached like any other.
+    A refused query (total null) is not a zero: we do not drill on an unknown.
+
+    Whatever the reason, getListSubTaxonKeysByFilter refuses subtrees larger than DRILL_MAX_TAXA.
+*/
+export async function getDrillSubTaxonKeys(fileConfig, self, nub) {
+    let why = '';
+    if (fileConfig.dataConfig.drillRanks.includes(self.rank)) {why = `rank ${self.rank}`;}
+    else if (!nub) {why = 'no backbone match';}
+    else {
+        const own = await occQuery(fileConfig, {search:`taxonKey=${nub}`});
+        if (own.total === 0) {why = `backbone key ${nub} has no records`;}
+    }
+    if (!why) {return {keys:[], names:[]};}
+    console.log(`getDrillSubTaxonKeys(${self.key}) ${self.canonicalName ? self.canonicalName : self.scientificName}: drilling because ${why}`);
+    return getListSubTaxonKeys(fileConfig, self.key);
+}
+/*
     ---------------------------------------------------------------------------
     GBIF nubKey workaround. DELETE THIS BLOCK, and its one call in
     getListSubTaxonKeysByFilter below, when GBIF populates nubKey again.
@@ -105,33 +132,49 @@ async function matchNubKey(res) {
     return nub;
 }
 /*
-    Drill down one rank at a time, and only as far as GBIF's backbone needs.
+    Find the backbone keys whose occurrences make up a species-list taxon, as GBIF does not already count them.
 
-    Take the species-list taxon's direct children. Each child GBIF can match contributes its backbone
-    key, and that key's occurrence count is already hierarchical, so nothing below it is needed.
-    Only the children GBIF cannot match are drilled into, one more rank down, and so on.
-    At every taxon visited, its synonyms' backbone keys are added too: a name we list as a synonym is
-    often the name GBIF files the records under (Micropterus nigricans has 0 under its own name,
-    293 in Vermont under its synonym M. salmoides).
+    Walk our list's whole subtree, top down. Every descendant (and every synonym, since GBIF often files
+    records under the name we list as a synonym) that GBIF can match is a candidate. A candidate is added
+    only if GBIF's backbone does not already place it under a key we hold - the taxon's own backbone key,
+    or a key added higher up the walk. GBIF's counts are hierarchical, so those are already counted.
 
-    The old approach returned every descendant at every rank. For vtFishes Actinopterygii (no class
-    in GBIF's backbone) that was 219 taxonKeys in one occurrence query, which GBIF rejects. One rank
-    down it is 18 orders, all matched, with the same 14,340 Vermont occurrences.
+    What gets added, then, is exactly where our classification and GBIF's disagree:
+    - vtFishes Actinopterygii (no class in GBIF's backbone): its 18 orders, and nothing below them unless
+      GBIF files a genus or species under some other order.
+    - a genus whose species GBIF knows only under older names: those names, via our synonyms.
+    - a homonym (our genus matched to GBIF's same-named taxon elsewhere): its species, from where GBIF has them.
 
-    Limitation: a child that matches the backbone is trusted. If our classification and GBIF's place it
-    differently (a homonym, say), its count is GBIF's for that key, and we do not look beneath it.
+    Extra keys never double count - the occurrence query ORs them - they only lengthen the query, which GBIF
+    rejects past a couple of hundred keys. So the 'already counted' test is about query size, not correctness.
 
-    One species search returns the whole subtree. Accepted usages link to their parent by parentKey,
-    synonyms to their accepted name by acceptedKey (a synonym's parentKey is not reliable), and the
-    walk is done in memory.
+    Cost: one species search for the subtree, plus one backbone parents lookup per matched descendant,
+    memoized for the page session and run 20 at a time. Subtrees over DRILL_MAX_TAXA are refused outright.
+    Callers should decide whether to drill at all with getDrillSubTaxonKeys, above.
 
     If an Atlas speciesFilter is defined by higherTaxonKeys, those are removed from the search, because
     duplicate http query params are treated as ORs. The search item itself constrains the taxonomic scope.
 */
+export const DRILL_MAX_TAXA = 500; //largest real drill so far: VAL Pseudomonadota, 447 descendants. A walk costs up to one request per descendant.
+const boneAncestry = new Map(); //memo of backbone key => Set of that key and its backbone ancestors' keys. Lives for the page session.
+async function getBoneAncestry(nub) {
+    if (!boneAncestry.has(nub)) {
+        const parents = await (await fetch(`${gbifApi}/species/${nub}/parents`)).json();
+        if (!Array.isArray(parents)) {throw new Error(`species/${nub}/parents returned no array`);} //never memoize a refused request
+        boneAncestry.set(nub, new Set([nub, ...parents.map(p => p.key)]));
+    }
+    return boneAncestry.get(nub);
+}
+async function inBatches(items, fn, size=20) { //run fn over items 20 at a time, so a large rank does not invite GBIF 429s
+    let out = [];
+    for (let i = 0; i < items.length; i += size) {
+        out.push(...await Promise.all(items.slice(i, i + size).map(fn)));
+    }
+    return out;
+}
 export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey) {
     const nubs = [];
     const name = [];
-    const add = (nub, res) => {if (!nubs.includes(nub)) {nubs.push(nub); name.push(res.canonicalName);}}; //a synonym often resolves to a key we already hold
     let enc = '';
     try {
         let fixedFilter = speciesFilter.split('&').filter(ele => !ele.includes('higherTaxonKey')).join('&');
@@ -139,50 +182,49 @@ export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey)
         for (let offset = 0, end = false; !end; offset += 1000) {
             enc = encodeURI(`${gbifApi}/species/search?${fixedFilter}&higherTaxonKey=${higherTaxonKey}&limit=1000&offset=${offset}`);
             const json = await (await fetch(enc)).json();
+            if (json.count > DRILL_MAX_TAXA) { //the scope limit: never walk a subtree this size, whatever asked for it
+                console.warn(`getListSubTaxonKeys(${higherTaxonKey}): ${json.count} descendants exceeds DRILL_MAX_TAXA (${DRILL_MAX_TAXA}) - not drilling`);
+                return {'keys':[], 'names':[], 'query':enc, 'skipped':json.count};
+            }
             rslt = rslt.concat(json.results ? json.results : []);
             end = json.endOfRecords !== false;
         }
         const kidsOf = new Map(); //accepted usage key => its accepted children
-        const synsOf = new Map(); //accepted usage key => its synonyms
+        const synsOf = new Map(); //accepted usage key => its synonyms (a synonym's parentKey is not reliable; acceptedKey is)
         for (const res of rslt) {
             const [map, key] = res.acceptedKey ? [synsOf, res.acceptedKey] : [kidsOf, res.parentKey];
             if (!map.has(key)) {map.set(key, []);}
             map.get(key).push(res);
         }
-        /*
-            WORKAROUND: fall back to GBIF's own matcher for any usage GBIF indexed without a nubKey.
-            Resolved 20 at a time so a large unmatched rank does not invite GBIF 429s.
-            Delete matchNubKey (not the loop) when GBIF populates nubKey again.
-        */
-        const resolve = async (usages) => {
-            let bone = [];
-            for (let i = 0; i < usages.length; i += 20) {
-                bone.push(...await Promise.all(usages.slice(i, i + 20).map(res => getNubKey(res))));
-            }
-            return bone;
-        };
-        const addSynonyms = async (key) => {
-            const syns = synsOf.get(key) || [];
-            const bone = await resolve(syns);
-            syns.forEach((res, idx) => {if (bone[idx]) {add(bone[idx], res);}});
-        };
+        //The taxon's own backbone key is the first 'held' key. Callers add it to the query themselves.
+        const held = new Set();
+        const self = await (await fetch(`${gbifApi}/species/${higherTaxonKey}`)).json();
+        const selfNub = self && self.key ? await getNubKey(self) : null;
+        if (selfNub) {held.add(selfNub);}
+
         let level = [higherTaxonKey];
         while (level.length) {
-            const unmatched = [];
+            //this rank's candidates: synonyms of the taxa we are standing on, and their accepted children
+            const cands = [];
+            const next = [];
             for (const key of level) {
-                await addSynonyms(key);
-                const kids = kidsOf.get(key) || [];
-                const bone = await resolve(kids);
-                for (const [idx, res] of kids.entries()) {
-                    if (bone[idx]) {
-                        add(bone[idx], res);
-                        await addSynonyms(res.key);
-                    } else {
-                        unmatched.push(res.key); //GBIF has no backbone taxon for this one: drill beneath it
-                    }
-                }
+                cands.push(...(synsOf.get(key) || []));
+                for (const kid of (kidsOf.get(key) || [])) {cands.push(kid); next.push(kid.key);}
             }
-            level = unmatched;
+            /*
+                WORKAROUND: getNubKey falls back to GBIF's own matcher for any usage GBIF indexed without a nubKey.
+                Delete matchNubKey (not this call) when GBIF populates nubKey again.
+            */
+            const bone = await inBatches(cands, res => getNubKey(res));
+            const matched = cands.map((res, idx) => [res, bone[idx]]).filter(([res, nub]) => nub && !held.has(nub));
+            const lineage = await inBatches(matched, ([res, nub]) => getBoneAncestry(nub));
+            matched.forEach(([res, nub], idx) => {
+                if ([...lineage[idx]].some(key => held.has(key))) {return;} //GBIF already counts this under a key we hold
+                held.add(nub);
+                nubs.push(nub);
+                name.push(res.canonicalName);
+            });
+            level = next; //walk all the way down: a deeper taxon may sit somewhere else in GBIF's backbone
         }
         console.log(`getListSubTaxonKeys(${speciesFilter}, ${higherTaxonKey})`, nubs, name);
         return {'keys':nubs, 'names':name, 'query':enc};
