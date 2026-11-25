@@ -1618,6 +1618,133 @@ vtBirds: { //Checklist of Vermont Birds
     ]
   }
 },
+vtFishes: { //Checklist of Vermont Fishes
+  atlasPlace: 'Vermont Fishes',
+  atlasName: 'VT Fishes',
+  atlasAbbrev: 'VF', //very short abbreviation for eg. stats above phenology charts
+  atlasAdmin: 'VT', //the administrative governing region that sets regional species listing
+  helpDeskUrl: helpDeskUrl,
+  helpWidgetId: 62000000631,
+  thisUrl: thisUrl,
+  hostUrl: hostUrl,
+  homeUrl: homeUrl,
+  exploreUrl: exploreUrl,
+  resultsUrl: resultsUrl,
+  profileUrl: profileUrl,
+  literatUrl: literatUrl,
+  publishUrl: publishUrl,
+  gbifPortal: false,
+  inatProject: 'inaturalist-vermont',
+  inatPlaceId: 47, //this used to query iNat observers
+  gbifApi: gbifApi,
+  gadmGid: 'USA.46_1', //leave blank if N/A
+  speciesDatasetKey: 'a26b4ca8-8d38-4acc-b0a6-ff5c39d6acc2',
+  speciesFilter: 'datasetKey=a26b4ca8-8d38-4acc-b0a6-ff5c39d6acc2',
+  publishingOrgKey: false,
+  literatureFilters: [],
+  occurrenceFilter: 'gadm_gid=USA.46_1', //leave blank if scope is world - this is used in speciesExplorer for each taxonKey - it can be geographic limit or a publishingOrg
+  columns: columns,
+  columNames: columNames,
+  drillRanks: drillRanks,
+  downloadOccurrenceCounts: 1,
+  conservationStatusName: 'taxonSrank',
+  mapSettings: {
+    lat: 43.858297,
+    lng: -72.446594,
+    zoom: 7.75
+  },
+  rootRank: 'CLASS', //the starting view in the species explorer. Checklist classes are Actinopterygii and Petromyzonti.
+  rootPredicate: { //constrains views of occurrences in GBIF data widget
+    //GBIF backbone has no class Actinopterygii - its orders sit directly under Chordata - so ray-finned fishes are listed by order.
+    type: 'or', //currently the only supported type
+    predicates: [
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "gadmGid",
+            "value": "USA.46_1"
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "494", //Amiiformes
+              "1167", //Lepisosteiformes
+              "1103", //Acipenseriformes
+              "549", //Gadiformes
+              "548", //Esociformes
+              "587", //Perciformes
+              "1310", //Percopsiformes
+              "547", //Cyprinodontiformes
+              "495", //Anguilliformes
+              "538", //Clupeiformes
+              "1069", //Osteoglossiformes
+              "1313", //Salmoniformes
+              "708", //Siluriformes
+              "550", //Gasterosteiformes
+              "1068", //Osmeriformes
+              "496", //Atheriniformes
+              "1153", //Cypriniformes
+              "590", //Scorpaeniformes
+              "11881065" //Class~Petromyzonti (lampreys)
+            ]
+          }
+        ]
+      },
+      {
+        "type": "and",
+        "predicates": [
+          {
+            "type": "equals",
+            "key": "country",
+            "value": "US"
+          },
+          {
+            "type": "in",
+            "key": "stateProvince", // state province is a free text field, but this is a good start I would think
+            "values": [
+              "Vermont",
+              "vermont",
+              "Vermont (state)"
+            ]
+          },
+          {
+            "type": "equals",
+            "key": "hasCoordinate",
+            "value": false
+          },
+          {
+            "type": "in",
+            "key": "taxonKey",
+            "values": [
+              "494", //Amiiformes
+              "1167", //Lepisosteiformes
+              "1103", //Acipenseriformes
+              "549", //Gadiformes
+              "548", //Esociformes
+              "587", //Perciformes
+              "1310", //Percopsiformes
+              "547", //Cyprinodontiformes
+              "495", //Anguilliformes
+              "538", //Clupeiformes
+              "1069", //Osteoglossiformes
+              "1313", //Salmoniformes
+              "708", //Siluriformes
+              "550", //Gasterosteiformes
+              "1068", //Osmeriformes
+              "496", //Atheriniformes
+              "1153", //Cypriniformes
+              "590", //Scorpaeniformes
+              "11881065" //Class~Petromyzonti (lampreys)
+            ]
+          }
+        ]
+      }
+    ]
+  }
+},
 cSWGBees: { //Checklist of cSWG SGCN Bees
   atlasPlace: 'cSWG SGCN Bees',
   atlasName: 'cSWG Bees',
