@@ -64,7 +64,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0, siteName=false) {
         d.month1 = Array.isArray(d.month) ? (2 == d.month.length ? +d.month[1] : 0) : 0; 
         d.month = Array.isArray(d.month) ? +d.month[0] : +d.month;
         d.count = +d.count;
-        d.percent = +(d.count/pheno.total)*100;
+        d.percent = pheno.total ? +(d.count/pheno.total)*100 : 0; //no records: an empty chart, not NaN bars
         d.percent = +d.percent.toFixed(2); //converts to string!?
         d.display = +d.percent; //this value drives the bar chart's display, below
         //yMax = d.display > yMax ? d.display : yMax;
@@ -113,7 +113,7 @@ function createChart(htmlId='chart', pheno, searchTerm=0, siteName=false) {
     // Scale the range of the data
     xW.domain(data.map(d => d.week));
     xM.domain(data.map(d => d.month));
-    y.domain([0, d3.max(data, d => d.display)]);
+    y.domain([0, d3.max(data, d => d.display) || 1]); //a zero max would collapse the scale
     //xD.domain(doy.map(d => d.doy));
     
     // Add the weeks X Axis

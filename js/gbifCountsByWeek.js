@@ -1,4 +1,4 @@
-import { getListSubTaxonKeysByFilter, getNubKey } from "./gbifOccFacetCounts.js";
+import { getDrillSubTaxonKeys, getNubKey } from "./gbifOccFacetCounts.js";
 import { occQuery } from "./gbifOccQuery.js";
 import { cacheThrough } from "./gbifCache.js";
 import { getGbifTaxonFromKey, getGbifTaxonKeyFromName } from "./fetchGbifSpecies.js";
@@ -51,28 +51,19 @@ export async function getStoredPhenology(searchTerm, geoSearch) {
     );
 }
 export async function gbifCountsByWeekByListTaxonKey(taxonKey, fileConfig) {
-    let speciesFilter = fileConfig.dataConfig.speciesFilter;
     let geoSearchA = fileConfig.predicateToQueries(fileConfig.dataConfig.rootPredicate, true);
-    let drillRanks = fileConfig.dataConfig.drillRanks;
-    return await gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks);
-}
-export async function gbifCountsByWeekByListKeyByFilters(taxonKey, speciesFilter, geoSearchA, drillRanks=['GENUS', 'SPECIES']) {
     let self = await getGbifTaxonFromKey(taxonKey); //retrieve species info for species-list taxonKey - to get nubKey for below
     let nub = await getNubKey(self); //WORKAROUND: self.nubKey is null for most kingdoms since the COL XR republication. See gbifOccFacetCounts.js.
     let srch = `taxonKey=${nub ? nub : taxonKey}`;
-    let subs = {keys:[], names:[]};
-    if (drillRanks.includes(self.rank)) { //only drill-down lower ranks
-        subs = await getListSubTaxonKeysByFilter(speciesFilter, taxonKey); //get sub-nubKeys of species-list key
-        for (const key of subs.keys) {
-            srch += `&taxonKey=${key}`; //add sub-nubKeys to searchTerm to be used by fetchAll
-        }
+    let subs = await getDrillSubTaxonKeys(fileConfig, self, nub); //empty unless this taxon needs a drill-down - see gbifOccFacetCounts.js
+    for (const key of subs.keys) {
+        srch += `&taxonKey=${key}`; //add sub-nubKeys to searchTerm to be used by fetchAll
     }
-    console.log(`gbifCountsByWeekByListKeyByFilters(${taxonKey}) | self-nubKey:`, nub, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
-    
-    //let res = await fetchAll(srch, geoSearchA);
+    console.log(`gbifCountsByWeekByListTaxonKey(${taxonKey}) | self-nubKey:`, nub, 'sub-nubKeys:', subs.keys, 'searchTerm:', srch);
+
     let res = await getStoredPhenology(srch, geoSearchA);
     res.nubKey = nub;
-    res.keys = subs.keys.push(nub); //add self nubKey to array of keys for species-list key
+    res.keys = nub ? [...subs.keys, nub] : subs.keys; //sub-nubKeys plus self nubKey for species-list key
     res.names = subs.names;
     res.search = srch; //return our enhanced searchTerm for caller to use
     return res;

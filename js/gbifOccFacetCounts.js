@@ -6,6 +6,7 @@ is cleared when the page session ends. Whenever a document is loaded in a partic
 created and assigned to that particular tab.
 */
 import { occQuery } from "./gbifOccQuery.js";
+import { gbifFetchJson } from "./gbifFetch.js";
 
 const gbifApi = "https://api.gbif.org/v1";
 
@@ -116,7 +117,7 @@ async function matchNubKey(res) {
         let prm = new URLSearchParams({'name': res.scientificName ? res.scientificName : res.canonicalName});
         if (res.rank) {prm.set('rank', res.rank);}
         if (res.kingdom) {prm.set('kingdom', res.kingdom);} //a COL-only kingdom name only lowers confidence, it does not break the match
-        let mch = await (await fetch(`${gbifApi}/species/match?${prm}`)).json();
+        let mch = await gbifFetchJson(`${gbifApi}/species/match?${prm}`);
         /*
             Two matches we MUST refuse, both verified against the live api:
             - usageKey 0 is 'incertae sedis'. It matches EXACT at confidence 98 but is not a backbone taxon.
@@ -159,7 +160,7 @@ export const DRILL_MAX_TAXA = 500; //largest real drill so far: VAL Pseudomonado
 const boneAncestry = new Map(); //memo of backbone key => Set of that key and its backbone ancestors' keys. Lives for the page session.
 async function getBoneAncestry(nub) {
     if (!boneAncestry.has(nub)) {
-        const parents = await (await fetch(`${gbifApi}/species/${nub}/parents`)).json();
+        const parents = await gbifFetchJson(`${gbifApi}/species/${nub}/parents`);
         if (!Array.isArray(parents)) {throw new Error(`species/${nub}/parents returned no array`);} //never memoize a refused request
         boneAncestry.set(nub, new Set([nub, ...parents.map(p => p.key)]));
     }
@@ -181,12 +182,13 @@ export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey)
         let rslt = [];
         for (let offset = 0, end = false; !end; offset += 1000) {
             enc = encodeURI(`${gbifApi}/species/search?${fixedFilter}&higherTaxonKey=${higherTaxonKey}&limit=1000&offset=${offset}`);
-            const json = await (await fetch(enc)).json();
+            const json = await gbifFetchJson(enc); //retries a 429, and throws rather than hand back a refusal as 'no sub-taxa'
+            if (!Array.isArray(json.results)) {throw new Error(`species search returned no results array: ${enc}`);}
             if (json.count > DRILL_MAX_TAXA) { //the scope limit: never walk a subtree this size, whatever asked for it
                 console.warn(`getListSubTaxonKeys(${higherTaxonKey}): ${json.count} descendants exceeds DRILL_MAX_TAXA (${DRILL_MAX_TAXA}) - not drilling`);
                 return {'keys':[], 'names':[], 'query':enc, 'skipped':json.count};
             }
-            rslt = rslt.concat(json.results ? json.results : []);
+            rslt = rslt.concat(json.results);
             end = json.endOfRecords !== false;
         }
         const kidsOf = new Map(); //accepted usage key => its accepted children
@@ -198,7 +200,7 @@ export async function getListSubTaxonKeysByFilter(speciesFilter, higherTaxonKey)
         }
         //The taxon's own backbone key is the first 'held' key. Callers add it to the query themselves.
         const held = new Set();
-        const self = await (await fetch(`${gbifApi}/species/${higherTaxonKey}`)).json();
+        const self = await gbifFetchJson(`${gbifApi}/species/${higherTaxonKey}`);
         const selfNub = self && self.key ? await getNubKey(self) : null;
         if (selfNub) {held.add(selfNub);}
 
